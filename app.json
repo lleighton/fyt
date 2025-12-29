@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fyt.app",
+      "bundleIdentifier": "com.it.fyt",
       "infoPlist": {
         "NSCameraUsageDescription": "fyt needs camera access to record workout proof videos.",
         "NSPhotoLibraryUsageDescription": "fyt needs photo library access to upload workout proof.",
@@ -29,7 +29,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.fyt.app",
+      "package": "com.it.fyt",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_CONTACTS",
