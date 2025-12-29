@@ -1,0 +1,1 @@
+{"version":3,"names":["I18nManager","allowRTL","forceRTL","getConstants","isRTL"],"sources":["../../../src/I18nManager/index.tsx"],"sourcesContent":[null],"mappings":"AAoBO,MAAMA,WAAA,GAAiC;EAC5CC,SAAA,EAAW,CAEX;EACAC,SAAA,EAAW,CAEX;EACAC,aAAA,EAA0B;IACxB,OAAO;MAAEC,KAAA,EAAO;IAAM;EACxB;AACF","ignoreList":[]}

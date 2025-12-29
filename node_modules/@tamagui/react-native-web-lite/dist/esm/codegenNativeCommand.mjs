@@ -1,0 +1,5 @@
+function codegenNativeCommand() {
+  return console.warn("codegenNativeCommand on web is a no-op"), {};
+}
+export { codegenNativeCommand };
+//# sourceMappingURL=codegenNativeCommand.mjs.map

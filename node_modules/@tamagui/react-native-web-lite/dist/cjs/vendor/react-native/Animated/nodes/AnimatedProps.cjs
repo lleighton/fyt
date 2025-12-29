@@ -1,0 +1,110 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var AnimatedProps_exports = {};
+__export(AnimatedProps_exports, {
+  AnimatedProps: () => AnimatedProps,
+  default: () => AnimatedProps_default
+});
+module.exports = __toCommonJS(AnimatedProps_exports);
+var import_AnimatedEvent = require("../AnimatedEvent.cjs"),
+  import_AnimatedNode = require("./AnimatedNode.cjs"),
+  import_AnimatedStyle = require("./AnimatedStyle.cjs"),
+  import_NativeAnimatedHelper = require("../NativeAnimatedHelper.cjs"),
+  import_react_native_web_internals = require("@tamagui/react-native-web-internals");
+class AnimatedProps extends import_AnimatedNode.AnimatedNode {
+  constructor(props, callback) {
+    super(), props.style && (props = {
+      ...props,
+      style: new import_AnimatedStyle.AnimatedStyle(props.style)
+    }), this._props = props, this._callback = callback, this.__attach();
+  }
+  __getValue() {
+    const props = {};
+    for (const key in this._props) {
+      const value = this._props[key];
+      value instanceof import_AnimatedNode.AnimatedNode ? (!value.__isNative || value instanceof import_AnimatedStyle.AnimatedStyle) && (props[key] = value.__getValue()) : value instanceof import_AnimatedEvent.AnimatedEvent ? props[key] = value.__getHandler() : props[key] = value;
+    }
+    return props;
+  }
+  __getAnimatedValue() {
+    const props = {};
+    for (const key in this._props) {
+      const value = this._props[key];
+      value instanceof import_AnimatedNode.AnimatedNode && (props[key] = value.__getAnimatedValue());
+    }
+    return props;
+  }
+  __attach() {
+    for (const key in this._props) {
+      const value = this._props[key];
+      value instanceof import_AnimatedNode.AnimatedNode && value.__addChild(this);
+    }
+  }
+  __detach() {
+    this.__isNative && this._animatedView && this.__disconnectAnimatedView();
+    for (const key in this._props) {
+      const value = this._props[key];
+      value instanceof import_AnimatedNode.AnimatedNode && value.__removeChild(this);
+    }
+    super.__detach();
+  }
+  update() {
+    this._callback();
+  }
+  __makeNative() {
+    if (!this.__isNative) {
+      this.__isNative = !0;
+      for (const key in this._props) {
+        const value = this._props[key];
+        value instanceof import_AnimatedNode.AnimatedNode && value.__makeNative();
+      }
+      this._animatedView && this.__connectAnimatedView();
+    }
+  }
+  setNativeView(animatedView) {
+    this._animatedView !== animatedView && (this._animatedView = animatedView, this.__isNative && this.__connectAnimatedView());
+  }
+  __connectAnimatedView() {
+    (0, import_react_native_web_internals.invariant)(this.__isNative, 'Expected node to be marked as "native"');
+    const nativeViewTag = this._animatedView;
+    (0, import_react_native_web_internals.invariant)(nativeViewTag != null, "Unable to locate attached view in the native tree"), import_NativeAnimatedHelper.NativeAnimatedHelper.API.connectAnimatedNodeToView(this.__getNativeTag(), nativeViewTag);
+  }
+  __disconnectAnimatedView() {
+    (0, import_react_native_web_internals.invariant)(this.__isNative, 'Expected node to be marked as "native"');
+    const nativeViewTag = this._animatedView;
+    (0, import_react_native_web_internals.invariant)(nativeViewTag != null, "Unable to locate attached view in the native tree"), import_NativeAnimatedHelper.NativeAnimatedHelper.API.disconnectAnimatedNodeFromView(this.__getNativeTag(), nativeViewTag);
+  }
+  __restoreDefaultValues() {
+    this.__isNative && import_NativeAnimatedHelper.NativeAnimatedHelper.API.restoreDefaultValues(this.__getNativeTag());
+  }
+  __getNativeConfig() {
+    const propsConfig = {};
+    for (const propKey in this._props) {
+      const value = this._props[propKey];
+      value instanceof import_AnimatedNode.AnimatedNode && (value.__makeNative(), propsConfig[propKey] = value.__getNativeTag());
+    }
+    return {
+      type: "props",
+      props: propsConfig
+    };
+  }
+}
+var AnimatedProps_default = AnimatedProps;

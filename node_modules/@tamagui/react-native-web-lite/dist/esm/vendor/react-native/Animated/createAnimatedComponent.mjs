@@ -1,0 +1,27 @@
+import { useAnimatedProps } from "./useAnimatedProps.mjs";
+import { useMergeRefs } from "../Utilities/useMergeRefs.mjs";
+import * as React from "react";
+import { jsx } from "react/jsx-runtime";
+function createAnimatedComponent(Component) {
+  return React.forwardRef((props, forwardedRef) => {
+    const [reducedProps, callbackRef] = useAnimatedProps(props),
+      ref = useMergeRefs(callbackRef, forwardedRef),
+      {
+        passthroughAnimatedPropExplicitValues,
+        style
+      } = reducedProps,
+      {
+        style: passthroughStyle,
+        ...passthroughProps
+      } = passthroughAnimatedPropExplicitValues ?? {};
+    return /* @__PURE__ */jsx(Component, {
+      ...reducedProps,
+      ...passthroughProps,
+      style: [style, passthroughStyle],
+      ref
+    });
+  });
+}
+var createAnimatedComponent_default = createAnimatedComponent;
+export { createAnimatedComponent, createAnimatedComponent_default as default };
+//# sourceMappingURL=createAnimatedComponent.mjs.map

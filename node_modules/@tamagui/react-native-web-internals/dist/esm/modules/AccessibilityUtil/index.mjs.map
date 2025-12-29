@@ -1,0 +1,1 @@
+{"version":3,"names":["isDisabled","propsToAccessibilityComponent","propsToAriaRole","AccessibilityUtil"],"sources":["../../../../src/modules/AccessibilityUtil/index.tsx"],"sourcesContent":[null],"mappings":"AASA,SAASA,UAAA,QAAkB;AAC3B,SAASC,6BAAA,QAAqC;AAC9C,SAASC,eAAA,QAAuB;AAEzB,MAAMC,iBAAA,GAAoB;EAC/BH,UAAA;EACAC,6BAAA;EACAC;AACF","ignoreList":[]}

@@ -1,0 +1,54 @@
+function stiffnessFromOrigamiValue(oValue) {
+  return (oValue - 30) * 3.62 + 194;
+}
+function dampingFromOrigamiValue(oValue) {
+  return (oValue - 8) * 3 + 25;
+}
+function fromOrigamiTensionAndFriction(tension, friction) {
+  return {
+    stiffness: stiffnessFromOrigamiValue(tension),
+    damping: dampingFromOrigamiValue(friction)
+  };
+}
+function fromBouncinessAndSpeed(bounciness, speed) {
+  function normalize(value, startValue, endValue) {
+    return (value - startValue) / (endValue - startValue);
+  }
+  function projectNormal(n, start, end) {
+    return start + n * (end - start);
+  }
+  function linearInterpolation(t, start, end) {
+    return t * end + (1 - t) * start;
+  }
+  function quadraticOutInterpolation(t, start, end) {
+    return linearInterpolation(2 * t - t * t, start, end);
+  }
+  function b3Friction1(x) {
+    return 7e-4 * x ** 3 - 0.031 * x ** 2 + 0.64 * x + 1.28;
+  }
+  function b3Friction2(x) {
+    return 44e-6 * x ** 3 - 6e-3 * x ** 2 + 0.36 * x + 2;
+  }
+  function b3Friction3(x) {
+    return 45e-8 * x ** 3 - 332e-6 * x ** 2 + 0.1078 * x + 5.84;
+  }
+  function b3Nobounce(tension) {
+    return tension <= 18 ? b3Friction1(tension) : tension > 18 && tension <= 44 ? b3Friction2(tension) : b3Friction3(tension);
+  }
+  let b = normalize(bounciness / 1.7, 0, 20);
+  b = projectNormal(b, 0, 0.8);
+  const s = normalize(speed / 1.7, 0, 20),
+    bouncyTension = projectNormal(s, 0.5, 200),
+    bouncyFriction = quadraticOutInterpolation(b, b3Nobounce(bouncyTension), 0.01);
+  return {
+    stiffness: stiffnessFromOrigamiValue(bouncyTension),
+    damping: dampingFromOrigamiValue(bouncyFriction)
+  };
+}
+const SpringConfig = {
+  fromOrigamiTensionAndFriction,
+  fromBouncinessAndSpeed
+};
+var SpringConfig_default = SpringConfig;
+export { SpringConfig, SpringConfig_default as default };
+//# sourceMappingURL=SpringConfig.mjs.map

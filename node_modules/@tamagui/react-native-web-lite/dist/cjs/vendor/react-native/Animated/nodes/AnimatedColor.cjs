@@ -1,0 +1,191 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var AnimatedColor_exports = {};
+__export(AnimatedColor_exports, {
+  AnimatedColor: () => AnimatedColor,
+  default: () => AnimatedColor_default
+});
+module.exports = __toCommonJS(AnimatedColor_exports);
+var import_AnimatedValue = require("./AnimatedValue.cjs"),
+  import_AnimatedWithChildren = require("./AnimatedWithChildren.cjs"),
+  import_react_native_web_internals = require("@tamagui/react-native-web-internals"),
+  import_NativeAnimatedHelper = require("../NativeAnimatedHelper.cjs");
+const NativeAnimatedAPI = import_NativeAnimatedHelper.NativeAnimatedHelper.API,
+  defaultColor = {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 1
+  };
+let _uniqueId = 1;
+const processColorObject = color => color;
+function processColor(color) {
+  if (color == null) return null;
+  if (isRgbaValue(color)) return color;
+  let normalizedColor = (0, import_react_native_web_internals.normalizeColor)(color);
+  if (normalizedColor == null) return null;
+  if (typeof normalizedColor == "object") {
+    const processedColorObj = processColorObject(normalizedColor);
+    if (processedColorObj != null) return processedColorObj;
+  } else if (typeof normalizedColor == "number") {
+    const r = (normalizedColor & 4278190080) >>> 24,
+      g = (normalizedColor & 16711680) >>> 16,
+      b = (normalizedColor & 65280) >>> 8,
+      a = (normalizedColor & 255) / 255;
+    return {
+      r,
+      g,
+      b,
+      a
+    };
+  }
+  return null;
+}
+function isRgbaValue(value) {
+  return value && typeof value.r == "number" && typeof value.g == "number" && typeof value.b == "number" && typeof value.a == "number";
+}
+function isRgbaAnimatedValue(value) {
+  return value && value.r instanceof import_AnimatedValue.AnimatedValue && value.g instanceof import_AnimatedValue.AnimatedValue && value.b instanceof import_AnimatedValue.AnimatedValue && value.a instanceof import_AnimatedValue.AnimatedValue;
+}
+class AnimatedColor extends import_AnimatedWithChildren.AnimatedWithChildren {
+  constructor(valueIn, config) {
+    super(), this._listeners = {};
+    let value = valueIn ?? defaultColor;
+    if (isRgbaAnimatedValue(value)) {
+      const rgbaAnimatedValue = value;
+      this.r = rgbaAnimatedValue.r, this.g = rgbaAnimatedValue.g, this.b = rgbaAnimatedValue.b, this.a = rgbaAnimatedValue.a;
+    } else {
+      const processedColor = processColor(value) ?? defaultColor;
+      let initColor = defaultColor;
+      isRgbaValue(processedColor) ? initColor = processedColor : this.nativeColor = processedColor, this.r = new import_AnimatedValue.AnimatedValue(initColor.r), this.g = new import_AnimatedValue.AnimatedValue(initColor.g), this.b = new import_AnimatedValue.AnimatedValue(initColor.b), this.a = new import_AnimatedValue.AnimatedValue(initColor.a);
+    }
+    (this.nativeColor || config && config.useNativeDriver) && this.__makeNative();
+  }
+  /**
+   * Directly set the value. This will stop any animations running on the value
+   * and update all the bound properties.
+   */
+  setValue(value) {
+    let shouldUpdateNodeConfig = !1;
+    if (this.__isNative) {
+      const nativeTag = this.__getNativeTag();
+      NativeAnimatedAPI.setWaitingForIdentifier(nativeTag.toString());
+    }
+    const processedColor = processColor(value) ?? defaultColor;
+    if (isRgbaValue(processedColor)) {
+      const rgbaValue = processedColor;
+      this.r.setValue(rgbaValue.r), this.g.setValue(rgbaValue.g), this.b.setValue(rgbaValue.b), this.a.setValue(rgbaValue.a), this.nativeColor != null && (this.nativeColor = null, shouldUpdateNodeConfig = !0);
+    } else {
+      const nativeColor = processedColor;
+      this.nativeColor !== nativeColor && (this.nativeColor = nativeColor, shouldUpdateNodeConfig = !0);
+    }
+    if (this.__isNative) {
+      const nativeTag = this.__getNativeTag();
+      shouldUpdateNodeConfig && NativeAnimatedAPI.updateAnimatedNodeConfig(nativeTag, this.__getNativeConfig()), NativeAnimatedAPI.unsetWaitingForIdentifier(nativeTag.toString());
+    }
+  }
+  /**
+   * Sets an offset that is applied on top of whatever value is set, whether
+   * via `setValue`, an animation, or `Animated.event`. Useful for compensating
+   * things like the start of a pan gesture.
+   */
+  setOffset(offset) {
+    this.r.setOffset(offset.r), this.g.setOffset(offset.g), this.b.setOffset(offset.b), this.a.setOffset(offset.a);
+  }
+  /**
+   * Merges the offset value into the base value and resets the offset to zero.
+   * The final output of the value is unchanged.
+   */
+  flattenOffset() {
+    this.r.flattenOffset(), this.g.flattenOffset(), this.b.flattenOffset(), this.a.flattenOffset();
+  }
+  /**
+   * Sets the offset value to the base value, and resets the base value to
+   * zero. The final output of the value is unchanged.
+   */
+  extractOffset() {
+    this.r.extractOffset(), this.g.extractOffset(), this.b.extractOffset(), this.a.extractOffset();
+  }
+  /**
+   * Adds an asynchronous listener to the value so you can observe updates from
+   * animations.  This is useful because there is no way to synchronously read
+   * the value because it might be driven natively.
+   *
+   * Returns a string that serves as an identifier for the listener.
+   */
+  addListener(callback) {
+    const id = String(_uniqueId++),
+      jointCallback = ({
+        value
+      }) => {
+        callback(this.__getValue());
+      };
+    return this._listeners[id] = {
+      r: this.r.addListener(jointCallback),
+      g: this.g.addListener(jointCallback),
+      b: this.b.addListener(jointCallback),
+      a: this.a.addListener(jointCallback)
+    }, id;
+  }
+  removeListener(id) {
+    this._listeners[id] && (this.r.removeListener(this._listeners[id].r), this.g.removeListener(this._listeners[id].g), this.b.removeListener(this._listeners[id].b), this.a.removeListener(this._listeners[id].a), delete this._listeners[id]);
+  }
+  removeAllListeners() {
+    this.r.removeAllListeners(), this.g.removeAllListeners(), this.b.removeAllListeners(), this.a.removeAllListeners(), this._listeners = {};
+  }
+  stopAnimation(callback) {
+    this.r.stopAnimation(), this.g.stopAnimation(), this.b.stopAnimation(), this.a.stopAnimation(), callback && callback(this.__getValue());
+  }
+  resetAnimation(callback) {
+    this.r.resetAnimation(), this.g.resetAnimation(), this.b.resetAnimation(), this.a.resetAnimation(), callback && callback(this.__getValue());
+  }
+  interpolate(config) {
+    throw new Error("Directly calling interpolate on an AnimatedColor is not supported. Call interpolate on the AnimatedColor.r/g/b/a values instead.");
+  }
+  __getValue() {
+    return this.nativeColor != null ? this.nativeColor : {
+      r: this.r.__getValue(),
+      g: this.g.__getValue(),
+      b: this.b.__getValue(),
+      a: this.a.__getValue()
+    };
+  }
+  __attach() {
+    this.r.__addChild(this), this.g.__addChild(this), this.b.__addChild(this), this.a.__addChild(this), super.__attach();
+  }
+  __detach() {
+    this.r.__removeChild(this), this.g.__removeChild(this), this.b.__removeChild(this), this.a.__removeChild(this), super.__detach();
+  }
+  __makeNative(platformConfig) {
+    this.r.__makeNative(platformConfig), this.g.__makeNative(platformConfig), this.b.__makeNative(platformConfig), this.a.__makeNative(platformConfig), super.__makeNative(platformConfig);
+  }
+  __getNativeConfig() {
+    return {
+      type: "color",
+      r: this.r.__getNativeTag(),
+      g: this.g.__getNativeTag(),
+      b: this.b.__getNativeTag(),
+      a: this.a.__getNativeTag(),
+      nativeColor: this.nativeColor
+    };
+  }
+}
+var AnimatedColor_default = AnimatedColor;

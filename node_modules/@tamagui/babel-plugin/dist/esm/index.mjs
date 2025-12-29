@@ -1,0 +1,4 @@
+import { getBabelPlugin } from "@tamagui/static-sync";
+var index_default = getBabelPlugin();
+export { index_default as default };
+//# sourceMappingURL=index.mjs.map

@@ -1,0 +1,16 @@
+import { enable, useElementLayout as useTamaguiElementLayout } from "@tamagui/use-element-layout";
+import { useEffect, useMemo } from "react";
+function useElementLayout(ref, onLayout) {
+  const wrappedRef = useMemo(() => ({
+    current: {
+      get host() {
+        return ref.current;
+      }
+    }
+  }), [ref]);
+  return useEffect(() => {
+    enable();
+  }, []), useTamaguiElementLayout(wrappedRef, onLayout);
+}
+export { useElementLayout };
+//# sourceMappingURL=index.mjs.map

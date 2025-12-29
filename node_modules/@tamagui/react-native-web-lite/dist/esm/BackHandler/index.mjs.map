@@ -1,0 +1,1 @@
+{"version":3,"names":["emptyFunction","BackHandler","exitApp","addEventListener","remove","removeEventListener"],"sources":["../../../src/BackHandler/index.tsx"],"sourcesContent":[null],"mappings":"AAUA,SAASA,cAAA,EAAgB,CAAC;AAEnB,MAAMC,WAAA,GAAc;EACzBC,OAAA,EAASF,aAAA;EACTG,iBAAA,EAEE;IACA,OAAO;MACLC,MAAA,EAAQJ;IACV;EACF;EACAK,mBAAA,EAAqBL;AACvB","ignoreList":[]}

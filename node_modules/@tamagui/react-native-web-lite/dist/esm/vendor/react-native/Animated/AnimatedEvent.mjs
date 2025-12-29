@@ -1,0 +1,86 @@
+import { AnimatedValue } from "./nodes/AnimatedValue.mjs";
+import { NativeAnimatedHelper } from "./NativeAnimatedHelper.mjs";
+import { invariant } from "@tamagui/react-native-web-internals";
+import { shouldUseNativeDriver } from "./NativeAnimatedHelper.mjs";
+const __DEV__ = process.env.NODE_ENV !== "production";
+function attachNativeEvent(viewRef, eventName, argMapping) {
+  const eventMappings = [],
+    traverse = (value, path) => {
+      if (value instanceof AnimatedValue) value.__makeNative(), eventMappings.push({
+        nativeEventPath: path,
+        animatedValueTag: value.__getNativeTag()
+      });else if (typeof value == "object") for (const key in value) traverse(value[key], path.concat(key));
+    };
+  return invariant(argMapping[0] && argMapping[0].nativeEvent, "Native driven events only support animated values contained inside `nativeEvent`."), traverse(argMapping[0].nativeEvent, []), viewRef != null && eventMappings.forEach(mapping => {
+    NativeAnimatedHelper.API.addAnimatedEventToView(viewRef, eventName, mapping);
+  }), {
+    detach() {
+      viewRef != null && eventMappings.forEach(mapping => {
+        NativeAnimatedHelper.API.removeAnimatedEventFromView(viewRef, eventName, mapping.animatedValueTag);
+      });
+    }
+  };
+}
+function validateMapping(argMapping, args) {
+  const validate = (recMapping, recEvt, key) => {
+    if (recMapping instanceof AnimatedValue) {
+      invariant(typeof recEvt == "number", "Bad mapping of event key " + key + ", should be number but got " + typeof recEvt);
+      return;
+    }
+    if (typeof recEvt == "number") {
+      invariant(recMapping instanceof AnimatedValue, "Bad mapping of type " + typeof recMapping + " for key " + key + ", event value must map to AnimatedValue");
+      return;
+    }
+    invariant(typeof recMapping == "object", "Bad mapping of type " + typeof recMapping + " for key " + key), invariant(typeof recEvt == "object", "Bad event of type " + typeof recEvt + " for key " + key);
+    for (const mappingKey in recMapping) validate(recMapping[mappingKey], recEvt[mappingKey], mappingKey);
+  };
+  invariant(args.length >= argMapping.length, "Event has less arguments than mapping"), argMapping.forEach((mapping, idx) => {
+    validate(mapping, args[idx], "arg" + idx);
+  });
+}
+class AnimatedEvent {
+  _argMapping;
+  _listeners = [];
+  _attachedEvent;
+  __isNative;
+  constructor(argMapping, config) {
+    this._argMapping = argMapping, config == null && (console.warn("Animated.event now requires a second argument for options"), config = {
+      useNativeDriver: !1
+    }), config.listener && this.__addListener(config.listener), this._callListeners = this._callListeners.bind(this), this._attachedEvent = null, this.__isNative = shouldUseNativeDriver(config);
+  }
+  __addListener(callback) {
+    this._listeners.push(callback);
+  }
+  __removeListener(callback) {
+    this._listeners = this._listeners.filter(listener => listener !== callback);
+  }
+  __attach(viewRef, eventName) {
+    invariant(this.__isNative, "Only native driven events need to be attached."), this._attachedEvent = attachNativeEvent(viewRef, eventName, this._argMapping);
+  }
+  __detach(viewTag, eventName) {
+    invariant(this.__isNative, "Only native driven events need to be detached."), this._attachedEvent && this._attachedEvent.detach();
+  }
+  __getHandler() {
+    if (this.__isNative) if (__DEV__) {
+      let validatedMapping2 = !1;
+      return (...args) => {
+        validatedMapping2 || (validateMapping(this._argMapping, args), validatedMapping2 = !0), this._callListeners(...args);
+      };
+    } else return this._callListeners;
+    let validatedMapping = !1;
+    return (...args) => {
+      __DEV__ && !validatedMapping && (validateMapping(this._argMapping, args), validatedMapping = !0);
+      const traverse = (recMapping, recEvt, key) => {
+        if (recMapping instanceof AnimatedValue) typeof recEvt == "number" && recMapping.setValue(recEvt);else if (typeof recMapping == "object") for (const mappingKey in recMapping) traverse(recMapping[mappingKey], recEvt[mappingKey], mappingKey);
+      };
+      this._argMapping.forEach((mapping, idx) => {
+        traverse(mapping, args[idx], "arg" + idx);
+      }), this._callListeners(...args);
+    };
+  }
+  _callListeners(...args) {
+    this._listeners.forEach(listener => listener(...args));
+  }
+}
+export { AnimatedEvent, attachNativeEvent };
+//# sourceMappingURL=AnimatedEvent.mjs.map

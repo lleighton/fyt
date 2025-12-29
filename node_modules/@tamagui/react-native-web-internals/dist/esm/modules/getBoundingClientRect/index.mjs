@@ -1,0 +1,5 @@
+const getBoundingClientRect = node => {
+  if (node != null && node.nodeType === 1 && typeof node.getBoundingClientRect == "function") return node.getBoundingClientRect();
+};
+export { getBoundingClientRect };
+//# sourceMappingURL=index.mjs.map

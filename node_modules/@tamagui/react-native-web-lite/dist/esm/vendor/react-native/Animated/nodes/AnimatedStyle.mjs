@@ -1,0 +1,80 @@
+import { AnimatedNode } from "./AnimatedNode.mjs";
+import { AnimatedTransform } from "./AnimatedTransform.mjs";
+import { AnimatedWithChildren } from "./AnimatedWithChildren.mjs";
+import { NativeAnimatedHelper } from "../NativeAnimatedHelper.mjs";
+import { StyleSheet } from "@tamagui/react-native-web-internals";
+const flattenStyle = StyleSheet.flatten;
+function createAnimatedStyle(inputStyle) {
+  const style = flattenStyle(inputStyle),
+    animatedStyles = {};
+  for (const key in style) {
+    const value = style[key];
+    key === "transform" && Array.isArray(value) ? animatedStyles[key] = new AnimatedTransform(value) : value instanceof AnimatedNode ? animatedStyles[key] = value : value && !Array.isArray(value) && typeof value == "object" && (animatedStyles[key] = createAnimatedStyle(value));
+  }
+  return animatedStyles;
+}
+class AnimatedStyle extends AnimatedWithChildren {
+  _inputStyle;
+  _style;
+  constructor(style) {
+    super(), this._inputStyle = style, this._style = createAnimatedStyle(style);
+  }
+  // Recursively get values for nested styles (like iOS's shadowOffset)
+  _walkStyleAndGetValues(style) {
+    const updatedStyle = {};
+    for (const key in style) {
+      const value = style[key];
+      value instanceof AnimatedNode ? value.__isNative || (updatedStyle[key] = value.__getValue()) : value && !Array.isArray(value) && typeof value == "object" ? updatedStyle[key] = this._walkStyleAndGetValues(value) : updatedStyle[key] = value;
+    }
+    return updatedStyle;
+  }
+  __getValue() {
+    return [this._inputStyle, this._walkStyleAndGetValues(this._style)];
+  }
+  // Recursively get animated values for nested styles (like iOS's shadowOffset)
+  _walkStyleAndGetAnimatedValues(style) {
+    const updatedStyle = {};
+    for (const key in style) {
+      const value = style[key];
+      value instanceof AnimatedNode ? updatedStyle[key] = value.__getAnimatedValue() : value && !Array.isArray(value) && typeof value == "object" && (updatedStyle[key] = this._walkStyleAndGetAnimatedValues(value));
+    }
+    return updatedStyle;
+  }
+  __getAnimatedValue() {
+    return this._walkStyleAndGetAnimatedValues(this._style);
+  }
+  __attach() {
+    for (const key in this._style) {
+      const value = this._style[key];
+      value instanceof AnimatedNode && value.__addChild(this);
+    }
+  }
+  __detach() {
+    for (const key in this._style) {
+      const value = this._style[key];
+      value instanceof AnimatedNode && value.__removeChild(this);
+    }
+    super.__detach();
+  }
+  __makeNative() {
+    for (const key in this._style) {
+      const value = this._style[key];
+      value instanceof AnimatedNode && value.__makeNative();
+    }
+    super.__makeNative();
+  }
+  __getNativeConfig() {
+    const styleConfig = {};
+    for (const styleKey in this._style) if (this._style[styleKey] instanceof AnimatedNode) {
+      const style = this._style[styleKey];
+      style.__makeNative(), styleConfig[styleKey] = style.__getNativeTag();
+    }
+    return NativeAnimatedHelper.validateStyles(styleConfig), {
+      type: "style",
+      style: styleConfig
+    };
+  }
+}
+var AnimatedStyle_default = AnimatedStyle;
+export { AnimatedStyle, AnimatedStyle_default as default };
+//# sourceMappingURL=AnimatedStyle.mjs.map

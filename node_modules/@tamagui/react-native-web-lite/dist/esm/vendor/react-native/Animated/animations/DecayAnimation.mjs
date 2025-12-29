@@ -1,0 +1,45 @@
+import { Animation } from "./Animation.mjs";
+import { shouldUseNativeDriver } from "../NativeAnimatedHelper.mjs";
+class DecayAnimation extends Animation {
+  _startTime;
+  _lastValue;
+  _fromValue;
+  _deceleration;
+  _velocity;
+  _onUpdate;
+  _animationFrame;
+  _useNativeDriver;
+  constructor(config) {
+    super(), this._deceleration = config.deceleration ?? 0.998, this._velocity = config.velocity, this._useNativeDriver = shouldUseNativeDriver(config), this.__isInteraction = config.isInteraction ?? !this._useNativeDriver, this.__iterations = config.iterations ?? 1;
+  }
+  __getNativeAnimationConfig() {
+    return {
+      type: "decay",
+      deceleration: this._deceleration,
+      velocity: this._velocity,
+      iterations: this.__iterations
+    };
+  }
+  start(fromValue, onUpdate, onEnd, previousAnimation, animatedValue) {
+    this.__active = !0, this._lastValue = fromValue, this._fromValue = fromValue, this._onUpdate = onUpdate, this.__onEnd = onEnd, this._startTime = Date.now(), this._useNativeDriver ? this.__startNativeAnimation(animatedValue) : this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+  }
+  onUpdate() {
+    const now = Date.now(),
+      value = this._fromValue + this._velocity / (1 - this._deceleration) * (1 - Math.exp(-(1 - this._deceleration) * (now - this._startTime)));
+    if (this._onUpdate(value), Math.abs(this._lastValue - value) < 0.1) {
+      this.__debouncedOnEnd({
+        finished: !0
+      });
+      return;
+    }
+    this._lastValue = value, this.__active && (this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this)));
+  }
+  stop() {
+    super.stop(), this.__active = !1, global.cancelAnimationFrame(this._animationFrame), this.__debouncedOnEnd({
+      finished: !1
+    });
+  }
+}
+var DecayAnimation_default = DecayAnimation;
+export { DecayAnimation, DecayAnimation_default as default };
+//# sourceMappingURL=DecayAnimation.mjs.map

@@ -1,0 +1,7 @@
+const Platform = {
+  OS: "web",
+  select: obj => "web" in obj ? obj.web : obj.default,
+  isTesting: process.env.NODE_ENV === "test"
+};
+export { Platform };
+//# sourceMappingURL=index.mjs.map

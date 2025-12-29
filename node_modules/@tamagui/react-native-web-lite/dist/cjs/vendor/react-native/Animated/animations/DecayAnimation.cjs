@@ -1,0 +1,71 @@
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var DecayAnimation_exports = {};
+__export(DecayAnimation_exports, {
+  DecayAnimation: () => DecayAnimation,
+  default: () => DecayAnimation_default
+});
+module.exports = __toCommonJS(DecayAnimation_exports);
+var import_Animation = require("./Animation.cjs"),
+  import_NativeAnimatedHelper = require("../NativeAnimatedHelper.cjs");
+class DecayAnimation extends import_Animation.Animation {
+  _startTime;
+  _lastValue;
+  _fromValue;
+  _deceleration;
+  _velocity;
+  _onUpdate;
+  _animationFrame;
+  _useNativeDriver;
+  constructor(config) {
+    super(), this._deceleration = config.deceleration ?? 0.998, this._velocity = config.velocity, this._useNativeDriver = (0, import_NativeAnimatedHelper.shouldUseNativeDriver)(config), this.__isInteraction = config.isInteraction ?? !this._useNativeDriver, this.__iterations = config.iterations ?? 1;
+  }
+  __getNativeAnimationConfig() {
+    return {
+      type: "decay",
+      deceleration: this._deceleration,
+      velocity: this._velocity,
+      iterations: this.__iterations
+    };
+  }
+  start(fromValue, onUpdate, onEnd, previousAnimation, animatedValue) {
+    this.__active = !0, this._lastValue = fromValue, this._fromValue = fromValue, this._onUpdate = onUpdate, this.__onEnd = onEnd, this._startTime = Date.now(), this._useNativeDriver ? this.__startNativeAnimation(animatedValue) : this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+  }
+  onUpdate() {
+    const now = Date.now(),
+      value = this._fromValue + this._velocity / (1 - this._deceleration) * (1 - Math.exp(-(1 - this._deceleration) * (now - this._startTime)));
+    if (this._onUpdate(value), Math.abs(this._lastValue - value) < 0.1) {
+      this.__debouncedOnEnd({
+        finished: !0
+      });
+      return;
+    }
+    this._lastValue = value, this.__active && (this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this)));
+  }
+  stop() {
+    super.stop(), this.__active = !1, global.cancelAnimationFrame(this._animationFrame), this.__debouncedOnEnd({
+      finished: !1
+    });
+  }
+}
+var DecayAnimation_default = DecayAnimation;

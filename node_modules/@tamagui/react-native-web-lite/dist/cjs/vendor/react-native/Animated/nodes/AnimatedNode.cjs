@@ -1,0 +1,131 @@
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var AnimatedNode_exports = {};
+__export(AnimatedNode_exports, {
+  AnimatedNode: () => AnimatedNode,
+  default: () => AnimatedNode_default
+});
+module.exports = __toCommonJS(AnimatedNode_exports);
+var import_NativeAnimatedHelper = require("../NativeAnimatedHelper.cjs"),
+  import_react_native_web_internals = require("@tamagui/react-native-web-internals");
+const NativeAnimatedAPI = import_NativeAnimatedHelper.NativeAnimatedHelper.API;
+let _uniqueId = 1;
+class AnimatedNode {
+  _listeners;
+  _platformConfig;
+  __nativeAnimatedValueListener;
+  __attach() {}
+  __detach() {
+    this.__isNative && this.__nativeTag != null && (import_NativeAnimatedHelper.NativeAnimatedHelper.API.dropAnimatedNode(this.__nativeTag), this.__nativeTag = void 0);
+  }
+  __getValue() {}
+  __getAnimatedValue() {
+    return this.__getValue();
+  }
+  __addChild(child) {}
+  __removeChild(child) {}
+  __getChildren() {
+    return [];
+  }
+  /* Methods and props used by native Animated impl */
+  __isNative;
+  __nativeTag;
+  __shouldUpdateListenersForNewNativeTag;
+  constructor() {
+    this._listeners = {};
+  }
+  __makeNative(platformConfig) {
+    if (!this.__isNative) throw new Error('This node cannot be made a "native" animated node');
+    this._platformConfig = platformConfig, this.hasListeners() && this._startListeningToNativeValueUpdates();
+  }
+  /**
+   * Adds an asynchronous listener to the value so you can observe updates from
+   * animations.  This is useful because there is no way to
+   * synchronously read the value because it might be driven natively.
+   *
+   * See https://reactnative.dev/docs/animatedvalue#addlistener
+   */
+  addListener(callback) {
+    const id = String(_uniqueId++);
+    return this._listeners[id] = callback, this.__isNative && this._startListeningToNativeValueUpdates(), id;
+  }
+  /**
+   * Unregister a listener. The `id` param shall match the identifier
+   * previously returned by `addListener()`.
+   *
+   * See https://reactnative.dev/docs/animatedvalue#removelistener
+   */
+  removeListener(id) {
+    delete this._listeners[id], this.__isNative && !this.hasListeners() && this._stopListeningForNativeValueUpdates();
+  }
+  /**
+   * Remove all registered listeners.
+   *
+   * See https://reactnative.dev/docs/animatedvalue#removealllisteners
+   */
+  removeAllListeners() {
+    this._listeners = {}, this.__isNative && this._stopListeningForNativeValueUpdates();
+  }
+  hasListeners() {
+    return !!Object.keys(this._listeners).length;
+  }
+  _startListeningToNativeValueUpdates() {
+    this.__nativeAnimatedValueListener && !this.__shouldUpdateListenersForNewNativeTag || (this.__shouldUpdateListenersForNewNativeTag && (this.__shouldUpdateListenersForNewNativeTag = !1, this._stopListeningForNativeValueUpdates()), NativeAnimatedAPI.startListeningToAnimatedNodeValue(this.__getNativeTag()), this.__nativeAnimatedValueListener = import_NativeAnimatedHelper.NativeAnimatedHelper.nativeEventEmitter.addListener("onAnimatedValueUpdate", data => {
+      data.tag === this.__getNativeTag() && this.__onAnimatedValueUpdateReceived(data.value);
+    }));
+  }
+  __onAnimatedValueUpdateReceived(value) {
+    this.__callListeners(value);
+  }
+  __callListeners(value) {
+    for (const key in this._listeners) this._listeners[key]({
+      value
+    });
+  }
+  _stopListeningForNativeValueUpdates() {
+    this.__nativeAnimatedValueListener && (this.__nativeAnimatedValueListener.remove(), this.__nativeAnimatedValueListener = null, NativeAnimatedAPI.stopListeningToAnimatedNodeValue(this.__getNativeTag()));
+  }
+  __getNativeTag() {
+    import_NativeAnimatedHelper.NativeAnimatedHelper.assertNativeAnimatedModule(), (0, import_react_native_web_internals.invariant)(this.__isNative, 'Attempt to get native tag from node not marked as "native"');
+    const nativeTag = this.__nativeTag ?? import_NativeAnimatedHelper.NativeAnimatedHelper.generateNewNodeTag();
+    if (this.__nativeTag == null) {
+      this.__nativeTag = nativeTag;
+      const config = this.__getNativeConfig();
+      this._platformConfig && (config.platformConfig = this._platformConfig), import_NativeAnimatedHelper.NativeAnimatedHelper.API.createAnimatedNode(nativeTag, config), this.__shouldUpdateListenersForNewNativeTag = !0;
+    }
+    return nativeTag;
+  }
+  __getNativeConfig() {
+    throw new Error("This JS animated node type cannot be used as native animated node");
+  }
+  toJSON() {
+    return this.__getValue();
+  }
+  __getPlatformConfig() {
+    return this._platformConfig;
+  }
+  __setPlatformConfig(platformConfig) {
+    this._platformConfig = platformConfig;
+  }
+}
+var AnimatedNode_default = AnimatedNode;

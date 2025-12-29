@@ -1,0 +1,75 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf,
+  __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
+    value: mod,
+    enumerable: !0
+  }) : target, mod)),
+  __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+    value: !0
+  }), mod);
+var NativeAnimatedTurboModule_exports = {};
+__export(NativeAnimatedTurboModule_exports, {
+  AnimatedNodeConfig: () => AnimatedNodeConfig,
+  AnimatingNodeConfig: () => AnimatingNodeConfig,
+  EndCallback: () => EndCallback,
+  EventMapping: () => EventMapping,
+  NativeAnimatedTurboModule: () => NativeAnimatedTurboModule,
+  SaveValueCallback: () => SaveValueCallback,
+  default: () => NativeAnimatedTurboModule_default
+});
+module.exports = __toCommonJS(NativeAnimatedTurboModule_exports);
+var TurboModuleRegistry = __toESM(require("../TurboModule/TurboModuleRegistry.cjs"), 1);
+const EventMapping = {},
+  AnimatedNodeConfig = {},
+  AnimatingNodeConfig = {},
+  SaveValueCallback = () => {},
+  EndCallback = () => {},
+  spec = {
+    startOperationBatch: () => {},
+    finishOperationBatch: () => {},
+    createAnimatedNode: (tag, config) => {},
+    getValue: (tag, saveValueCallback) => {},
+    startListeningToAnimatedNodeValue: tag => {},
+    stopListeningToAnimatedNodeValue: tag => {},
+    connectAnimatedNodes: (parentTag, childTag) => {},
+    disconnectAnimatedNodes: (parentTag, childTag) => {},
+    startAnimatingNode: (animationId, nodeTag, config, endCallback) => {},
+    stopAnimation: animationId => {},
+    setAnimatedNodeValue: (nodeTag, value) => {},
+    setAnimatedNodeOffset: (nodeTag, offset) => {},
+    flattenAnimatedNodeOffset: nodeTag => {},
+    extractAnimatedNodeOffset: nodeTag => {},
+    connectAnimatedNodeToView: (nodeTag, viewTag) => {},
+    disconnectAnimatedNodeFromView: (nodeTag, viewTag) => {},
+    restoreDefaultValues: nodeTag => {},
+    dropAnimatedNode: tag => {},
+    addAnimatedEventToView: (viewTag, eventName, eventMapping) => {},
+    removeAnimatedEventFromView: (viewTag, eventName, animatedNodeTag) => {},
+    // Events
+    addListener: eventName => {},
+    removeListeners: count => {}
+  },
+  NativeAnimatedTurboModule = TurboModuleRegistry.get("NativeAnimatedTurboModule") || spec;
+var NativeAnimatedTurboModule_default = NativeAnimatedTurboModule;
