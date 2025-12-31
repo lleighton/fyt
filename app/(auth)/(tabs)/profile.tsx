@@ -26,6 +26,8 @@ import {
   Bell,
   Camera,
   AtSign,
+  Trash2,
+  AlertTriangle,
 } from '@tamagui/lucide-icons'
 import { SafeArea } from '@/components/ui'
 
@@ -33,6 +35,7 @@ import { store$, auth$, profile$, completions$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
 import ActivityChart from '@/components/activity/ActivityChart'
 import { useRefresh } from '@/lib/sync-service'
+import { AuthEvents, resetAnalytics } from '@/lib/analytics'
 
 /**
  * Profile screen
@@ -52,6 +55,7 @@ function ProfileScreen() {
   const [lastName, setLastName] = useState(profile?.last_name || '')
   const [loading, setLoading] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   // Load data when screen comes into focus (fallback for sync)
   useFocusEffect(
@@ -258,10 +262,84 @@ function ProfileScreen() {
         text: 'Sign Out',
         style: 'destructive',
         onPress: async () => {
+          AuthEvents.logoutCompleted()
+          resetAnalytics()
           await supabase.auth.signOut()
         },
       },
     ])
+  }
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to permanently delete your account? This action cannot be undone.\n\nAll your data including:\n- Profile information\n- Challenges and completions\n- Group memberships\n- Tags sent and received\n\nwill be permanently deleted.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: () => confirmDeleteAccount(),
+        },
+      ]
+    )
+  }
+
+  const confirmDeleteAccount = () => {
+    // Second confirmation with typing requirement
+    Alert.prompt(
+      'Confirm Deletion',
+      'Type "DELETE" to confirm account deletion:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Forever',
+          style: 'destructive',
+          onPress: async (text: string | undefined) => {
+            if (text?.toUpperCase() !== 'DELETE') {
+              Alert.alert('Error', 'Please type DELETE to confirm')
+              return
+            }
+            await executeDeleteAccount()
+          },
+        },
+      ],
+      'plain-text'
+    )
+  }
+
+  const executeDeleteAccount = async () => {
+    setDeletingAccount(true)
+
+    try {
+      // Call the RPC function to delete account data
+      const { data, error } = await supabase.rpc('delete_user_account')
+
+      if (error) throw error
+
+      // Track account deletion
+      AuthEvents.accountDeleted()
+      resetAnalytics()
+
+      Alert.alert(
+        'Account Deleted',
+        'Your account has been deleted. You will now be signed out.',
+        [
+          {
+            text: 'OK',
+            onPress: async () => {
+              await supabase.auth.signOut()
+            },
+          },
+        ]
+      )
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Failed to delete account'
+      Alert.alert('Error', errorMessage)
+      console.error('Delete account error:', err)
+    } finally {
+      setDeletingAccount(false)
+    }
   }
 
   return (
@@ -460,12 +538,36 @@ function ProfileScreen() {
             {/* Sign Out */}
             <Button
               size="$5"
-              bg="$red10"
-              icon={<LogOut size={20} />}
+              bg="$gray8"
+              icon={<LogOut size={20} color="white" />}
               onPress={handleSignOut}
+              accessibilityLabel="Sign out of your account"
             >
-              Sign Out
+              <Text color="white" fontWeight="600">Sign Out</Text>
             </Button>
+
+            {/* Danger Zone */}
+            <YStack gap="$2" mt="$4">
+              <XStack gap="$2" alignItems="center">
+                <AlertTriangle size={16} color="$red10" />
+                <Text fontWeight="600" color="$red10">Danger Zone</Text>
+              </XStack>
+              <Button
+                size="$5"
+                bg="$red10"
+                icon={deletingAccount ? undefined : <Trash2 size={20} color="white" />}
+                onPress={handleDeleteAccount}
+                disabled={deletingAccount}
+                accessibilityLabel="Delete your account permanently"
+              >
+                <Text color="white" fontWeight="600">
+                  {deletingAccount ? 'Deleting...' : 'Delete Account'}
+                </Text>
+              </Button>
+              <Text color="$gray10" fontSize="$2" textAlign="center">
+                This will permanently delete all your data
+              </Text>
+            </YStack>
           </YStack>
 
           {/* Footer */}

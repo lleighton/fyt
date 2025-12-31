@@ -9,6 +9,12 @@ import { observer } from '@legendapp/state/react'
 import config from '@/tamagui.config'
 import { auth$ } from '@/lib/legend-state/store'
 import { useAuthLinking } from '@/lib/auth-linking'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { initSentry } from '@/lib/monitoring'
+import { initAnalytics } from '@/lib/analytics'
+
+// Initialize Sentry as early as possible
+initSentry()
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync()
@@ -29,6 +35,11 @@ function RootLayout() {
   // Handle deep link authentication callbacks (magic links)
   useAuthLinking()
 
+  // Initialize analytics on mount
+  useEffect(() => {
+    initAnalytics()
+  }, [])
+
   useEffect(() => {
     if (!isLoading) {
       SplashScreen.hideAsync()
@@ -43,24 +54,26 @@ function RootLayout() {
   const isDark = colorScheme === 'dark'
 
   return (
-    <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
-      <Theme name={colorScheme ?? 'light'}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: 'slide_from_right',
-            contentStyle: {
-              backgroundColor: isDark ? '#000000' : '#ffffff',
-            },
-            navigationBarColor: isDark ? '#000000' : '#ffffff',
-          }}
-        >
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(public)" />
-        </Stack>
-        <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
-      </Theme>
-    </TamaguiProvider>
+    <ErrorBoundary>
+      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
+        <Theme name={colorScheme ?? 'light'}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+              contentStyle: {
+                backgroundColor: isDark ? '#000000' : '#ffffff',
+              },
+              navigationBarColor: isDark ? '#000000' : '#ffffff',
+            }}
+          >
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(public)" />
+          </Stack>
+          <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
+        </Theme>
+      </TamaguiProvider>
+    </ErrorBoundary>
   )
 }
 

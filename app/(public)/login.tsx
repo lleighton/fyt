@@ -1,84 +1,70 @@
 import { useState } from 'react'
 import { observer } from '@legendapp/state/react'
-import { YStack, XStack, Text, H1, H2, Button, Input, Spinner } from 'tamagui'
-import { Phone, KeyRound, Mail } from '@tamagui/lucide-icons'
+import { YStack, Text, H1, Button, Input, Spinner } from 'tamagui'
+import { KeyRound, Mail } from '@tamagui/lucide-icons'
 import { KeyboardSafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
+import { AuthEvents } from '@/lib/analytics'
 
 /**
- * Login screen with email and phone authentication
+ * Email validation regex
+ * Validates standard email format: local@domain.tld
+ * - Local part: alphanumeric, dots, hyphens, underscores, plus signs
+ * - Domain: alphanumeric with hyphens, at least one dot
+ * - TLD: 2-10 characters (accounts for new TLDs)
+ */
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,10}$/
+
+/**
+ * Validates an email address format
+ */
+function isValidEmail(email: string): boolean {
+  return EMAIL_REGEX.test(email.trim())
+}
+
+/**
+ * Login screen with email authentication
  *
- * Email Flow (default):
+ * Email Flow:
  * 1. User enters email
  * 2. Send OTP via email
- * 3. User enters verification code
- * 4. Verify and create session
- *
- * Phone Flow (requires SMS provider):
- * 1. User enters phone number
- * 2. Send OTP via SMS
- * 3. User enters verification code
+ * 3. User enters verification code (or clicks magic link)
  * 4. Verify and create session
  */
 function LoginScreen() {
-  const [authMode, setAuthMode] = useState<'email' | 'phone'>('email')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState<'input' | 'otp'>('input')
 
   const handleSendOtp = async () => {
-    if (authMode === 'email') {
-      if (!email || !email.includes('@')) {
-        setError('Please enter a valid email address')
-        return
-      }
+    const trimmedEmail = email.trim().toLowerCase()
 
-      setLoading(true)
-      setError(null)
+    if (!trimmedEmail || !isValidEmail(trimmedEmail)) {
+      setError('Please enter a valid email address')
+      return
+    }
 
-      try {
-        const { error } = await supabase.auth.signInWithOtp({
-          email: email.trim().toLowerCase(),
-        })
+    setLoading(true)
+    setError(null)
+    AuthEvents.loginStarted()
 
-        if (error) throw error
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmedEmail,
+      })
 
-        setStep('otp')
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to send code')
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      // Phone auth
-      if (!phone || phone.length < 10) {
-        setError('Please enter a valid phone number')
-        return
-      }
+      if (error) throw error
 
-      setLoading(true)
-      setError(null)
-
-      try {
-        // Format phone number (ensure it starts with +)
-        const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`
-
-        const { error } = await supabase.auth.signInWithOtp({
-          phone: formattedPhone,
-        })
-
-        if (error) throw error
-
-        setStep('otp')
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to send code')
-      } finally {
-        setLoading(false)
-      }
+      setStep('otp')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send code'
+      AuthEvents.loginFailed(errorMessage)
+      setError(errorMessage)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -92,69 +78,41 @@ function LoginScreen() {
     setError(null)
 
     try {
-      let data, error
+      const trimmedEmail = email.trim().toLowerCase()
 
-      if (authMode === 'email') {
-        const result = await supabase.auth.verifyOtp({
-          email: email.trim().toLowerCase(),
-          token: otp,
-          type: 'email',
-        })
-        data = result.data
-        error = result.error
-      } else {
-        const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`
-        const result = await supabase.auth.verifyOtp({
-          phone: formattedPhone,
-          token: otp,
-          type: 'sms',
-        })
-        data = result.data
-        error = result.error
-      }
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: trimmedEmail,
+        token: otp,
+        type: 'email',
+      })
 
       if (error) throw error
 
       // Create profile if this is first login
       if (data.user) {
-        const profileData: any = {
-          id: data.user.id,
-          display_name: null, // User can set this later
-          updated_at: new Date().toISOString(),
-        }
-
-        if (authMode === 'email') {
-          profileData.email = data.user.email
-          profileData.phone_number = null
-        } else {
-          const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`
-          profileData.phone_number = formattedPhone
-          profileData.email = null
-        }
-
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert(profileData)
+        const { error: profileError } = await (supabase
+          .from('profiles') as ReturnType<typeof supabase.from>)
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            display_name: null, // User can set this later
+            updated_at: new Date().toISOString(),
+          })
 
         if (profileError) {
           console.error('Error creating profile:', profileError)
         }
       }
 
+      // Track successful login
+      AuthEvents.loginCompleted()
+
       // Session will be set automatically by auth listener
       // Navigation will happen automatically via PublicLayout
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Invalid code'
-
-      // Check if this is a database constraint error (migration not run)
-      if (errorMessage.includes('phone_number') || errorMessage.includes('violates')) {
-        setError(
-          'Database setup incomplete. Please run the migration in Supabase (see SUPABASE_CONFIG.md)'
-        )
-      } else {
-        setError(errorMessage)
-      }
-
+      AuthEvents.loginFailed(errorMessage)
+      setError(errorMessage)
       console.error('Login error:', err)
     } finally {
       setLoading(false)
@@ -167,63 +125,37 @@ function LoginScreen() {
     setError(null)
   }
 
-  const handleToggleAuthMode = () => {
-    setAuthMode(authMode === 'email' ? 'phone' : 'email')
-    setEmail('')
-    setPhone('')
-    setOtp('')
-    setError(null)
-    setStep('input')
-  }
-
   return (
     <KeyboardSafeArea>
       <YStack flex={1} justifyContent="center" alignItems="center" p="$4" bg="$background" gap="$4">
         {step === 'input' ? (
           <>
-            {/* Input Screen (Email or Phone) */}
+            {/* Email Input Screen */}
             <YStack alignItems="center" gap="$3">
-              {authMode === 'email' ? (
-                <Mail size={48} color="$blue10" />
-              ) : (
-                <Phone size={48} color="$blue10" />
-              )}
+              <Mail size={48} color="$blue10" />
               <H1 fontSize="$9" textAlign="center">Welcome to fyt</H1>
               <Text color="$gray10" textAlign="center" maxWidth={400}>
-                {authMode === 'email'
-                  ? 'Sign in with your email to start competing with friends'
-                  : 'Sign in with your phone number to start competing with friends'}
+                Sign in with your email to start competing with friends
               </Text>
             </YStack>
 
             <YStack width="100%" maxWidth={400} gap="$3">
-              {authMode === 'email' ? (
-                <Input
-                  placeholder="you@example.com"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  size="$5"
-                  disabled={loading}
-                  autoComplete="email"
-                  autoFocus
-                />
-              ) : (
-                <Input
-                  placeholder="+1234567890"
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  size="$5"
-                  disabled={loading}
-                  autoComplete="tel"
-                  autoFocus
-                />
-              )}
+              <Input
+                placeholder="you@example.com"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                size="$5"
+                disabled={loading}
+                autoComplete="email"
+                autoFocus
+                accessibilityLabel="Email address"
+                accessibilityHint="Enter your email address to receive a verification code"
+              />
 
               {error && (
-                <Text color="$red10" fontSize="$3" textAlign="center">
+                <Text color="$red10" fontSize="$3" textAlign="center" accessibilityRole="alert">
                   {error}
                 </Text>
               )}
@@ -232,24 +164,11 @@ function LoginScreen() {
                 size="$5"
                 bg="$blue10"
                 onPress={handleSendOtp}
-                disabled={loading || (authMode === 'email' ? !email : !phone)}
+                disabled={loading || !email}
                 icon={loading ? <Spinner color="white" /> : undefined}
+                accessibilityLabel={loading ? 'Sending verification code' : 'Send verification code'}
               >
                 {loading ? 'Sending code...' : 'Send verification code'}
-              </Button>
-
-              {/* Toggle between email and phone */}
-              <Button
-                size="$3"
-                unstyled
-                onPress={handleToggleAuthMode}
-                disabled={loading}
-              >
-                <Text color="$blue10">
-                  {authMode === 'email'
-                    ? 'Use phone number instead'
-                    : 'Use email instead'}
-                </Text>
               </Button>
             </YStack>
 
@@ -262,15 +181,13 @@ function LoginScreen() {
             {/* OTP Entry Screen */}
             <YStack alignItems="center" gap="$3">
               <KeyRound size={48} color="$blue10" />
-              <H1 fontSize="$9" textAlign="center">Check your {authMode === 'email' ? 'email' : 'messages'}</H1>
+              <H1 fontSize="$9" textAlign="center">Check your email</H1>
               <Text color="$gray10" textAlign="center" maxWidth={400}>
-                We sent a verification code to {authMode === 'email' ? email : phone}
+                We sent a verification code to {email}
               </Text>
-              {authMode === 'email' && (
-                <Text color="$gray10" fontSize="$2" textAlign="center" maxWidth={400}>
-                  You can either paste the code below or click the link in your email
-                </Text>
-              )}
+              <Text color="$gray10" fontSize="$2" textAlign="center" maxWidth={400}>
+                You can either paste the code below or click the link in your email
+              </Text>
             </YStack>
 
             <YStack width="100%" maxWidth={400} gap="$3">
@@ -286,10 +203,12 @@ function LoginScreen() {
                 fontSize="$8"
                 letterSpacing={8}
                 autoFocus
+                accessibilityLabel="Verification code"
+                accessibilityHint="Enter the 6-digit code sent to your email"
               />
 
               {error && (
-                <Text color="$red10" fontSize="$3" textAlign="center">
+                <Text color="$red10" fontSize="$3" textAlign="center" accessibilityRole="alert">
                   {error}
                 </Text>
               )}
@@ -300,6 +219,7 @@ function LoginScreen() {
                 onPress={handleVerifyOtp}
                 disabled={loading || otp.length !== 6}
                 icon={loading ? <Spinner color="white" /> : undefined}
+                accessibilityLabel={loading ? 'Verifying code' : 'Verify code'}
               >
                 {loading ? 'Verifying...' : 'Verify code'}
               </Button>
@@ -309,10 +229,9 @@ function LoginScreen() {
                 unstyled
                 onPress={handleChangeInput}
                 disabled={loading}
+                accessibilityLabel="Change email address"
               >
-                <Text color="$blue10">
-                  {authMode === 'email' ? 'Change email' : 'Change phone number'}
-                </Text>
+                <Text color="$blue10">Change email</Text>
               </Button>
             </YStack>
           </>

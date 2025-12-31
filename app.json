@@ -34,9 +34,7 @@
         "android.permission.CAMERA",
         "android.permission.READ_CONTACTS",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.WRITE_CONTACTS"
+        "android.permission.VIBRATE"
       ]
     },
     "web": {
@@ -63,6 +61,13 @@
         {
           "icon": "./assets/images/notification-icon.png",
           "color": "#10B981"
+        }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "fyt-apps",
+          "project": "fyt-mobile"
         }
       ]
     ],

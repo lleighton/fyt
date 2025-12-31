@@ -3,12 +3,13 @@ import { Redirect, Stack } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { YStack, Spinner, Text } from 'tamagui'
 
-import { auth$ } from '@/lib/legend-state/store'
+import { auth$, store$ } from '@/lib/legend-state/store'
 import {
   registerForPushNotifications,
   setupNotificationListeners,
   setupAndroidNotificationChannel,
 } from '@/lib/notifications'
+import { identifyUser, resetAnalytics } from '@/lib/analytics'
 
 /**
  * Auth-protected layout
@@ -23,7 +24,7 @@ function AuthLayout() {
   const session = auth$.session.get()
   const isLoading = auth$.isLoading.get()
 
-  // Set up push notifications when authenticated
+  // Set up push notifications and analytics when authenticated
   useEffect(() => {
     if (!session?.user?.id) return
 
@@ -36,7 +37,19 @@ function AuthLayout() {
     // Register for push notifications and save token
     registerForPushNotifications(session.user.id)
 
-    return cleanup
+    // Identify user for analytics
+    const profile = store$.profile.get()
+    identifyUser({
+      id: session.user.id,
+      email: session.user.email,
+      displayName: profile?.display_name,
+      username: profile?.username,
+      createdAt: profile?.created_at,
+    })
+
+    return () => {
+      cleanup?.()
+    }
   }, [session?.user?.id])
 
   // Show loading while checking auth
