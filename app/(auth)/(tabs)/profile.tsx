@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Alert, ActivityIndicator } from 'react-native'
+import { Alert, ActivityIndicator, RefreshControl } from 'react-native'
 import { observer } from '@legendapp/state/react'
 import { useFocusEffect } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
@@ -27,11 +27,12 @@ import {
   Camera,
   AtSign,
 } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { store$, auth$, profile$, completions$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
 import ActivityChart from '@/components/activity/ActivityChart'
+import { useRefresh } from '@/lib/sync-service'
 
 /**
  * Profile screen
@@ -42,6 +43,10 @@ function ProfileScreen() {
   const profile = store$.profile.get()
   const completions = store$.completions.get()
   const currentStreak = store$.currentStreak()
+
+  // Pull-to-refresh
+  const { isRefreshing, onRefresh } = useRefresh()
+
   const [isEditing, setIsEditing] = useState(false)
   const [firstName, setFirstName] = useState(profile?.first_name || '')
   const [lastName, setLastName] = useState(profile?.last_name || '')
@@ -260,8 +265,14 @@ function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <ScrollView flex={1} bg="$background">
+    <SafeArea edges={['top']}>
+      <ScrollView
+        flex={1}
+        bg="$background"
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+      >
         <YStack p="$4" gap="$4">
           {/* Header */}
           <XStack justifyContent="space-between" alignItems="center">
@@ -468,7 +479,7 @@ function ProfileScreen() {
           </YStack>
         </YStack>
       </ScrollView>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

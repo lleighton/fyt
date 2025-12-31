@@ -10,9 +10,10 @@ import {
   Input,
   Button,
   Card,
+  ScrollView,
 } from 'tamagui'
 import { User, AtSign, Check, X } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { KeyboardSafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$, store$ } from '@/lib/legend-state/store'
@@ -191,18 +192,19 @@ function ProfileSetupScreen() {
     !loading
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'bottom']}>
-      <YStack flex={1} bg="$background" px="$4" py="$6">
-        {/* Header */}
-        <YStack gap="$2" mb="$6">
-          <H1 fontSize="$9">Complete Your Profile</H1>
-          <Text color="$gray10" fontSize="$4">
-            Let's set up your profile so friends can find you
-          </Text>
-        </YStack>
+    <KeyboardSafeArea edges={['top', 'bottom']}>
+      <ScrollView flex={1} bg="$background" contentContainerStyle={{ flexGrow: 1 }}>
+        <YStack flex={1} px="$4" py="$6">
+          {/* Header */}
+          <YStack gap="$2" mb="$6">
+            <H1 fontSize="$9">Complete Your Profile</H1>
+            <Text color="$gray10" fontSize="$4">
+              Let's set up your profile so friends can find you
+            </Text>
+          </YStack>
 
-        {/* Form */}
-        <YStack gap="$4" flex={1}>
+          {/* Form */}
+          <YStack gap="$4" flex={1}>
           {/* First Name */}
           <YStack gap="$2">
             <Text fontWeight="600" fontSize="$3">
@@ -330,23 +332,24 @@ function ProfileSetupScreen() {
               </XStack>
             </Card>
           )}
-        </YStack>
+          </YStack>
 
-        {/* Submit Button */}
-        <Button
-          size="$5"
-          bg={canSubmit ? '$green10' : '$gray6'}
-          onPress={handleSubmit}
-          disabled={!canSubmit}
-          opacity={canSubmit ? 1 : 0.5}
-          icon={loading ? <ActivityIndicator color="white" /> : undefined}
-        >
-          <Text color="white" fontWeight="700" fontSize="$5">
-            {loading ? 'Saving...' : 'Continue'}
-          </Text>
-        </Button>
-      </YStack>
-    </SafeAreaView>
+          {/* Submit Button */}
+          <Button
+            size="$5"
+            bg={canSubmit ? '$green10' : '$gray6'}
+            onPress={handleSubmit}
+            disabled={!canSubmit}
+            opacity={canSubmit ? 1 : 0.5}
+            icon={loading ? <ActivityIndicator color="white" /> : undefined}
+          >
+            <Text color="white" fontWeight="700" fontSize="$5">
+              {loading ? 'Saving...' : 'Continue'}
+            </Text>
+          </Button>
+        </YStack>
+      </ScrollView>
+    </KeyboardSafeArea>
   )
 }
 

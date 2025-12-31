@@ -20,7 +20,7 @@ import {
   X as XIcon,
   Users,
 } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -97,23 +97,23 @@ function TagDetailScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <SafeArea edges={['top']}>
         <YStack flex={1} bg="$background" justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" />
           <Text mt="$4" color="$gray10">Loading tag...</Text>
         </YStack>
-      </SafeAreaView>
+      </SafeArea>
     )
   }
 
   if (!tag) {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <SafeArea edges={['top']}>
         <YStack flex={1} bg="$background" justifyContent="center" alignItems="center" p="$4">
           <Text color="$gray10" textAlign="center">Tag not found</Text>
           <Button mt="$4" onPress={() => router.back()}>Go Back</Button>
         </YStack>
-      </SafeAreaView>
+      </SafeArea>
     )
   }
 
@@ -135,7 +135,7 @@ function TagDetailScreen() {
   const totalRecipients = tag.recipients?.length || 0
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -194,7 +194,7 @@ function TagDetailScreen() {
                     <Text
                       color={isExpired ? '$gray10' : '$green10'}
                       fontWeight="600"
-                      fontSize="$2"
+                      fontSize="$3"
                     >
                       {isExpired ? 'Expired' : `${hoursLeft}h left`}
                     </Text>
@@ -217,7 +217,7 @@ function TagDetailScreen() {
                     <YStack flex={1}>
                       <Text
                         color="$gray11"
-                        fontSize="$2"
+                        fontSize="$3"
                         fontWeight="600"
                         textTransform="uppercase"
                       >
@@ -279,18 +279,18 @@ function TagDetailScreen() {
                             {recipientName}
                           </Text>
                           {isSender && (
-                            <Text fontSize="$2" color="$gray10">
+                            <Text fontSize="$3" color="$gray10">
                               (sender)
                             </Text>
                           )}
                           {recipient.recipient_id === session?.user?.id && !isSender && (
-                            <Text fontSize="$2" color="$blue10" fontWeight="600">
+                            <Text fontSize="$3" color="$blue10" fontWeight="600">
                               (you)
                             </Text>
                           )}
                         </XStack>
                         {isCompleted && recipient.completed_value && (
-                          <Text color="$gray10" fontSize="$2">
+                          <Text color="$gray10" fontSize="$3">
                             Did {recipient.completed_value} {isTimeBased ? 'seconds' : tag.exercise?.unit || 'reps'}
                           </Text>
                         )}
@@ -345,7 +345,7 @@ function TagDetailScreen() {
           </YStack>
         )}
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

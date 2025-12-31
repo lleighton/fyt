@@ -28,13 +28,22 @@ import {
   Camera,
   Clock as ClockIcon,
   Zap,
+  LogOut,
 } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import {
+  SafeArea,
+  LeaderboardSkeleton,
+  TagListSkeleton,
+  MembersListSkeleton,
+  SkeletonCircle,
+  SkeletonText,
+} from '@/components/ui'
 import { Alert, Share, ActivityIndicator } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
+import { useFocusRefresh } from '@/lib/sync-service'
 
 /**
  * Group detail screen
@@ -61,12 +70,24 @@ function GroupDetailScreen() {
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false)
 
-  // Fetch leaderboard data
+  // Leave group state
+  const [leavingGroup, setLeavingGroup] = useState(false)
+
+  // Auto-refresh groups data on focus + polling every 30s
+  useFocusRefresh({ groups: true }, 30000)
+
+  // Fetch leaderboard data - stale-while-revalidate pattern
   useEffect(() => {
     if (!id) return
 
     const fetchLeaderboard = async () => {
-      setLoadingLeaderboard(true)
+      // Only show loading skeleton if we have NO data (first load)
+      // Otherwise, keep showing stale data while we fetch fresh data
+      const isFirstLoad = leaderboardData.length === 0
+      if (isFirstLoad) {
+        setLoadingLeaderboard(true)
+      }
+
       try {
         const { data, error } = await supabase.rpc('get_group_leaderboard', {
           p_group_id: id,
@@ -81,19 +102,26 @@ function GroupDetailScreen() {
       } catch (err) {
         console.error('Error:', err)
       } finally {
-        setLoadingLeaderboard(false)
+        if (isFirstLoad) {
+          setLoadingLeaderboard(false)
+        }
       }
     }
 
     fetchLeaderboard()
   }, [id, timeFilter])
 
-  // Fetch tags for this group (tags where any group member is a recipient)
+  // Fetch tags for this group - stale-while-revalidate pattern
   useEffect(() => {
     if (!id || !group?.members) return
 
     const fetchGroupTags = async () => {
-      setLoadingTags(true)
+      // Only show loading skeleton if we have NO data (first load)
+      const isFirstLoad = groupTags.length === 0
+      if (isFirstLoad) {
+        setLoadingTags(true)
+      }
+
       try {
         // Get member IDs
         const memberIds = group.members.map((m: any) => m.user_id)
@@ -145,7 +173,9 @@ function GroupDetailScreen() {
       } catch (err) {
         console.error('[GroupDetail] Error:', err)
       } finally {
-        setLoadingTags(false)
+        if (isFirstLoad) {
+          setLoadingTags(false)
+        }
       }
     }
 
@@ -266,16 +296,93 @@ function GroupDetailScreen() {
     }
   }
 
+  const handleLeaveGroup = async () => {
+    Alert.alert(
+      'Leave Group',
+      `Are you sure you want to leave "${group?.name}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            setLeavingGroup(true)
+            try {
+              const { data, error } = await (supabase.rpc as any)('leave_group', {
+                p_group_id: id,
+              })
+
+              if (error) throw error
+
+              const result = typeof data === 'string' ? JSON.parse(data) : data
+              if (!result.success) {
+                throw new Error(result.error)
+              }
+
+              Alert.alert('Left Group', 'You have left the group', [
+                { text: 'OK', onPress: () => router.replace('/(auth)/(tabs)/groups') },
+              ])
+            } catch (err: any) {
+              Alert.alert('Error', err.message || 'Failed to leave group')
+              setLeavingGroup(false)
+            }
+          },
+        },
+      ]
+    )
+  }
+
+  // Check if still loading vs group not found
+  const isInitialLoading = groups === undefined || groups === null
+
   if (!group) {
+    if (isInitialLoading) {
+      // Show skeleton while loading
+      return (
+        <SafeArea edges={['top']}>
+          <YStack flex={1} bg="$background">
+            {/* Header skeleton */}
+            <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+              <SkeletonCircle size={32} />
+              <SkeletonText width={120} height={20} />
+              <SkeletonCircle size={32} />
+            </XStack>
+
+            {/* Group header skeleton */}
+            <YStack alignItems="center" p="$4" gap="$3">
+              <SkeletonCircle size={96} />
+              <SkeletonText width={180} height={24} />
+              <SkeletonText width={250} height={14} />
+              <XStack gap="$4" mt="$2">
+                <SkeletonText width={80} height={14} />
+                <SkeletonText width={60} height={14} />
+              </XStack>
+            </YStack>
+
+            {/* Tabs skeleton */}
+            <YStack p="$4" gap="$3">
+              <XStack gap="$2">
+                <SkeletonText width={80} height={36} />
+                <SkeletonText width={80} height={36} />
+                <SkeletonText width={80} height={36} />
+              </XStack>
+              <LeaderboardSkeleton count={4} />
+            </YStack>
+          </YStack>
+        </SafeArea>
+      )
+    }
+
+    // Group actually not found
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeArea>
         <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
           <Text>Group not found</Text>
           <Button mt="$4" onPress={() => router.back()}>
             Go Back
           </Button>
         </YStack>
-      </SafeAreaView>
+      </SafeArea>
     )
   }
 
@@ -285,7 +392,7 @@ function GroupDetailScreen() {
   )
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -304,13 +411,23 @@ function GroupDetailScreen() {
               icon={<Share2 />}
               onPress={handleShareGroup}
             />
+            {!isAdmin && (
+              <Button
+                size="$3"
+                circular
+                unstyled
+                icon={leavingGroup ? <ActivityIndicator size="small" /> : <LogOut />}
+                onPress={handleLeaveGroup}
+                disabled={leavingGroup}
+              />
+            )}
             {isAdmin && (
               <Button
                 size="$3"
                 circular
                 unstyled
                 icon={<Settings />}
-                onPress={() => Alert.alert('Settings', 'Group settings coming soon!')}
+                onPress={() => router.push(`/(auth)/group/${id}/settings` as any)}
               />
             )}
           </XStack>
@@ -491,7 +608,7 @@ function GroupDetailScreen() {
                   <Text>Members</Text>
                 </TamaguiTabs.Tab>
                 <TamaguiTabs.Tab value="leaderboard" flex={1}>
-                  <Text>Leaderboard</Text>
+                  <Text>Board</Text>
                 </TamaguiTabs.Tab>
               </TamaguiTabs.List>
 
@@ -499,9 +616,7 @@ function GroupDetailScreen() {
               <TamaguiTabs.Content value="tags" pt="$4">
                 <YStack gap="$2">
                   {loadingTags ? (
-                    <Card bg="$backgroundHover" p="$6" br="$4" alignItems="center">
-                      <Text color="$gray10">Loading tags...</Text>
-                    </Card>
+                    <TagListSkeleton count={3} />
                   ) : groupTags.length === 0 ? (
                     <Card bg="$backgroundHover" p="$6" br="$4" alignItems="center">
                       <Zap size={48} color="$gray10" />
@@ -541,7 +656,7 @@ function GroupDetailScreen() {
                                 <Text fontWeight="600" fontSize="$5" numberOfLines={1}>
                                   {tag.exercise?.name || 'Exercise'}
                                 </Text>
-                                <Text color="$gray10" fontSize="$2">
+                                <Text color="$gray10" fontSize="$3">
                                   {tag.value} {tag.exercise?.unit || 'reps'} • from {tag.sender?.display_name || tag.sender?.first_name || 'Someone'}
                                 </Text>
                               </YStack>
@@ -551,7 +666,7 @@ function GroupDetailScreen() {
                             <XStack justifyContent="space-between" alignItems="center">
                               <XStack gap="$1" alignItems="center">
                                 <ClockIcon size={14} color="$gray10" />
-                                <Text color="$gray10" fontSize="$2">
+                                <Text color="$gray10" fontSize="$3">
                                   {isExpired ? 'Expired' : (() => {
                                     const hoursLeft = Math.ceil(
                                       (new Date(tag.expires_at).getTime() - new Date().getTime()) /
@@ -563,7 +678,7 @@ function GroupDetailScreen() {
                                   })()}
                                 </Text>
                               </XStack>
-                              <Text color="$gray10" fontSize="$2">
+                              <Text color="$gray10" fontSize="$3">
                                 {completedCount}/{totalRecipients} completed
                               </Text>
                             </XStack>
@@ -603,8 +718,10 @@ function GroupDetailScreen() {
                             <Text fontWeight="600">
                               {member.profile?.display_name || 'User'}
                             </Text>
-                            <Text color="$gray10" fontSize="$2">
-                              Member since {new Date(member.created_at || '').toLocaleDateString()}
+                            <Text color="$gray10" fontSize="$3">
+                              {member.joined_at
+                                ? `Joined ${new Date(member.joined_at).toLocaleDateString()}`
+                                : 'Member'}
                             </Text>
                           </YStack>
                           {member.role === 'admin' && (
@@ -653,9 +770,7 @@ function GroupDetailScreen() {
 
                   {/* Leaderboard List */}
                   {loadingLeaderboard ? (
-                    <Card bg="$backgroundHover" p="$6" br="$4" alignItems="center">
-                      <Text color="$gray10">Loading leaderboard...</Text>
-                    </Card>
+                    <LeaderboardSkeleton count={5} />
                   ) : leaderboardData.length === 0 ? (
                     <Card bg="$backgroundHover" p="$6" br="$4" alignItems="center">
                       <Trophy size={48} color="$gray10" />
@@ -687,7 +802,7 @@ function GroupDetailScreen() {
                                 <Text fontSize="$5" fontWeight="700" color="$blue10">
                                   {leaderboardData[1].group_challenge_points}
                                 </Text>
-                                <Text fontSize="$1" color="$gray10">
+                                <Text fontSize="$2" color="$gray10">
                                   points
                                 </Text>
                               </YStack>
@@ -723,13 +838,13 @@ function GroupDetailScreen() {
                                     <Users size={18} color="white" />
                                   </Avatar.Fallback>
                                 </Avatar>
-                                <Text fontSize="$2" fontWeight="600" numberOfLines={1}>
+                                <Text fontSize="$3" fontWeight="600" numberOfLines={1}>
                                   {leaderboardData[2].display_name || 'User'}
                                 </Text>
                                 <Text fontSize="$4" fontWeight="700" color="$blue10">
                                   {leaderboardData[2].group_challenge_points}
                                 </Text>
-                                <Text fontSize="$1" color="$gray10">
+                                <Text fontSize="$2" color="$gray10">
                                   points
                                 </Text>
                               </YStack>
@@ -785,7 +900,7 @@ function GroupDetailScreen() {
                                   <Crown size={14} color="$yellow10" />
                                 )}
                                 {member.user_id === session?.user?.id && (
-                                  <Text fontSize="$2" color="$blue10" fontWeight="600">
+                                  <Text fontSize="$3" color="$blue10" fontWeight="600">
                                     (You)
                                   </Text>
                                 )}
@@ -793,14 +908,14 @@ function GroupDetailScreen() {
                               <XStack gap="$3" mt="$1">
                                 <XStack gap="$1" alignItems="center">
                                   <Trophy size={12} color="$gray10" />
-                                  <Text fontSize="$2" color="$gray10">
+                                  <Text fontSize="$3" color="$gray10">
                                     {member.group_challenge_completions} completions
                                   </Text>
                                 </XStack>
                                 {member.avg_performance > 0 && (
                                   <XStack gap="$1" alignItems="center">
                                     <TrendingUp size={12} color="$gray10" />
-                                    <Text fontSize="$2" color="$gray10">
+                                    <Text fontSize="$3" color="$gray10">
                                       {Math.round(member.avg_performance)} avg
                                     </Text>
                                   </XStack>
@@ -813,7 +928,7 @@ function GroupDetailScreen() {
                               <Text fontSize="$5" fontWeight="700" color="$blue10">
                                 {member.group_challenge_points}
                               </Text>
-                              <Text fontSize="$1" color="$gray10">
+                              <Text fontSize="$2" color="$gray10">
                                 points
                               </Text>
                             </YStack>
@@ -838,7 +953,7 @@ function GroupDetailScreen() {
           </YStack>
         </ScrollView>
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

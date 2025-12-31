@@ -35,16 +35,16 @@ BEGIN
     email_change
   )
   VALUES
-    (user1_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'alex@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user2_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'maria@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user3_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'chris@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user4_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'sam@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user5_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jordan@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user6_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'taylor@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user7_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'casey@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user8_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'riley@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user9_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jamie@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
-    (user10_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'morgan@test.tagfit.app', crypt('testpass123', gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', '')
+    (user1_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'alex@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user2_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'maria@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user3_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'chris@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user4_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'sam@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user5_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jordan@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user6_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'taylor@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user7_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'casey@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user8_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'riley@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user9_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'jamie@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', ''),
+    (user10_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'morgan@test.tagfit.app', extensions.crypt('testpass123', extensions.gen_salt('bf')), NOW(), NOW(), NOW(), '', '', '', '')
   ON CONFLICT (id) DO NOTHING;
 
   -- Insert identities for each user (required for auth to work)

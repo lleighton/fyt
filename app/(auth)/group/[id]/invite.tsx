@@ -13,7 +13,7 @@ import {
   ScrollView,
 } from 'tamagui'
 import { X, UserPlus, Check, AtSign } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { store$, auth$ } from '@/lib/legend-state/store'
@@ -42,20 +42,41 @@ function InviteMembersScreen() {
 
   const [selectedUsers, setSelectedUsers] = useState<SelectedUser[]>([])
   const [loading, setLoading] = useState(false)
-  const [existingMemberIds, setExistingMemberIds] = useState<string[]>([])
+  const [excludedUserIds, setExcludedUserIds] = useState<string[]>([])
 
-  // Get existing member IDs to exclude from search results
+  // Get existing member IDs and pending invite IDs to exclude from search results
   useEffect(() => {
-    if (group?.members) {
-      const memberIds = group.members.map((m: any) => m.user_id)
-      setExistingMemberIds(memberIds)
+    const loadExcludedUsers = async () => {
+      if (!id) return
+
+      const excluded: string[] = []
+
+      // Add existing members
+      if (group?.members) {
+        group.members.forEach((m: any) => excluded.push(m.user_id))
+      }
+
+      // Add users with pending invitations
+      const { data: pendingInvites } = await (supabase
+        .from('group_invites') as any)
+        .select('invitee_id')
+        .eq('group_id', id)
+        .eq('status', 'pending')
+
+      if (pendingInvites) {
+        pendingInvites.forEach((inv: any) => excluded.push(inv.invitee_id))
+      }
+
+      setExcludedUserIds(excluded)
     }
-  }, [group])
+
+    loadExcludedUsers()
+  }, [group, id])
 
   const handleSelectUser = (user: any) => {
-    // Check if already a member
-    if (existingMemberIds.includes(user.id)) {
-      Alert.alert('Already a member', `${user.first_name || user.username} is already in this group`)
+    // Check if already excluded (member or has pending invite)
+    if (excludedUserIds.includes(user.id)) {
+      Alert.alert('Cannot invite', `${user.first_name || user.username} is already a member or has a pending invitation`)
       return
     }
 
@@ -86,54 +107,46 @@ function InviteMembersScreen() {
     setLoading(true)
 
     try {
-      // Insert all selected users as group members
-      const membersToInsert = selectedUsers.map((user) => ({
+      // Create invitations for all selected users
+      const invitesToInsert = selectedUsers.map((user) => ({
         group_id: id,
-        user_id: user.id,
-        role: 'member' as const,
+        inviter_id: session.user.id,
+        invitee_id: user.id,
+        status: 'pending' as const,
       }))
 
-      const { error } = await (supabase
-        .from('group_members') as any)
-        .insert(membersToInsert)
+      const { data: insertedInvites, error } = await (supabase
+        .from('group_invites') as any)
+        .insert(invitesToInsert)
+        .select('id')
 
       if (error) throw error
 
-      // Update local store
-      const currentGroup = (store$.groups as any)[id]?.get()
-      if (currentGroup) {
-        const newMembers = selectedUsers.map((user) => ({
-          user_id: user.id,
-          role: 'member',
-          profile: {
-            id: user.id,
-            username: user.username,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            display_name: user.display_name || `${user.first_name} ${user.last_name}`.trim(),
-            avatar_url: user.avatar_url,
-          },
-          created_at: new Date().toISOString(),
-        }))
-
-        ;(store$.groups as any)[id].set({
-          ...currentGroup,
-          members: [...(currentGroup.members || []), ...newMembers],
-          member_count: (currentGroup.member_count || 0) + selectedUsers.length,
-        })
+      // Send push notifications for each invite
+      if (insertedInvites) {
+        for (const invite of insertedInvites) {
+          try {
+            await supabase.functions.invoke('send-group-invite-notification', {
+              body: { invite_id: invite.id },
+            })
+          } catch (notifError) {
+            console.warn('Failed to send notification for invite:', invite.id, notifError)
+            // Don't fail the whole operation for notification errors
+          }
+        }
       }
 
       Alert.alert(
-        'Invited!',
-        `${selectedUsers.length} ${selectedUsers.length === 1 ? 'member has' : 'members have'} been added to the group`,
+        'Invitations Sent!',
+        `${selectedUsers.length} ${selectedUsers.length === 1 ? 'invitation has' : 'invitations have'} been sent. They will need to accept to join the group.`,
         [{ text: 'OK', onPress: () => router.back() }]
       )
     } catch (error: any) {
-      console.error('Error inviting members:', error)
+      console.error('Error sending invitations:', error)
       if (error.code === '23505') {
-        Alert.alert('Error', 'One or more users are already members of this group')
+        Alert.alert('Error', 'One or more users already have pending invitations')
       } else {
-        Alert.alert('Error', error.message || 'Failed to invite members')
+        Alert.alert('Error', error.message || 'Failed to send invitations')
       }
     } finally {
       setLoading(false)
@@ -149,19 +162,19 @@ function InviteMembersScreen() {
 
   if (!group) {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeArea>
         <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
           <Text>Group not found</Text>
           <Button mt="$4" onPress={() => router.back()}>
             <Text>Go Back</Text>
           </Button>
         </YStack>
-      </SafeAreaView>
+      </SafeArea>
     )
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'bottom']}>
+    <SafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -231,7 +244,7 @@ function InviteMembersScreen() {
         <YStack flex={1} px="$4">
           <UserSearch
             onSelectUser={handleSelectUser}
-            selectedUserIds={[...selectedUsers.map((u) => u.id), ...existingMemberIds]}
+            selectedUserIds={[...selectedUsers.map((u) => u.id), ...excludedUserIds]}
             placeholder="Search by username or name"
           />
         </YStack>
@@ -262,7 +275,7 @@ function InviteMembersScreen() {
           </Button>
         </YStack>
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

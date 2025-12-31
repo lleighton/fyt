@@ -33,6 +33,7 @@
     "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.11",
     "expo-contacts": "~15.0.11",
+    "expo-crypto": "~15.0.8",
     "expo-device": "~8.0.10",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",

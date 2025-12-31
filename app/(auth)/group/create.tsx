@@ -20,7 +20,7 @@ import {
   Globe,
   CheckCircle,
 } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 import { Alert, Share } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 
@@ -142,7 +142,7 @@ function CreateGroupScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -291,7 +291,7 @@ function CreateGroupScreen() {
           </Button>
         </YStack>
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

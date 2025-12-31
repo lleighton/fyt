@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, H1, H2, Button, Input, Spinner } from 'tamagui'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { Phone, KeyRound, Mail } from '@tamagui/lucide-icons'
+import { KeyboardSafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 
@@ -177,7 +177,7 @@ function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <KeyboardSafeArea>
       <YStack flex={1} justifyContent="center" alignItems="center" p="$4" bg="$background" gap="$4">
         {step === 'input' ? (
           <>
@@ -318,7 +318,7 @@ function LoginScreen() {
           </>
         )}
       </YStack>
-    </SafeAreaView>
+    </KeyboardSafeArea>
   )
 }
 

@@ -2,7 +2,8 @@
 -- Apply this in Supabase SQL Editor or via CLI
 
 -- Enable extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- pgcrypto for extensions.gen_random_bytes() used in invite codes
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 -- ============================================
 -- PROFILES
@@ -26,12 +27,12 @@ CREATE INDEX IF NOT EXISTS idx_profiles_phone ON profiles(phone_number);
 -- GROUPS
 -- ============================================
 CREATE TABLE IF NOT EXISTS groups (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
   avatar_url TEXT,
   is_private BOOLEAN DEFAULT FALSE,
-  invite_code TEXT UNIQUE DEFAULT encode(gen_random_bytes(6), 'hex'),
+  invite_code TEXT UNIQUE DEFAULT encode(extensions.gen_random_bytes(6), 'hex'),
   creator_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   member_count INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -45,7 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_groups_invite_code ON groups(invite_code) WHERE d
 -- GROUP MEMBERS
 -- ============================================
 CREATE TABLE IF NOT EXISTS group_members (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   role TEXT DEFAULT 'member' CHECK (role IN ('admin', 'member')),
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS group_members (
 -- CHALLENGES
 -- ============================================
 CREATE TABLE IF NOT EXISTS challenges (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   creator_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   group_id UUID REFERENCES groups(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
@@ -85,7 +86,7 @@ CREATE INDEX IF NOT EXISTS idx_challenges_public ON challenges(is_public, starts
 -- CHALLENGE PARTICIPANTS
 -- ============================================
 CREATE TABLE IF NOT EXISTS challenge_participants (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   challenge_id UUID NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   invited_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
@@ -106,7 +107,7 @@ CREATE INDEX IF NOT EXISTS idx_participants_phone ON challenge_participants(invi
 -- COMPLETIONS
 -- ============================================
 CREATE TABLE IF NOT EXISTS completions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   challenge_id UUID NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
   value INT NOT NULL,
@@ -127,7 +128,7 @@ CREATE TABLE IF NOT EXISTS completions (
 CREATE INDEX IF NOT EXISTS idx_completions_user ON completions(user_id, completed_at DESC) WHERE deleted = FALSE;
 CREATE INDEX IF NOT EXISTS idx_completions_challenge ON completions(challenge_id) WHERE deleted = FALSE;
 -- Use timezone-aware date extraction (immutable)
-CREATE INDEX IF NOT EXISTS idx_completions_date ON completions((completed_at::date)) WHERE deleted = FALSE;
+CREATE INDEX IF NOT EXISTS idx_completions_date ON completions(((completed_at AT TIME ZONE 'UTC')::date)) WHERE deleted = FALSE;
 
 -- ============================================
 -- FUNCTIONS & TRIGGERS

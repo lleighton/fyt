@@ -25,8 +25,8 @@ import {
   Trash2,
   ListOrdered,
 } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { Alert } from 'react-native'
+import { SafeArea } from '@/components/ui'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -319,7 +319,7 @@ function CreateChallengeScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <YStack>
@@ -842,7 +842,7 @@ function CreateChallengeScreen() {
           )}
         </YStack>
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

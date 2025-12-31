@@ -26,8 +26,8 @@ import {
   CheckCircle,
   ListOrdered,
 } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { Alert } from 'react-native'
+import { SafeArea } from '@/components/ui'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -385,19 +385,19 @@ function ChallengeDetailScreen() {
 
   if (!challenge) {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeArea>
         <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
           <Text>Challenge not found</Text>
           <Button mt="$4" onPress={() => router.back()}>
             Go Back
           </Button>
         </YStack>
-      </SafeAreaView>
+      </SafeArea>
     )
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -841,7 +841,7 @@ function ChallengeDetailScreen() {
           </YStack>
         </ScrollView>
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

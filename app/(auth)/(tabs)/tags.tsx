@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from 'tamagui'
 import { Plus, Send, Inbox, CheckCircle, XCircle, Clock, ChevronRight } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -148,7 +148,7 @@ function TagsScreen() {
   )
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <ScrollView flex={1} bg="$background">
         <YStack px="$4" py="$4" gap="$4">
           {/* Header */}
@@ -180,7 +180,7 @@ function TagsScreen() {
                 <Text fontSize={28} fontWeight="700" color={activeFilter === 'sent' ? 'white' : '$gray12'}>
                   {sentTags.length}
                 </Text>
-                <Text color={activeFilter === 'sent' ? 'white' : '$gray11'} fontSize="$2" fontWeight="600">
+                <Text color={activeFilter === 'sent' ? 'white' : '$gray11'} fontSize="$3" fontWeight="600">
                   Sent
                 </Text>
               </YStack>
@@ -200,7 +200,7 @@ function TagsScreen() {
                 <Text fontSize={28} fontWeight="700" color={activeFilter === 'received' ? 'white' : '$gray12'}>
                   {receivedTags.length}
                 </Text>
-                <Text color={activeFilter === 'received' ? 'white' : '$gray11'} fontSize="$2" fontWeight="600">
+                <Text color={activeFilter === 'received' ? 'white' : '$gray11'} fontSize="$3" fontWeight="600">
                   Pending
                 </Text>
               </YStack>
@@ -220,7 +220,7 @@ function TagsScreen() {
                 <Text fontSize={28} fontWeight="700" color={activeFilter === 'completed' ? 'white' : '$gray12'}>
                   {completedTags.length}
                 </Text>
-                <Text color={activeFilter === 'completed' ? 'white' : '$gray11'} fontSize="$2" fontWeight="600">
+                <Text color={activeFilter === 'completed' ? 'white' : '$gray11'} fontSize="$3" fontWeight="600">
                   Done
                 </Text>
               </YStack>
@@ -294,7 +294,7 @@ function TagsScreen() {
           </YStack>
         </YStack>
       </ScrollView>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 
@@ -401,12 +401,12 @@ function SentTagCard({
             {tag.value} {tag.exercise?.type === 'time' ? 'sec' : 'reps'} of {tag.exercise?.name}
           </Text>
           <XStack gap="$2" alignItems="center">
-            <Text color="$gray11" fontSize="$2">
+            <Text color="$gray11" fontSize="$3">
               Sent to {recipients.length} {recipients.length === 1 ? 'person' : 'people'}
             </Text>
             {completedCount > 0 && (
               <XStack bg="$green3" px="$1.5" py="$0.5" br="$2">
-                <Text color="$green11" fontSize="$1" fontWeight="600">
+                <Text color="$green11" fontSize="$2" fontWeight="600">
                   {completedCount} done
                 </Text>
               </XStack>
@@ -414,7 +414,7 @@ function SentTagCard({
           </XStack>
           <XStack gap="$1" alignItems="center">
             <Clock size={12} color={isExpired ? '$red10' : '$gray10'} />
-            <Text color={isExpired ? '$red10' : '$gray10'} fontSize="$2">
+            <Text color={isExpired ? '$red10' : '$gray10'} fontSize="$3">
               {isExpired ? 'Expired' : `${hoursLeft}h left`}
             </Text>
           </XStack>
@@ -474,7 +474,7 @@ function ReceivedTagCard({
           </Text>
           <XStack gap="$1" alignItems="center">
             <Clock size={12} color={isExpired ? '$red10' : '$orange10'} />
-            <Text color={isExpired ? '$red10' : '$orange10'} fontSize="$2" fontWeight="600">
+            <Text color={isExpired ? '$red10' : '$orange10'} fontSize="$3" fontWeight="600">
               {isExpired ? 'Expired' : `${hoursLeft}h left to respond`}
             </Text>
           </XStack>
@@ -537,11 +537,11 @@ function CompletedTagCard({
             </Text>
             {isOwnTag ? (
               <XStack bg="$green9" px="$2" py="$0.5" br="$2">
-                <Text color="white" fontSize="$1" fontWeight="700">SENT</Text>
+                <Text color="white" fontSize="$2" fontWeight="700">SENT</Text>
               </XStack>
             ) : didBeat ? (
               <XStack bg="$green9" px="$2" py="$0.5" br="$2">
-                <Text color="white" fontSize="$1" fontWeight="700">BEAT IT!</Text>
+                <Text color="white" fontSize="$2" fontWeight="700">BEAT IT!</Text>
               </XStack>
             ) : null}
           </XStack>
@@ -549,13 +549,13 @@ function CompletedTagCard({
             {isOwnTag ? 'You sent this tag' : `From ${tag.sender?.display_name || 'Someone'}`}
           </Text>
           <XStack gap="$2" alignItems="center">
-            <Text color={isOwnTag ? '$green11' : '$blue11'} fontSize="$2" fontWeight="600">
+            <Text color={isOwnTag ? '$green11' : '$blue11'} fontSize="$3" fontWeight="600">
               {isOwnTag ? 'Your score' : 'Their'}: {tag.value}
             </Text>
             {!isOwnTag && (
               <>
-                <Text color="$gray10" fontSize="$2">→</Text>
-                <Text color={didBeat ? '$green11' : '$blue11'} fontSize="$2" fontWeight="600">
+                <Text color="$gray10" fontSize="$3">→</Text>
+                <Text color={didBeat ? '$green11' : '$blue11'} fontSize="$3" fontWeight="600">
                   Yours: {completedValue || tag.value}
                 </Text>
               </>

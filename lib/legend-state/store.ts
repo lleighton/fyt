@@ -144,6 +144,7 @@ export const groups$ = observable(
         members:group_members(
           user_id,
           role,
+          joined_at,
           profile:profiles(id, display_name, avatar_url)
         )
       `) as any,
@@ -257,6 +258,30 @@ export const streaks$ = observable(
 )
 
 /**
+ * Group Invites observable - pending group invitations for current user
+ * Real-time sync to show invitations immediately when received
+ */
+export const groupInvites$ = observable(
+  syncedSupabase({
+    supabase,
+    collection: 'group_invites',
+    select: (from) =>
+      from.select(`
+        *,
+        group:groups(id, name, avatar_url),
+        inviter:profiles!group_invites_inviter_id_fkey(id, display_name, avatar_url)
+      `) as any,
+    filter: (async (select: any) => {
+      const userId = await getCurrentUserId()
+      if (!userId) throw new Error('Not authenticated')
+      return select.eq('invitee_id', userId).eq('status', 'pending')
+    }) as any,
+    persist: getSafePersistConfig('group_invites_v1'),
+    realtime: true,
+  })
+)
+
+/**
  * Legacy store$ for backwards compatibility
  * Maps to the new separate observables
  */
@@ -286,6 +311,9 @@ export const store$: any = {
   tags: tags$,
   tagRecipients: tagRecipients$,
   streaks: streaks$,
+
+  // Group invites accessor
+  groupInvites: groupInvites$,
 
   /**
    * Computed: Activity grid data (GitHub-style)
@@ -511,6 +539,23 @@ export const store$: any = {
     return Object.values(streaksData)
       .filter((s: any) => s?.streak_type === 'group' && s?.current_count > 0)
       .sort((a: any, b: any) => (b?.current_count || 0) - (a?.current_count || 0))
+  },
+
+  /**
+   * Computed: Pending group invitations for current user
+   * Returns invites sorted by most recent first
+   */
+  pendingGroupInvites: (): any[] => {
+    const invitesData = groupInvites$.get()
+    if (!invitesData) return []
+
+    return Object.values(invitesData)
+      .filter((i: any) => i?.status === 'pending')
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a?.created_at || 0).getTime()
+        const dateB = new Date(b?.created_at || 0).getTime()
+        return dateB - dateA
+      })
   },
 }
 

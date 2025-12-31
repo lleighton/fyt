@@ -40,6 +40,8 @@ function RootLayout() {
     return null
   }
 
+  const isDark = colorScheme === 'dark'
+
   return (
     <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
       <Theme name={colorScheme ?? 'light'}>
@@ -47,12 +49,16 @@ function RootLayout() {
           screenOptions={{
             headerShown: false,
             animation: 'slide_from_right',
+            contentStyle: {
+              backgroundColor: isDark ? '#000000' : '#ffffff',
+            },
+            navigationBarColor: isDark ? '#000000' : '#ffffff',
           }}
         >
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(public)" />
         </Stack>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+        <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
       </Theme>
     </TamaguiProvider>
   )

@@ -84,7 +84,13 @@ export function setupNotificationListeners() {
     const data = response.notification.request.content.data
 
     // Navigate based on notification type
-    if (data?.tagId) {
+    if (data?.type === 'tag_received' && data?.tagId) {
+      router.push(`/(auth)/tag/${data.tagId}` as any)
+    } else if (data?.type === 'group_invite') {
+      // Navigate to groups tab where invitations are shown
+      router.push('/(auth)/(tabs)/groups' as any)
+    } else if (data?.tagId) {
+      // Fallback for older tag notifications
       router.push(`/(auth)/tag/${data.tagId}` as any)
     } else if (data?.screen) {
       router.push(data.screen as any)
@@ -154,6 +160,14 @@ export async function setupAndroidNotificationChannel() {
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#10B981',
+    })
+
+    await Notifications.setNotificationChannelAsync('groups', {
+      name: 'Group Notifications',
+      description: 'Notifications for group invitations and updates',
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#3B82F6',
     })
   }
 }

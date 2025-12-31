@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, H1, Button, ScrollView } from 'tamagui'
 import { X, ChevronLeft, ChevronRight, Send } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -185,27 +185,19 @@ function CreateTagScreen() {
 
       if (recipientsError) throw recipientsError
 
-      // 4. Also create a challenge record for backwards compatibility
-      const { error: challengeError } = await (supabase
-        .from('challenges') as any)
-        .insert({
-          creator_id: session.user.id,
-          title: `${form.exercise.name} Tag`,
-          exercise: form.exercise.name,
-          challenge_type: form.exercise.type === 'time' ? 'for_time' : 'amrap',
-          is_public: form.isPublic,
-          ends_at: expiresAt.toISOString(),
-          is_tag: true,
-          tag_id: tag.id,
-          config: {
-            target_value: form.value,
-            unit: form.exercise.unit,
-          },
-        })
+      // 4. Record sender's completion (activity record)
+      const { error: completionError } = await (supabase.rpc as any)(
+        'record_tag_send_completion',
+        {
+          p_tag_id: tag.id,
+          p_sender_id: session.user.id,
+          p_value: form.value,
+        }
+      )
 
-      if (challengeError) {
-        console.warn('Failed to create challenge record:', challengeError)
-        // Don't fail the whole operation, tag is created
+      if (completionError) {
+        console.warn('Failed to record sender completion:', completionError)
+        // Don't fail - tag is created, this is for activity tracking
       }
 
       // 5. Update the sender's tag streak
@@ -252,7 +244,7 @@ function CreateTagScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'bottom']}>
+    <SafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background" width="100%">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -390,7 +382,7 @@ function CreateTagScreen() {
           )}
         </YStack>
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

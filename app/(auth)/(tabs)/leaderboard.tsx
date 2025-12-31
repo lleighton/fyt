@@ -12,7 +12,7 @@ import {
   Tabs as TamaguiTabs,
 } from 'tamagui'
 import { Zap, Medal, Target, Percent, User } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -88,17 +88,17 @@ function LeaderboardScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <SafeArea edges={['top']}>
         <YStack flex={1} bg="$background" justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" />
           <Text mt="$4" color="$gray10">Loading leaderboard...</Text>
         </YStack>
-      </SafeAreaView>
+      </SafeArea>
     )
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <YStack px="$4" py="$4" gap="$2">
@@ -209,7 +209,7 @@ function LeaderboardScreen() {
           </TamaguiTabs>
         )}
       </YStack>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 

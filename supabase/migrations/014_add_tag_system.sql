@@ -6,7 +6,7 @@
 -- EXERCISES TABLE (Curated bodyweight exercises)
 -- ============================================
 CREATE TABLE IF NOT EXISTS exercises (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL UNIQUE,
   category TEXT NOT NULL CHECK (category IN ('upper_body', 'core', 'lower_body', 'full_body')),
   type TEXT NOT NULL CHECK (type IN ('reps', 'time')),
@@ -28,7 +28,7 @@ CREATE INDEX IF NOT EXISTS idx_exercises_display ON exercises(display_order, nam
 -- TAGS TABLE (Core tag record)
 -- ============================================
 CREATE TABLE IF NOT EXISTS tags (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   challenge_id UUID REFERENCES challenges(id) ON DELETE SET NULL, -- Links to existing challenge system for compatibility
   sender_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE RESTRICT,
@@ -54,7 +54,7 @@ CREATE INDEX IF NOT EXISTS idx_tags_parent ON tags(parent_tag_id) WHERE parent_t
 -- TAG RECIPIENTS TABLE (Who was tagged)
 -- ============================================
 CREATE TABLE IF NOT EXISTS tag_recipients (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   recipient_id UUID REFERENCES profiles(id) ON DELETE CASCADE, -- null if external invite
   recipient_phone TEXT, -- for external invites (not on platform yet)
@@ -80,7 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_tag_recipients_status ON tag_recipients(status, c
 -- STREAKS TABLE (Track tag streaks)
 -- ============================================
 CREATE TABLE IF NOT EXISTS streaks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   streak_type TEXT NOT NULL CHECK (streak_type IN ('pair', 'public', 'group')),
   partner_id UUID REFERENCES profiles(id) ON DELETE CASCADE, -- for pair streaks

@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, H1, Button, Card, Input, ScrollView } from 'tamagui'
 import { X, Send, Clock, Check } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { KeyboardSafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -83,18 +83,43 @@ function TagRespondScreen() {
     setSubmitting(true)
 
     try {
-      // Update tag_recipient status
-      const { error: recipientError } = await (supabase
+      // First, get the tag_recipient ID for this user
+      const { data: recipient, error: recipientFetchError } = await (supabase
         .from('tag_recipients') as any)
-        .update({
-          status: 'completed',
-          response_value: value,
-          responded_at: new Date().toISOString(),
-        })
+        .select('id')
         .eq('tag_id', tagId)
         .eq('recipient_id', session.user.id)
+        .single()
 
-      if (recipientError) throw recipientError
+      if (recipientFetchError || !recipient) {
+        throw new Error('Could not find your tag invitation')
+      }
+
+      // Use the RPC function to create completion and update recipient atomically
+      const { error: completionError } = await (supabase.rpc as any)(
+        'complete_tag_response',
+        {
+          p_tag_recipient_id: recipient.id,
+          p_value: value,
+          p_proof_url: null,
+          p_proof_type: null,
+        }
+      )
+
+      if (completionError) throw completionError
+
+      // Update streak
+      const { error: streakError } = await (supabase.rpc as any)(
+        'update_tag_streak',
+        {
+          p_user_id: session.user.id,
+          p_streak_type: 'public',
+        }
+      )
+
+      if (streakError) {
+        console.warn('Failed to update streak:', streakError)
+      }
 
       // Determine if user beat the tag
       const didBeat = value > tag.value
@@ -132,23 +157,23 @@ function TagRespondScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <KeyboardSafeArea edges={['top']}>
         <YStack flex={1} bg="$background" justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" />
           <Text mt="$4" color="$gray10">Loading tag...</Text>
         </YStack>
-      </SafeAreaView>
+      </KeyboardSafeArea>
     )
   }
 
   if (!tag) {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <KeyboardSafeArea edges={['top']}>
         <YStack flex={1} bg="$background" justifyContent="center" alignItems="center" p="$4">
           <Text color="$gray10" textAlign="center">Tag not found</Text>
           <Button mt="$4" onPress={() => router.back()}>Go Back</Button>
         </YStack>
-      </SafeAreaView>
+      </KeyboardSafeArea>
     )
   }
 
@@ -158,7 +183,7 @@ function TagRespondScreen() {
   const isTimeBased = tag.exercise?.type === 'time'
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'bottom']}>
+    <KeyboardSafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -348,7 +373,7 @@ function TagRespondScreen() {
           </Button>
         </YStack>
       </YStack>
-    </SafeAreaView>
+    </KeyboardSafeArea>
   )
 }
 

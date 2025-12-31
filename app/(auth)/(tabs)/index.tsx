@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { RefreshControl } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useFocusEffect } from '@react-navigation/native'
 import { observer } from '@legendapp/state/react'
@@ -11,11 +12,12 @@ import {
   ScrollView,
 } from 'tamagui'
 import { Flame, UserPlus, Send, Clock, ChevronRight, Zap } from '@tamagui/lucide-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeArea } from '@/components/ui'
 
 import { store$, auth$, profile$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
 import { ActivityGrid } from '@/components/activity/ActivityGrid'
+import { useRefresh } from '@/lib/sync-service'
 
 /**
  * Home screen / Dashboard
@@ -31,6 +33,9 @@ function HomeScreen() {
   const session = auth$.session.get()
   const profile = store$.profile.get()
   const completions = store$.completions.get()
+
+  // Pull-to-refresh
+  const { isRefreshing, onRefresh } = useRefresh()
 
   // Fallback: Load data directly if sync fails
   const [directCompletions, setDirectCompletions] = useState<any[]>([])
@@ -59,10 +64,10 @@ function HomeScreen() {
           setTagStreak(profileData.tag_streak_public || 0)
         }
 
-        // Load completions for activity grid
+        // Load completions for activity grid (now includes all activity: tags, challenges, workouts)
         const { data: completionsData } = await supabase
           .from('completions')
-          .select('*')
+          .select('id, completed_at')
           .eq('user_id', session.user.id)
           .eq('deleted', false)
 
@@ -114,8 +119,14 @@ function HomeScreen() {
   const currentStreak = computeStreak(activityGrid)
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <ScrollView flex={1} bg="$background">
+    <SafeArea edges={['top']}>
+      <ScrollView
+        flex={1}
+        bg="$background"
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+      >
         <YStack px="$4" py="$4" gap="$4">
           {/* Header */}
           <XStack justifyContent="space-between" alignItems="center">
@@ -432,7 +443,7 @@ function HomeScreen() {
 
         </YStack>
       </ScrollView>
-    </SafeAreaView>
+    </SafeArea>
   )
 }
 
