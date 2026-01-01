@@ -8,6 +8,7 @@ import { KeyboardSafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
+import { TagEvents } from '@/lib/analytics'
 
 /**
  * Tag Response Screen
@@ -123,6 +124,13 @@ function TagRespondScreen() {
 
       // Determine if user beat the tag
       const didBeat = value > tag.value
+
+      // Track tag response
+      TagEvents.responded({
+        tagId: tagId!,
+        completedValue: value,
+        beatTarget: didBeat,
+      })
 
       Alert.alert(
         didBeat ? 'You Beat It!' : 'Nice Try!',

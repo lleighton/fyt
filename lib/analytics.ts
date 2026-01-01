@@ -1,4 +1,4 @@
-import PostHog from 'posthog-react-native'
+import PostHog, { PostHogProvider, usePostHog } from 'posthog-react-native'
 import { setUser as setSentryUser, clearUser as clearSentryUser, addBreadcrumb } from './monitoring'
 
 /**
@@ -12,41 +12,51 @@ import { setUser as setSentryUser, clearUser as clearSentryUser, addBreadcrumb }
  * - Feature flags (optional)
  */
 
-const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY
+const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY || ''
 const POSTHOG_HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
 
-// PostHog client instance
+// PostHog client instance (singleton)
 let posthogClient: PostHog | null = null
+
+/**
+ * Get or create PostHog client instance
+ */
+function getPostHogClient(): PostHog | null {
+  if (!POSTHOG_API_KEY) {
+    if (__DEV__) {
+      console.log('[Analytics] No PostHog API key configured')
+    }
+    return null
+  }
+
+  if (!posthogClient) {
+    posthogClient = new PostHog(POSTHOG_API_KEY, {
+      host: POSTHOG_HOST,
+    })
+    console.log('[Analytics] PostHog client created')
+  }
+
+  return posthogClient
+}
 
 /**
  * Initialize PostHog analytics
  * Call this at app startup
  */
 export async function initAnalytics(): Promise<void> {
-  if (!POSTHOG_API_KEY) {
-    if (__DEV__) {
-      console.log('[Analytics] No PostHog API key configured, skipping initialization')
-    }
-    return
-  }
-
-  try {
-    posthogClient = new PostHog(POSTHOG_API_KEY, {
-      host: POSTHOG_HOST,
-      // Disable in development if you prefer
-      disabled: false, // Set to __DEV__ to disable in development
-      // Capture app lifecycle events
-      captureAppLifecycleEvents: true,
-      // Flush events every 30 seconds
-      flushInterval: 30000,
-      // Flush when 20 events are queued
-      flushAt: 20,
-    })
-
+  const client = getPostHogClient()
+  if (client) {
     console.log('[Analytics] PostHog initialized successfully')
-  } catch (error) {
-    console.error('[Analytics] Failed to initialize PostHog:', error)
   }
+}
+
+// Export provider and hook for React components
+export { PostHogProvider, usePostHog }
+
+// Export config for provider
+export const posthogConfig = {
+  apiKey: POSTHOG_API_KEY,
+  host: POSTHOG_HOST,
 }
 
 /**
@@ -68,7 +78,8 @@ export function identifyUser(user: {
   if (user.createdAt) properties.created_at = user.createdAt
 
   // Set user in PostHog
-  posthogClient?.identify(user.id, properties)
+  const client = getPostHogClient()
+  client?.identify(user.id, properties)
 
   // Also set user in Sentry
   setSentryUser({
@@ -84,7 +95,8 @@ export function identifyUser(user: {
  * Reset analytics (on logout)
  */
 export function resetAnalytics(): void {
-  posthogClient?.reset()
+  const client = getPostHogClient()
+  client?.reset()
   clearSentryUser()
   addBreadcrumb('User logged out', 'auth')
 }
@@ -98,7 +110,14 @@ export function trackEvent(
   eventName: string,
   properties?: EventProperties
 ): void {
-  posthogClient?.capture(eventName, properties)
+  const client = getPostHogClient()
+  if (client) {
+    client.capture(eventName, properties)
+    // Flush immediately in dev for testing
+    if (__DEV__) {
+      client.flush()
+    }
+  }
   addBreadcrumb(eventName, 'analytics', properties)
 
   if (__DEV__) {
@@ -113,7 +132,8 @@ export function trackScreen(
   screenName: string,
   properties?: EventProperties
 ): void {
-  posthogClient?.screen(screenName, properties)
+  const client = getPostHogClient()
+  client?.screen(screenName, properties)
   addBreadcrumb(`Screen: ${screenName}`, 'navigation', properties)
 
   if (__DEV__) {
@@ -229,23 +249,26 @@ export const ErrorEvents = {
  * Check if a feature flag is enabled
  */
 export async function isFeatureEnabled(flagKey: string): Promise<boolean> {
-  if (!posthogClient) return false
-  return posthogClient.isFeatureEnabled(flagKey) ?? false
+  const client = getPostHogClient()
+  if (!client) return false
+  return client.isFeatureEnabled(flagKey) ?? false
 }
 
 /**
  * Get feature flag value
  */
 export async function getFeatureFlag(flagKey: string): Promise<unknown> {
-  if (!posthogClient) return undefined
-  return posthogClient.getFeatureFlag(flagKey)
+  const client = getPostHogClient()
+  if (!client) return undefined
+  return client.getFeatureFlag(flagKey)
 }
 
 /**
  * Reload feature flags
  */
 export async function reloadFeatureFlags(): Promise<void> {
-  await posthogClient?.reloadFeatureFlagsAsync()
+  const client = getPostHogClient()
+  await client?.reloadFeatureFlagsAsync()
 }
 
 // ============================================
@@ -257,8 +280,9 @@ export async function reloadFeatureFlags(): Promise<void> {
  * Call on app close if needed
  */
 export async function shutdownAnalytics(): Promise<void> {
-  await posthogClient?.flush()
-  await posthogClient?.shutdown()
+  const client = getPostHogClient()
+  await client?.flush()
+  await client?.shutdown()
 }
 
 export default {

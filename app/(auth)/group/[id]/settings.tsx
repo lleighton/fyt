@@ -3,9 +3,6 @@ import { Alert, ActivityIndicator } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import * as Clipboard from 'expo-clipboard'
-import * as ImagePicker from 'expo-image-picker'
-import * as FileSystem from 'expo-file-system/legacy'
-import { decode } from 'base64-arraybuffer'
 import {
   YStack,
   XStack,
@@ -47,6 +44,7 @@ import {
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
 import { useFocusRefresh } from '@/lib/sync-service'
+import { useImageUpload } from '@/lib/hooks'
 
 interface PendingInvite {
   invite_id: string
@@ -83,9 +81,11 @@ function GroupSettingsScreen() {
   const [isPrivate, setIsPrivate] = useState(group?.is_private ?? false)
   const [inviteCode, setInviteCode] = useState(group?.invite_code || '')
 
+  // Image upload hook
+  const { uploading: uploadingImage, pickAndUpload } = useImageUpload()
+
   // Loading states
   const [saving, setSaving] = useState(false)
-  const [uploadingImage, setUploadingImage] = useState(false)
   const [regeneratingCode, setRegeneratingCode] = useState(false)
   const [processingMember, setProcessingMember] = useState<string | null>(null)
   const [loadingInvites, setLoadingInvites] = useState(false)
@@ -240,57 +240,26 @@ function GroupSettingsScreen() {
   }
 
   const handlePickImage = async () => {
+    if (!id) return
+
+    // Pick and upload image using the hook
+    const result = await pickAndUpload({
+      pathPrefix: 'groups',
+      identifier: id,
+    })
+
+    if (!result) return
+
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant photo library access')
-        return
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.5,
-      })
-
-      if (result.canceled || !result.assets?.[0]) return
-
-      setUploadingImage(true)
-
-      const image = result.assets[0]
-      const fileExt = image.uri.split('.').pop()?.toLowerCase() || 'jpg'
-      const fileName = `${id}-${Date.now()}.${fileExt}`
-      const filePath = `groups/${fileName}`
-
-      const base64 = await FileSystem.readAsStringAsync(image.uri, {
-        encoding: 'base64',
-      })
-      const arrayBuffer = decode(base64)
-
-      const { error: uploadError } = await supabase.storage
-        .from('tagfit')
-        .upload(filePath, arrayBuffer, {
-          contentType: `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`,
-          upsert: true,
-        })
-
-      if (uploadError) throw uploadError
-
-      const { data: urlData } = supabase.storage
-        .from('tagfit')
-        .getPublicUrl(filePath)
-
+      // Update group in Supabase
       await (supabase.from('groups') as any)
-        .update({ avatar_url: urlData.publicUrl, updated_at: new Date().toISOString() })
+        .update({ avatar_url: result.publicUrl, updated_at: new Date().toISOString() })
         .eq('id', id)
 
-      store$.groups[id!].avatar_url.set(urlData.publicUrl)
+      store$.groups[id].avatar_url.set(result.publicUrl)
       Alert.alert('Success', 'Group image updated')
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to upload image')
-    } finally {
-      setUploadingImage(false)
+      Alert.alert('Error', err.message || 'Failed to update group')
     }
   }
 

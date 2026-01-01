@@ -2,9 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { Alert, ActivityIndicator, RefreshControl } from 'react-native'
 import { observer } from '@legendapp/state/react'
 import { useFocusEffect } from 'expo-router'
-import * as ImagePicker from 'expo-image-picker'
-import * as FileSystem from 'expo-file-system/legacy'
-import { decode } from 'base64-arraybuffer'
 import {
   YStack,
   XStack,
@@ -36,6 +33,7 @@ import { supabase } from '@/lib/supabase'
 import ActivityChart from '@/components/activity/ActivityChart'
 import { useRefresh } from '@/lib/sync-service'
 import { AuthEvents, resetAnalytics } from '@/lib/analytics'
+import { useImageUpload } from '@/lib/hooks'
 
 /**
  * Profile screen
@@ -50,11 +48,13 @@ function ProfileScreen() {
   // Pull-to-refresh
   const { isRefreshing, onRefresh } = useRefresh()
 
+  // Image upload hook
+  const { uploading: uploadingAvatar, pickAndUpload } = useImageUpload()
+
   const [isEditing, setIsEditing] = useState(false)
   const [firstName, setFirstName] = useState(profile?.first_name || '')
   const [lastName, setLastName] = useState(profile?.last_name || '')
   const [loading, setLoading] = useState(false)
-  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [deletingAccount, setDeletingAccount] = useState(false)
 
   // Load data when screen comes into focus (fallback for sync)
@@ -168,70 +168,27 @@ function ProfileScreen() {
   }
 
   const handlePickAvatar = async () => {
+    // Get fresh profile from store
+    const currentProfile = store$.profile.get()
+    if (!currentProfile) {
+      Alert.alert('Error', 'No profile loaded. Please try reloading the app.')
+      return
+    }
+
+    // Pick and upload image using the hook
+    const result = await pickAndUpload({
+      pathPrefix: 'avatars',
+      identifier: currentProfile.id,
+    })
+
+    if (!result) return
+
     try {
-      // Get fresh profile from store
-      const currentProfile = store$.profile.get()
-      if (!currentProfile) {
-        Alert.alert('Error', 'No profile loaded. Please try reloading the app.')
-        return
-      }
-
-      // Request permissions
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant photo library access to upload an avatar')
-        return
-      }
-
-      // Pick image
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.5,
-      })
-
-      if (result.canceled || !result.assets || !result.assets[0]) {
-        return
-      }
-
-      setUploadingAvatar(true)
-
-      const image = result.assets[0]
-      const fileExt = image.uri.split('.').pop()?.toLowerCase() || 'jpg'
-      const fileName = `${currentProfile.id}-${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
-
-      // Read file as base64 using expo-file-system
-      const base64 = await FileSystem.readAsStringAsync(image.uri, {
-        encoding: 'base64',
-      })
-
-      // Decode base64 to ArrayBuffer for Supabase upload
-      const arrayBuffer = decode(base64)
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('tagfit')
-        .upload(filePath, arrayBuffer, {
-          contentType: `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`,
-          upsert: true,
-        })
-
-      if (uploadError) throw uploadError
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('tagfit')
-        .getPublicUrl(filePath)
-
-      const avatarUrl = urlData.publicUrl
-
       // Update profile in Supabase
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
         .update({
-          avatar_url: avatarUrl,
+          avatar_url: result.publicUrl,
           updated_at: new Date().toISOString(),
         })
         .eq('id', currentProfile.id)
@@ -247,11 +204,8 @@ function ProfileScreen() {
 
       Alert.alert('Success', 'Avatar updated!')
     } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to upload avatar'
-      Alert.alert('Error', errorMessage)
-      console.error('Avatar upload error:', err)
-    } finally {
-      setUploadingAvatar(false)
+      Alert.alert('Error', err?.message || 'Failed to update profile')
+      console.error('Avatar update error:', err)
     }
   }
 

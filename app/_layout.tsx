@@ -11,10 +11,13 @@ import { auth$ } from '@/lib/legend-state/store'
 import { useAuthLinking } from '@/lib/auth-linking'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { initSentry } from '@/lib/monitoring'
-import { initAnalytics } from '@/lib/analytics'
+import { initAnalytics, PostHogProvider, posthogConfig } from '@/lib/analytics'
 
 // Initialize Sentry as early as possible
 initSentry()
+
+// Initialize PostHog synchronously at module load
+initAnalytics()
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync()
@@ -35,11 +38,6 @@ function RootLayout() {
   // Handle deep link authentication callbacks (magic links)
   useAuthLinking()
 
-  // Initialize analytics on mount
-  useEffect(() => {
-    initAnalytics()
-  }, [])
-
   useEffect(() => {
     if (!isLoading) {
       SplashScreen.hideAsync()
@@ -55,24 +53,30 @@ function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
-        <Theme name={colorScheme ?? 'light'}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right',
-              contentStyle: {
-                backgroundColor: isDark ? '#000000' : '#ffffff',
-              },
-              navigationBarColor: isDark ? '#000000' : '#ffffff',
-            }}
-          >
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(public)" />
-          </Stack>
-          <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
-        </Theme>
-      </TamaguiProvider>
+      <PostHogProvider
+        apiKey={posthogConfig.apiKey}
+        options={{ host: posthogConfig.host }}
+        autocapture={false}
+      >
+        <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
+          <Theme name={colorScheme ?? 'light'}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'slide_from_right',
+                contentStyle: {
+                  backgroundColor: isDark ? '#000000' : '#ffffff',
+                },
+                navigationBarColor: isDark ? '#000000' : '#ffffff',
+              }}
+            >
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(public)" />
+            </Stack>
+            <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
+          </Theme>
+        </TamaguiProvider>
+      </PostHogProvider>
     </ErrorBoundary>
   )
 }

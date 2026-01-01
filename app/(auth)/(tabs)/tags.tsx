@@ -405,8 +405,8 @@ function SentTagCard({
               Sent to {recipients.length} {recipients.length === 1 ? 'person' : 'people'}
             </Text>
             {completedCount > 0 && (
-              <XStack bg="$green3" px="$1.5" py="$0.5" br="$2">
-                <Text color="$green11" fontSize="$2" fontWeight="600">
+              <XStack bg="$green3" px="$2" py="$1" br="$2">
+                <Text color="$green11" fontSize="$3" fontWeight="600">
                   {completedCount} done
                 </Text>
               </XStack>
@@ -415,7 +415,7 @@ function SentTagCard({
           <XStack gap="$1" alignItems="center">
             <Clock size={12} color={isExpired ? '$red10' : '$gray10'} />
             <Text color={isExpired ? '$red10' : '$gray10'} fontSize="$3">
-              {isExpired ? 'Expired' : `${hoursLeft}h left`}
+              {isExpired ? 'Ended' : `${hoursLeft}h left`}
             </Text>
           </XStack>
         </YStack>
@@ -475,7 +475,7 @@ function ReceivedTagCard({
           <XStack gap="$1" alignItems="center">
             <Clock size={12} color={isExpired ? '$red10' : '$orange10'} />
             <Text color={isExpired ? '$red10' : '$orange10'} fontSize="$3" fontWeight="600">
-              {isExpired ? 'Expired' : `${hoursLeft}h left to respond`}
+              {isExpired ? 'Ended' : `${hoursLeft}h left to respond`}
             </Text>
           </XStack>
         </YStack>

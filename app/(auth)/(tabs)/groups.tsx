@@ -145,17 +145,15 @@ function GroupsScreen() {
     <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
-        <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+        <XStack px="$4" py="$4" justifyContent="space-between" alignItems="center">
           <H1 fontSize="$8">My Groups</H1>
-          <XStack gap="$2">
-            <Button
-              size="$3"
-              circular
-              bg="$blue10"
-              icon={<Plus size={20} color="white" />}
-              onPress={() => router.push('/(auth)/group/create')}
-            />
-          </XStack>
+          <Button
+            size="$4"
+            circular
+            bg="$blue10"
+            icon={<Plus size={20} color="white" />}
+            onPress={() => router.push('/(auth)/group/create')}
+          />
         </XStack>
 
         <ScrollView

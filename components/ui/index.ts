@@ -18,3 +18,15 @@ export {
   ProfileHeaderSkeleton,
   SectionSkeleton,
 } from './Skeleton'
+
+// Card variants
+export {
+  CardBase,
+  CardElevated,
+  CardInteractive,
+  CardSuccess,
+  CardWarning,
+  CardDanger,
+  CardInfo,
+  CardOutline,
+} from './Card'

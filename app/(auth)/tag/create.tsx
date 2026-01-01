@@ -8,6 +8,7 @@ import { SafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
+import { TagEvents } from '@/lib/analytics'
 import { ExerciseSelector, ResultInput, RecipientSelector } from '@/components/tag'
 import type { Database } from '@/types/database.types'
 
@@ -223,6 +224,18 @@ function CreateTagScreen() {
         console.warn('Failed to send push notifications:', notifError)
         // Don't fail the whole operation
       }
+
+      // Track tag creation
+      TagEvents.created({
+        exerciseId: form.exercise.id,
+        value: form.value,
+        recipientCount: allRecipients.length - 1, // Exclude sender
+        isPublic: form.isPublic,
+      })
+      TagEvents.sent({
+        tagId: tag.id,
+        recipientCount: allRecipients.length - 1,
+      })
 
       // Success!
       Alert.alert(

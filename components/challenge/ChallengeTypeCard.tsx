@@ -1,0 +1,87 @@
+import { Card, XStack, YStack, Text } from 'tamagui'
+import { CheckCircle } from '@tamagui/lucide-icons'
+
+export type ChallengeType = 'amrap' | 'max_effort' | 'for_time' | 'workout'
+
+interface ChallengeTypeCardProps {
+  icon: React.ReactNode
+  type: ChallengeType
+  title: string
+  description: string
+  example?: string
+  selected: boolean
+  onSelect: () => void
+}
+
+/**
+ * Challenge type selection card
+ *
+ * Displays a selectable card for different challenge types with
+ * color-coded styling based on the type.
+ */
+export function ChallengeTypeCard({
+  icon,
+  type,
+  title,
+  description,
+  example,
+  selected,
+  onSelect,
+}: ChallengeTypeCardProps) {
+  const bgColor = selected
+    ? type === 'amrap'
+      ? '$purple2'
+      : type === 'max_effort'
+        ? '$orange2'
+        : type === 'for_time'
+          ? '$green2'
+          : '$blue2'
+    : '$gray2'
+
+  const borderColor =
+    type === 'amrap'
+      ? '$purple10'
+      : type === 'max_effort'
+        ? '$orange10'
+        : type === 'for_time'
+          ? '$green10'
+          : '$blue10'
+
+  return (
+    <Card
+      bg={bgColor}
+      p="$5"
+      br="$6"
+      borderWidth={selected ? 2 : 0}
+      borderColor={selected ? borderColor : 'transparent'}
+      shadowColor={selected ? '$shadowColor' : 'transparent'}
+      shadowOffset={{ width: 0, height: 2 }}
+      shadowOpacity={selected ? 0.15 : 0}
+      shadowRadius={selected ? 8 : 0}
+      elevation={selected ? 2 : 0}
+      pressStyle={{ scale: 0.97 }}
+      animation="quick"
+      onPress={onSelect}
+    >
+      <XStack gap="$4" alignItems="flex-start">
+        <YStack pt="$0.5">{icon}</YStack>
+        <YStack flex={1} gap="$2">
+          <Text fontWeight="700" fontSize="$6" color="$gray12">
+            {title}
+          </Text>
+          <Text color="$gray11" fontSize="$3" lineHeight="$3">
+            {description}
+          </Text>
+          {example && (
+            <Text color="$gray10" fontSize="$2" fontStyle="italic" mt="$1">
+              e.g. {example}
+            </Text>
+          )}
+        </YStack>
+        <YStack minWidth={28} justifyContent="center">
+          {selected && <CheckCircle size={28} color={borderColor} />}
+        </YStack>
+      </XStack>
+    </Card>
+  )
+}

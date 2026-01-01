@@ -93,11 +93,11 @@ export function ExerciseCard({ exercise, selected, onSelect }: ExerciseCardProps
             {/* Type indicator */}
             <XStack gap="$1" alignItems="center">
               {isTimeBased ? (
-                <Clock size={12} color="$gray10" />
+                <Clock size={14} color="$gray10" />
               ) : (
-                <Hash size={12} color="$gray10" />
+                <Hash size={14} color="$gray10" />
               )}
-              <Text fontSize="$2" color="$gray10">
+              <Text fontSize="$3" color="$gray10">
                 {isTimeBased ? 'Time' : 'Reps'}
               </Text>
             </XStack>
@@ -105,7 +105,7 @@ export function ExerciseCard({ exercise, selected, onSelect }: ExerciseCardProps
             <Text color="$gray8">•</Text>
 
             {/* Difficulty */}
-            <Text fontSize="$2" color={getDifficultyColor(exercise.difficulty)}>
+            <Text fontSize="$3" color={getDifficultyColor(exercise.difficulty)}>
               {getDifficultyLabel(exercise.difficulty)}
             </Text>
           </XStack>

@@ -21,6 +21,7 @@ import { Alert } from 'react-native'
 
 import { auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
+import { GroupEvents } from '@/lib/analytics'
 import type { Database } from '@/types/database.types'
 
 /**
@@ -119,6 +120,12 @@ function JoinGroupScreen() {
         .insert(memberData)
 
       if (memberError) throw memberError
+
+      // Track group join
+      GroupEvents.joined({
+        groupId: group.id,
+        method: code ? 'link' : 'code',
+      })
 
       Alert.alert(
         'Welcome!',

@@ -196,7 +196,7 @@ function TagDetailScreen() {
                       fontWeight="600"
                       fontSize="$3"
                     >
-                      {isExpired ? 'Expired' : `${hoursLeft}h left`}
+                      {isExpired ? 'Ended' : `${hoursLeft}h left`}
                     </Text>
                   </XStack>
                 </XStack>

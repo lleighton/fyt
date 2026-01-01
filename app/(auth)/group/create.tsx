@@ -26,6 +26,7 @@ import * as Clipboard from 'expo-clipboard'
 
 import { auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
+import { GroupEvents } from '@/lib/analytics'
 import type { Database } from '@/types/database.types'
 
 /**
@@ -96,6 +97,12 @@ function CreateGroupScreen() {
         .insert(memberData)
 
       if (memberError) throw memberError
+
+      // Track group creation
+      GroupEvents.created({
+        groupId: group.id,
+        isPrivate,
+      })
 
       // Show success with sharing options
       Alert.alert(
