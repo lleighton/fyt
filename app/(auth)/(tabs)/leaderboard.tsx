@@ -264,18 +264,18 @@ function LeaderboardRow({
 
   return (
     <Card
-      bg={user.is_current_user ? '$blue2' : '$backgroundHover'}
+      bg={user.is_current_user ? '$orange2' : '$backgroundHover'}
       p="$3"
       br="$4"
       borderWidth={user.is_current_user ? 2 : 0}
-      borderColor={user.is_current_user ? '$blue10' : 'transparent'}
+      borderColor={user.is_current_user ? '$orange10' : 'transparent'}
     >
       <XStack alignItems="center" gap="$3">
         {/* Rank */}
         {getRankIcon(rank)}
 
         {/* Avatar */}
-        <Avatar circular size="$4" bg="$blue10">
+        <Avatar circular size="$4" bg="$orange10">
           {user.avatar_url ? (
             <Avatar.Image src={user.avatar_url} />
           ) : (
@@ -290,7 +290,7 @@ function LeaderboardRow({
           <Text fontWeight="600" fontSize="$4">
             {displayName}
             {user.is_current_user && (
-              <Text color="$blue10" fontSize="$3">
+              <Text color="$orange10" fontSize="$3">
                 {' '}
                 (You)
               </Text>

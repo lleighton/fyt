@@ -52,14 +52,14 @@ function RootLayout() {
   const isDark = colorScheme === 'dark'
 
   return (
-    <ErrorBoundary>
-      <PostHogProvider
-        apiKey={posthogConfig.apiKey}
-        options={{ host: posthogConfig.host }}
-        autocapture={false}
-      >
-        <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
-          <Theme name={colorScheme ?? 'light'}>
+    <PostHogProvider
+      apiKey={posthogConfig.apiKey}
+      options={{ host: posthogConfig.host }}
+      autocapture={false}
+    >
+      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
+        <Theme name={colorScheme ?? 'light'}>
+          <ErrorBoundary>
             <Stack
               screenOptions={{
                 headerShown: false,
@@ -73,11 +73,11 @@ function RootLayout() {
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(public)" />
             </Stack>
-            <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
-          </Theme>
-        </TamaguiProvider>
-      </PostHogProvider>
-    </ErrorBoundary>
+          </ErrorBoundary>
+          <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
+        </Theme>
+      </TamaguiProvider>
+    </PostHogProvider>
   )
 }
 

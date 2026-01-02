@@ -20,7 +20,7 @@ import {
   Globe,
   CheckCircle,
 } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { KeyboardSafeArea } from '@/components/ui'
 import { Alert, Share } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 
@@ -149,7 +149,7 @@ function CreateGroupScreen() {
   }
 
   return (
-    <SafeArea edges={['top']}>
+    <KeyboardSafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -166,9 +166,9 @@ function CreateGroupScreen() {
         <ScrollView flex={1}>
           <YStack p="$4" gap="$4">
             {/* Info Card */}
-            <Card bg="$blue2" p="$4" br="$4" borderWidth={1} borderColor="$blue10">
+            <Card bg="$orange2" p="$4" br="$4" borderWidth={1} borderColor="$orange10">
               <XStack gap="$3" alignItems="center">
-                <Users size={32} color="$blue10" />
+                <Users size={32} color="$orange10" />
                 <YStack flex={1}>
                   <Text fontWeight="600" fontSize="$4">
                     Create Your Fitness Squad
@@ -216,10 +216,10 @@ function CreateGroupScreen() {
                   alignItems="center"
                   p="$3"
                   br="$3"
-                  bg={isPrivate ? '$blue2' : 'transparent'}
+                  bg={isPrivate ? '$orange2' : 'transparent'}
                 >
                   <XStack gap="$3" alignItems="center" flex={1}>
-                    <Lock size={24} color={isPrivate ? '$blue10' : '$gray10'} />
+                    <Lock size={24} color={isPrivate ? '$orange10' : '$gray10'} />
                     <YStack flex={1}>
                       <Text fontWeight="600">Private Group</Text>
                       <Text color="$gray10" fontSize="$2">
@@ -231,8 +231,9 @@ function CreateGroupScreen() {
                     checked={isPrivate}
                     onCheckedChange={setIsPrivate}
                     size="$3"
+                    backgroundColor={isPrivate ? '$orange6' : '$gray5'}
                   >
-                    <Switch.Thumb animation="quick" />
+                    <Switch.Thumb animation="quick" backgroundColor="white" />
                   </Switch>
                 </XStack>
 
@@ -289,7 +290,7 @@ function CreateGroupScreen() {
         <YStack p="$4" bg="$background" borderTopWidth={1} borderColor="$borderColor">
           <Button
             size="$5"
-            bg="$blue10"
+            bg="$orange10"
             icon={<Users size={20} />}
             disabled={loading || !name.trim()}
             onPress={handleCreateGroup}
@@ -298,7 +299,7 @@ function CreateGroupScreen() {
           </Button>
         </YStack>
       </YStack>
-    </SafeArea>
+    </KeyboardSafeArea>
   )
 }
 

@@ -358,7 +358,7 @@ function HomeScreen() {
 
           {/* Tag Someone - Primary CTA */}
           <Card
-            bg="$green9"
+            bg="$orange6"
             p="$5"
             br="$6"
             borderWidth={0}
@@ -397,18 +397,18 @@ function HomeScreen() {
           <XStack gap="$3">
             <Card
               flex={1}
-              bg="$purple10"
+              bg="$gray3"
               p="$4"
               br="$5"
               borderWidth={0}
-              pressStyle={{ scale: 0.97, opacity: 0.9 }}
+              pressStyle={{ scale: 0.97, bg: '$gray4' }}
               animation="quick"
               onPress={() => router.push('/(auth)/group/create')}
             >
               <YStack gap="$2" alignItems="center">
-                <UserPlus size={24} color="white" />
+                <UserPlus size={24} color="$gray12" />
                 <Text
-                  color="white"
+                  color="$gray12"
                   fontSize="$4"
                   fontWeight="600"
                   textAlign="center"

@@ -127,7 +127,7 @@ function ActivityCell({ count }: { count: number }) {
       br="$1"
       bg={color}
       borderWidth={count > 0 ? 2 : 0.5}
-      borderColor={count > 0 ? "$green10" : "$gray6"}
+      borderColor={count > 0 ? "$orange10" : "$gray6"}
     />
   )
 }
@@ -144,20 +144,20 @@ function getLevel(count: number): number {
 }
 
 /**
- * Get color for intensity level
+ * Get color for intensity level (orange brand scale)
  */
 function getColorForLevel(level: number): string {
   switch (level) {
     case 0:
       return '$gray5'
     case 1:
-      return '$green7'  // More visible than $green4
+      return '$orange7'
     case 2:
-      return '$green8'  // More visible than $green6
+      return '$orange8'
     case 3:
-      return '$green9'  // More visible than $green8
+      return '$orange9'
     case 4:
-      return '$green10'
+      return '$orange10'
     default:
       return '$gray5'
   }

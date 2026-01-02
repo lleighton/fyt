@@ -1,4 +1,11 @@
-import { useColorScheme, KeyboardAvoidingView, Platform } from 'react-native'
+import {
+  useColorScheme,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native'
 import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context'
 
 /**
@@ -19,39 +26,65 @@ export function SafeArea({ style, children, ...props }: SafeAreaViewProps) {
   )
 }
 
+/**
+ * Wrapper that dismisses keyboard when tapping outside inputs
+ * Use this around content that has input fields
+ */
+export function DismissKeyboardView({ children }: { children: React.ReactNode }) {
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={{ flex: 1 }}>{children}</View>
+    </TouchableWithoutFeedback>
+  )
+}
+
 interface KeyboardSafeAreaProps extends SafeAreaViewProps {
   /** Keyboard avoiding behavior - defaults to 'padding' on iOS */
   keyboardBehavior?: 'padding' | 'height' | 'position'
   /** Additional offset for keyboard avoiding view */
   keyboardVerticalOffset?: number
+  /** Whether to dismiss keyboard on tap outside - defaults to true */
+  dismissOnTap?: boolean
 }
 
 /**
  * SafeArea with keyboard avoidance for screens with inputs
  * Automatically handles keyboard on iOS to prevent input/button overlap
+ * Tapping outside inputs will dismiss the keyboard
  */
 export function KeyboardSafeArea({
   style,
   children,
   keyboardBehavior = 'padding',
   keyboardVerticalOffset = 0,
+  dismissOnTap = true,
   ...props
 }: KeyboardSafeAreaProps) {
   const colorScheme = useColorScheme()
   const backgroundColor = colorScheme === 'dark' ? '#000000' : '#ffffff'
+
+  const content = (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? keyboardBehavior : undefined}
+      keyboardVerticalOffset={keyboardVerticalOffset}
+    >
+      {children}
+    </KeyboardAvoidingView>
+  )
 
   return (
     <SafeAreaView
       style={[{ flex: 1, backgroundColor }, style]}
       {...props}
     >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? keyboardBehavior : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
-      >
-        {children}
-      </KeyboardAvoidingView>
+      {dismissOnTap ? (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={{ flex: 1 }}>{content}</View>
+        </TouchableWithoutFeedback>
+      ) : (
+        content
+      )}
     </SafeAreaView>
   )
 }

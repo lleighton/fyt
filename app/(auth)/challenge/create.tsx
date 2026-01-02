@@ -24,7 +24,7 @@ import {
   Users as UsersIcon,
 } from '@tamagui/lucide-icons'
 import { Alert } from 'react-native'
-import { SafeArea } from '@/components/ui'
+import { KeyboardSafeArea } from '@/components/ui'
 import { ChallengeTypeCard, StepBuilder } from '@/components/challenge'
 import type { ChallengeType } from '@/components/challenge'
 
@@ -316,7 +316,7 @@ function CreateChallengeScreen() {
   }
 
   return (
-    <SafeArea edges={['top']}>
+    <KeyboardSafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <YStack>
@@ -326,8 +326,8 @@ function CreateChallengeScreen() {
           </XStack>
           {group && (
             <XStack px="$4" pb="$3" gap="$2" alignItems="center">
-              <UsersIcon size={16} color="$blue10" />
-              <Text fontSize="$3" color="$blue10" fontWeight="600">
+              <UsersIcon size={16} color="$orange10" />
+              <Text fontSize="$3" color="$orange10" fontWeight="600">
                 For: {group.name}
               </Text>
             </XStack>
@@ -342,7 +342,7 @@ function CreateChallengeScreen() {
               flex={1}
               height={4}
               br="$2"
-              bg={i <= step ? '$blue10' : '$gray5'}
+              bg={i <= step ? '$orange10' : '$gray5'}
             />
           ))}
         </XStack>
@@ -358,7 +358,7 @@ function CreateChallengeScreen() {
                 </Text>
 
                 <ChallengeTypeCard
-                  icon={<Zap size={32} color="$blue10" />}
+                  icon={<Zap size={32} color="$orange10" />}
                   type="amrap"
                   title="AMRAP"
                   description="Max reps or rounds in a time limit • Quick, competitive"
@@ -484,7 +484,7 @@ function CreateChallengeScreen() {
                     <Button
                       size="$3"
                       variant={form.frequency === 'one_time' ? 'default' : 'outlined'}
-                      bg={form.frequency === 'one_time' ? '$blue10' : undefined}
+                      bg={form.frequency === 'one_time' ? '$orange10' : undefined}
                       onPress={() => updateForm({ frequency: 'one_time', duration_days: null })}
                       flex={1}
                       minWidth={100}
@@ -494,7 +494,7 @@ function CreateChallengeScreen() {
                     <Button
                       size="$3"
                       variant={form.frequency === 'daily' ? 'default' : 'outlined'}
-                      bg={form.frequency === 'daily' ? '$blue10' : undefined}
+                      bg={form.frequency === 'daily' ? '$orange10' : undefined}
                       onPress={() => updateForm({ frequency: 'daily' })}
                       flex={1}
                       minWidth={100}
@@ -504,7 +504,7 @@ function CreateChallengeScreen() {
                     <Button
                       size="$3"
                       variant={form.frequency === 'weekly' ? 'default' : 'outlined'}
-                      bg={form.frequency === 'weekly' ? '$blue10' : undefined}
+                      bg={form.frequency === 'weekly' ? '$orange10' : undefined}
                       onPress={() => updateForm({ frequency: 'weekly' })}
                       flex={1}
                       minWidth={100}
@@ -514,7 +514,7 @@ function CreateChallengeScreen() {
                     <Button
                       size="$3"
                       variant={form.frequency === 'monthly' ? 'default' : 'outlined'}
-                      bg={form.frequency === 'monthly' ? '$blue10' : undefined}
+                      bg={form.frequency === 'monthly' ? '$orange10' : undefined}
                       onPress={() => updateForm({ frequency: 'monthly' })}
                       flex={1}
                       minWidth={100}
@@ -535,7 +535,7 @@ function CreateChallengeScreen() {
                       <Button
                         size="$3"
                         variant={form.duration_days === 7 ? 'default' : 'outlined'}
-                        bg={form.duration_days === 7 ? '$blue10' : undefined}
+                        bg={form.duration_days === 7 ? '$orange10' : undefined}
                         onPress={() => updateForm({ duration_days: 7 })}
                         flex={1}
                         minWidth={80}
@@ -545,7 +545,7 @@ function CreateChallengeScreen() {
                       <Button
                         size="$3"
                         variant={form.duration_days === 14 ? 'default' : 'outlined'}
-                        bg={form.duration_days === 14 ? '$blue10' : undefined}
+                        bg={form.duration_days === 14 ? '$orange10' : undefined}
                         onPress={() => updateForm({ duration_days: 14 })}
                         flex={1}
                         minWidth={80}
@@ -555,7 +555,7 @@ function CreateChallengeScreen() {
                       <Button
                         size="$3"
                         variant={form.duration_days === 30 ? 'default' : 'outlined'}
-                        bg={form.duration_days === 30 ? '$blue10' : undefined}
+                        bg={form.duration_days === 30 ? '$orange10' : undefined}
                         onPress={() => updateForm({ duration_days: 30 })}
                         flex={1}
                         minWidth={80}
@@ -565,7 +565,7 @@ function CreateChallengeScreen() {
                       <Button
                         size="$3"
                         variant={form.duration_days === 90 ? 'default' : 'outlined'}
-                        bg={form.duration_days === 90 ? '$blue10' : undefined}
+                        bg={form.duration_days === 90 ? '$orange10' : undefined}
                         onPress={() => updateForm({ duration_days: 90 })}
                         flex={1}
                         minWidth={80}
@@ -627,7 +627,7 @@ function CreateChallengeScreen() {
                         <Button
                           size="$3"
                           variant={!form.duration_days || form.duration_days === 7 ? undefined : 'outlined'}
-                          bg={!form.duration_days || form.duration_days === 7 ? '$blue10' : undefined}
+                          bg={!form.duration_days || form.duration_days === 7 ? '$orange10' : undefined}
                           onPress={() => updateForm({ duration_days: 7 })}
                           flex={1}
                           minWidth={70}
@@ -637,7 +637,7 @@ function CreateChallengeScreen() {
                         <Button
                           size="$3"
                           variant={form.duration_days === 14 ? undefined : 'outlined'}
-                          bg={form.duration_days === 14 ? '$blue10' : undefined}
+                          bg={form.duration_days === 14 ? '$orange10' : undefined}
                           onPress={() => updateForm({ duration_days: 14 })}
                           flex={1}
                           minWidth={70}
@@ -647,7 +647,7 @@ function CreateChallengeScreen() {
                         <Button
                           size="$3"
                           variant={form.duration_days === 30 ? undefined : 'outlined'}
-                          bg={form.duration_days === 30 ? '$blue10' : undefined}
+                          bg={form.duration_days === 30 ? '$orange10' : undefined}
                           onPress={() => updateForm({ duration_days: 30 })}
                           flex={1}
                           minWidth={70}
@@ -726,7 +726,7 @@ function CreateChallengeScreen() {
                       form.type === 'amrap' ? '$purple2' :
                       form.type === 'max_effort' ? '$orange2' :
                       form.type === 'for_time' ? '$green2' :
-                      '$blue2'
+                      '$orange2'
                     }
                     p="$5"
                     br="$6"
@@ -747,7 +747,7 @@ function CreateChallengeScreen() {
                           form.type === 'amrap' ? '$purple10' :
                           form.type === 'max_effort' ? '$orange10' :
                           form.type === 'for_time' ? '$green10' :
-                          '$blue10'
+                          '$orange10'
                         }
                         px="$2"
                         py="$1"
@@ -775,7 +775,7 @@ function CreateChallengeScreen() {
                         </Text>
                       )}
                       <XStack gap="$2" mt="$2" alignItems="center">
-                        <Text fontSize="$3" color="$blue10" fontWeight="600" textTransform="capitalize">
+                        <Text fontSize="$3" color="$orange10" fontWeight="600" textTransform="capitalize">
                           {form.frequency.replace('_', ' ')}
                         </Text>
                         <Text fontSize="$3" color="$gray10">•</Text>
@@ -808,7 +808,7 @@ function CreateChallengeScreen() {
               <Button
                 flex={2}
                 size="$5"
-                bg="$blue10"
+                bg="$orange10"
                 disabled={!canProceed()}
                 onPress={() => setStep(step + 1)}
               >
@@ -828,7 +828,7 @@ function CreateChallengeScreen() {
               <Button
                 flex={2}
                 size="$5"
-                bg="$green10"
+                bg="$orange10"
                 icon={<CheckCircle size={20} />}
                 disabled={loading}
                 onPress={handleCreateChallenge}
@@ -839,7 +839,7 @@ function CreateChallengeScreen() {
           )}
         </YStack>
       </YStack>
-    </SafeArea>
+    </KeyboardSafeArea>
   )
 }
 

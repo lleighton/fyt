@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, Card, Button, useTheme } from 'tamagui'
 import Svg, { Line, Circle, Polyline, G, Text as SvgText } from 'react-native-svg'
-import { completions$ } from '@/lib/legend-state/store'
+import { completions$, tagRecipients$ } from '@/lib/legend-state/store'
 
 type Period = 7 | 30 | 90
 
@@ -18,10 +18,12 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
   const [period, setPeriod] = useState<Period>(defaultPeriod)
   const theme = useTheme()
 
-  // Get completions from observable (triggers reactivity)
+  // Get completions from observables (triggers reactivity)
   const completions = completions$.get()
+  const tagRecipients = tagRecipients$.get()
 
   // Calculate activity data for selected period
+  // Includes both challenge completions AND tag response completions
   const data = useMemo(() => {
     const result: Array<{ date: string; count: number }> = []
     const today = new Date()
@@ -37,7 +39,7 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
       }
     }
 
-    // Count completions per day
+    // Count challenge completions per day
     if (completions) {
       Object.values(completions).forEach((completion: any) => {
         if (completion?.completed_at) {
@@ -50,8 +52,21 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
       })
     }
 
+    // Count tag response completions per day
+    if (tagRecipients) {
+      Object.values(tagRecipients).forEach((recipient: any) => {
+        if (recipient?.status === 'completed' && recipient?.completed_at) {
+          const completionDate = recipient.completed_at.split('T')[0]
+          const dataPoint = result.find((d) => d.date === completionDate)
+          if (dataPoint) {
+            dataPoint.count++
+          }
+        }
+      })
+    }
+
     return result
-  }, [completions, period])
+  }, [completions, tagRecipients, period])
 
   // Chart dimensions
   const width = 320
@@ -102,48 +117,42 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
           >
             Activity Chart
           </Text>
-          <XStack gap="$1" bg="$gray4" br="$8" p="$0.5">
+          <XStack gap="$1" bg="$gray4" br="$8" p="$1">
             <Button
-              size="$2"
-              bg={period === 7 ? '$blue10' : 'transparent'}
-              color={period === 7 ? 'white' : '$gray11'}
+              size="$3"
+              bg={period === 7 ? '$orange10' : 'transparent'}
               onPress={() => setPeriod(7)}
-              paddingHorizontal="$3"
-              paddingVertical="$1.5"
+              px="$3"
               br="$6"
               borderWidth={0}
-              fontWeight="600"
-              fontSize="$2"
             >
-              7d
+              <Text color={period === 7 ? 'white' : '$gray11'} fontWeight="600" fontSize="$3">
+                7d
+              </Text>
             </Button>
             <Button
-              size="$2"
-              bg={period === 30 ? '$blue10' : 'transparent'}
-              color={period === 30 ? 'white' : '$gray11'}
+              size="$3"
+              bg={period === 30 ? '$orange10' : 'transparent'}
               onPress={() => setPeriod(30)}
-              paddingHorizontal="$3"
-              paddingVertical="$1.5"
+              px="$3"
               br="$6"
               borderWidth={0}
-              fontWeight="600"
-              fontSize="$2"
             >
-              30d
+              <Text color={period === 30 ? 'white' : '$gray11'} fontWeight="600" fontSize="$3">
+                30d
+              </Text>
             </Button>
             <Button
-              size="$2"
-              bg={period === 90 ? '$blue10' : 'transparent'}
-              color={period === 90 ? 'white' : '$gray11'}
+              size="$3"
+              bg={period === 90 ? '$orange10' : 'transparent'}
               onPress={() => setPeriod(90)}
-              paddingHorizontal="$3"
-              paddingVertical="$1.5"
+              px="$3"
               br="$6"
               borderWidth={0}
-              fontWeight="600"
-              fontSize="$2"
             >
-              90d
+              <Text color={period === 90 ? 'white' : '$gray11'} fontWeight="600" fontSize="$3">
+                90d
+              </Text>
             </Button>
           </XStack>
         </XStack>
@@ -227,7 +236,7 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
 
           {/* Stats */}
           <XStack gap="$3" mt="$2">
-            <YStack flex={1} bg="$blue2" p="$3" br="$4">
+            <YStack flex={1} bg="$orange2" p="$3" br="$4">
               <Text
                 fontSize="$1"
                 color="$gray11"
@@ -244,7 +253,7 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
                 completions
               </Text>
             </YStack>
-            <YStack flex={1} bg="$green2" p="$3" br="$4">
+            <YStack flex={1} bg="$orange2" p="$3" br="$4">
               <Text
                 fontSize="$1"
                 color="$gray11"

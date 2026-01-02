@@ -29,6 +29,9 @@ import {
   Clock as ClockIcon,
   Zap,
   LogOut,
+  Target,
+  Tag,
+  BarChart3,
 } from '@tamagui/lucide-icons'
 import {
   SafeArea,
@@ -38,6 +41,7 @@ import {
   SkeletonCircle,
   SkeletonText,
 } from '@/components/ui'
+import { GroupExerciseStats, GoalCard } from '@/components/group'
 import { Alert, Share, ActivityIndicator } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 
@@ -72,6 +76,11 @@ function GroupDetailScreen() {
 
   // Leave group state
   const [leavingGroup, setLeavingGroup] = useState(false)
+
+  // Stats tab state
+  const [statsTimeFilter, setStatsTimeFilter] = useState<'week' | 'month' | 'all_time'>('week')
+  const [activeGoals, setActiveGoals] = useState<any[]>([])
+  const [loadingGoals, setLoadingGoals] = useState(false)
 
   // Auto-refresh groups data on focus + polling every 30s
   useFocusRefresh({ groups: true }, 30000)
@@ -181,6 +190,48 @@ function GroupDetailScreen() {
 
     fetchGroupTags()
   }, [id, group?.members])
+
+  // Fetch active goals for this group
+  useEffect(() => {
+    if (!id) return
+
+    const fetchGoals = async () => {
+      const isFirstLoad = activeGoals.length === 0
+      if (isFirstLoad) {
+        setLoadingGoals(true)
+      }
+
+      try {
+        const { data, error } = await (supabase
+          .from('group_goals') as any)
+          .select(`
+            *,
+            exercise:exercises (
+              id,
+              name,
+              icon
+            )
+          `)
+          .eq('group_id', id)
+          .eq('status', 'active')
+          .order('ends_at', { ascending: true })
+
+        if (error) {
+          console.error('Error fetching goals:', error)
+        } else {
+          setActiveGoals(data || [])
+        }
+      } catch (err) {
+        console.error('Error:', err)
+      } finally {
+        if (isFirstLoad) {
+          setLoadingGoals(false)
+        }
+      }
+    }
+
+    fetchGoals()
+  }, [id])
 
   const handleCopyInviteCode = async () => {
     if (!group?.invite_code) return
@@ -439,7 +490,7 @@ function GroupDetailScreen() {
             <XStack gap="$4" alignItems="center">
               {/* Avatar */}
               <YStack position="relative">
-                <Avatar circular size="$9" bg="$blue10">
+                <Avatar circular size="$9" bg="$orange10">
                   {group.avatar_url ? (
                     <Avatar.Image src={group.avatar_url} />
                   ) : (
@@ -454,7 +505,7 @@ function GroupDetailScreen() {
                       position="absolute"
                       bottom={0}
                       right={0}
-                      bg="$blue10"
+                      bg="$orange10"
                       p="$2"
                       br="$10"
                     >
@@ -467,7 +518,7 @@ function GroupDetailScreen() {
                       right={0}
                       size="$3"
                       circular
-                      bg="$blue10"
+                      bg="$orange10"
                       icon={<Camera size={16} color="white" />}
                       onPress={handlePickGroupImage}
                     />
@@ -541,13 +592,13 @@ function GroupDetailScreen() {
                       gap="$3"
                       alignItems="center"
                     >
-                      <Text fontWeight="700" fontSize={32} letterSpacing={6} color="$purple10">
+                      <Text fontWeight="700" fontSize={32} letterSpacing={6} color="black">
                         {group.invite_code}
                       </Text>
                       <Button
                         size="$3"
                         circular
-                        bg="$purple10"
+                        bg="$orange6"
                         icon={<Copy size={18} color="white" />}
                         onPress={handleCopyInviteCode}
                         pressStyle={{ opacity: 0.8 }}
@@ -557,12 +608,12 @@ function GroupDetailScreen() {
 
                   <Button
                     size="$5"
-                    bg="$purple10"
-                    icon={<Share2 size={20} color="white" />}
+                    bg="$gray3"
+                    icon={<Share2 size={20} color="$gray12" />}
                     onPress={handleShareGroup}
                     width="100%"
                   >
-                    <Text color="white" fontWeight="600">Share Invite</Text>
+                    <Text color="$gray12" fontWeight="600">Share Invite</Text>
                   </Button>
 
                   <Text color="$gray11" fontSize="$3" textAlign="center" fontWeight="500">
@@ -577,7 +628,7 @@ function GroupDetailScreen() {
               <Button
                 flex={1}
                 size="$5"
-                bg="$blue10"
+                bg="$orange10"
                 icon={<UserPlus size={20} color="white" />}
                 onPress={() => router.push(`/(auth)/group/${id}/invite` as any)}
               >
@@ -586,7 +637,7 @@ function GroupDetailScreen() {
               <Button
                 flex={1}
                 size="$5"
-                bg="$green10"
+                bg="$orange10"
                 icon={<Zap size={20} color="white" />}
                 onPress={handleCreateGroupTag}
               >
@@ -601,14 +652,17 @@ function GroupDetailScreen() {
               flexDirection="column"
             >
               <TamaguiTabs.List gap="$2">
-                <TamaguiTabs.Tab value="tags" flex={1}>
-                  <Text>Tags</Text>
+                <TamaguiTabs.Tab value="tags" flex={1} accessibilityLabel="Tags">
+                  <Tag size={20} />
                 </TamaguiTabs.Tab>
-                <TamaguiTabs.Tab value="members" flex={1}>
-                  <Text>Members</Text>
+                <TamaguiTabs.Tab value="stats" flex={1} accessibilityLabel="Stats">
+                  <BarChart3 size={20} />
                 </TamaguiTabs.Tab>
-                <TamaguiTabs.Tab value="leaderboard" flex={1}>
-                  <Text>Board</Text>
+                <TamaguiTabs.Tab value="members" flex={1} accessibilityLabel="Members">
+                  <Users size={20} />
+                </TamaguiTabs.Tab>
+                <TamaguiTabs.Tab value="leaderboard" flex={1} accessibilityLabel="Leaderboard">
+                  <Trophy size={20} />
                 </TamaguiTabs.Tab>
               </TamaguiTabs.List>
 
@@ -626,7 +680,7 @@ function GroupDetailScreen() {
                       <Button
                         mt="$4"
                         size="$4"
-                        bg="$green10"
+                        bg="$orange10"
                         icon={<Zap size={20} />}
                         onPress={handleCreateGroupTag}
                       >
@@ -690,6 +744,66 @@ function GroupDetailScreen() {
                 </YStack>
               </TamaguiTabs.Content>
 
+              {/* Stats Tab */}
+              <TamaguiTabs.Content value="stats" pt="$4">
+                <YStack gap="$6">
+                  {/* Active Goals Section */}
+                  {activeGoals.length > 0 && (
+                    <YStack gap="$3">
+                      <XStack justifyContent="space-between" alignItems="center">
+                        <Text fontWeight="700" fontSize="$5">Active Goals</Text>
+                        {isAdmin && (
+                          <Button
+                            size="$3"
+                            bg="$purple10"
+                            onPress={() => router.push(`/(auth)/group/${id}/goals` as any)}
+                          >
+                            <Text color="white" fontWeight="600" fontSize="$3">Manage</Text>
+                          </Button>
+                        )}
+                      </XStack>
+                      {activeGoals.map((goal: any) => (
+                        <GoalCard
+                          key={goal.id}
+                          goal={goal}
+                          onPress={() => router.push(`/(auth)/group/${id}/goal/${goal.id}` as any)}
+                        />
+                      ))}
+                    </YStack>
+                  )}
+
+                  {/* No Goals - Admin CTA */}
+                  {activeGoals.length === 0 && isAdmin && (
+                    <Card bg="$purple2" p="$5" br="$4" alignItems="center">
+                      <Target size={48} color="$purple10" />
+                      <Text fontWeight="700" fontSize="$5" mt="$3" textAlign="center">
+                        Set a Group Goal
+                      </Text>
+                      <Text color="$gray10" textAlign="center" mt="$2" mb="$4">
+                        Rally your group around a shared target!
+                      </Text>
+                      <Button
+                        size="$4"
+                        bg="$purple10"
+                        onPress={() => router.push(`/(auth)/group/${id}/goals` as any)}
+                      >
+                        <Text color="white" fontWeight="600">Create Goal</Text>
+                      </Button>
+                    </Card>
+                  )}
+
+                  {/* Exercise Stats Section */}
+                  <YStack gap="$3">
+                    <Text fontWeight="700" fontSize="$5">Group Totals</Text>
+                    <GroupExerciseStats
+                      groupId={id!}
+                      timeFilter={statsTimeFilter}
+                      onTimeFilterChange={setStatsTimeFilter}
+                    />
+                  </YStack>
+                </YStack>
+              </TamaguiTabs.Content>
+
               {/* Members Tab */}
               <TamaguiTabs.Content value="members" pt="$4">
                 <YStack gap="$2">
@@ -709,7 +823,7 @@ function GroupDetailScreen() {
                         br="$4"
                       >
                         <XStack gap="$3" alignItems="center">
-                          <Avatar circular size="$4" bg="$blue10">
+                          <Avatar circular size="$4" bg="$orange10">
                             <Avatar.Fallback justifyContent="center" alignItems="center">
                               <Users size={20} color="white" />
                             </Avatar.Fallback>
@@ -741,7 +855,7 @@ function GroupDetailScreen() {
                   <XStack gap="$2" justifyContent="center">
                     <Button
                       size="$3"
-                      bg={timeFilter === 'week' ? '$blue10' : '$backgroundHover'}
+                      bg={timeFilter === 'week' ? '$orange10' : '$backgroundHover'}
                       color={timeFilter === 'week' ? 'white' : '$gray11'}
                       onPress={() => setTimeFilter('week')}
                       flex={1}
@@ -750,7 +864,7 @@ function GroupDetailScreen() {
                     </Button>
                     <Button
                       size="$3"
-                      bg={timeFilter === 'month' ? '$blue10' : '$backgroundHover'}
+                      bg={timeFilter === 'month' ? '$orange10' : '$backgroundHover'}
                       color={timeFilter === 'month' ? 'white' : '$gray11'}
                       onPress={() => setTimeFilter('month')}
                       flex={1}
@@ -759,7 +873,7 @@ function GroupDetailScreen() {
                     </Button>
                     <Button
                       size="$3"
-                      bg={timeFilter === 'all_time' ? '$blue10' : '$backgroundHover'}
+                      bg={timeFilter === 'all_time' ? '$orange10' : '$backgroundHover'}
                       color={timeFilter === 'all_time' ? 'white' : '$gray11'}
                       onPress={() => setTimeFilter('all_time')}
                       flex={1}
@@ -792,14 +906,14 @@ function GroupDetailScreen() {
                               <YStack alignItems="center" gap="$2" flex={1}>
                                 <Medal size={24} color="$gray10" />
                                 <Avatar circular size="$5">
-                                  <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                                  <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                                     <Users size={22} color="white" />
                                   </Avatar.Fallback>
                                 </Avatar>
                                 <Text fontSize="$2" fontWeight="600" numberOfLines={1}>
                                   {leaderboardData[1].display_name || 'User'}
                                 </Text>
-                                <Text fontSize="$5" fontWeight="700" color="$blue10">
+                                <Text fontSize="$5" fontWeight="700" color="$orange10">
                                   {leaderboardData[1].group_challenge_points}
                                 </Text>
                                 <Text fontSize="$2" color="$gray10">
@@ -834,14 +948,14 @@ function GroupDetailScreen() {
                               <YStack alignItems="center" gap="$2" flex={1}>
                                 <Medal size={20} color="$orange10" />
                                 <Avatar circular size="$4">
-                                  <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                                  <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                                     <Users size={18} color="white" />
                                   </Avatar.Fallback>
                                 </Avatar>
                                 <Text fontSize="$3" fontWeight="600" numberOfLines={1}>
                                   {leaderboardData[2].display_name || 'User'}
                                 </Text>
-                                <Text fontSize="$4" fontWeight="700" color="$blue10">
+                                <Text fontSize="$4" fontWeight="700" color="$orange10">
                                   {leaderboardData[2].group_challenge_points}
                                 </Text>
                                 <Text fontSize="$2" color="$gray10">
@@ -859,13 +973,13 @@ function GroupDetailScreen() {
                           key={member.user_id}
                           bg={
                             member.user_id === session?.user?.id
-                              ? '$blue2'
+                              ? '$orange2'
                               : '$backgroundHover'
                           }
                           p="$3"
                           br="$4"
                           borderWidth={member.user_id === session?.user?.id ? 1 : 0}
-                          borderColor="$blue7"
+                          borderColor="$orange7"
                         >
                           <XStack gap="$3" alignItems="center">
                             {/* Rank */}
@@ -885,7 +999,7 @@ function GroupDetailScreen() {
 
                             {/* Avatar */}
                             <Avatar circular size="$4">
-                              <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                              <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                                 <Users size={18} color="white" />
                               </Avatar.Fallback>
                             </Avatar>
@@ -900,7 +1014,7 @@ function GroupDetailScreen() {
                                   <Crown size={14} color="$yellow10" />
                                 )}
                                 {member.user_id === session?.user?.id && (
-                                  <Text fontSize="$3" color="$blue10" fontWeight="600">
+                                  <Text fontSize="$3" color="$orange10" fontWeight="600">
                                     (You)
                                   </Text>
                                 )}
@@ -925,7 +1039,7 @@ function GroupDetailScreen() {
 
                             {/* Points */}
                             <YStack alignItems="flex-end">
-                              <Text fontSize="$5" fontWeight="700" color="$blue10">
+                              <Text fontSize="$5" fontWeight="700" color="$orange10">
                                 {member.group_challenge_points}
                               </Text>
                               <Text fontSize="$2" color="$gray10">

@@ -130,11 +130,11 @@ export const CardDanger = styled(TamaguiCard, {
  * Use for information, tips, and neutral highlights
  */
 export const CardInfo = styled(TamaguiCard, {
-  bg: '$blue2',
+  bg: '$orange2',
   p: '$4',
   br: '$4',
   borderWidth: 1,
-  borderColor: '$blue10',
+  borderColor: '$orange10',
 })
 
 /**

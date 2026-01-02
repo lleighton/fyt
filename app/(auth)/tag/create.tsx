@@ -279,7 +279,7 @@ function CreateTagScreen() {
               flex={1}
               height={4}
               br="$2"
-              bg={i <= step ? '$blue10' : '$gray4'}
+              bg={i <= step ? '$orange10' : '$gray4'}
             />
           ))}
         </XStack>
@@ -364,7 +364,7 @@ function CreateTagScreen() {
             <Button
               flex={1}
               size="$5"
-              bg="$blue10"
+              bg="$orange10"
               iconAfter={step < 3 ? <ChevronRight size={20} color="white" /> : undefined}
               icon={
                 step === 3 ? (

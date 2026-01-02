@@ -16,7 +16,7 @@ import {
   Key,
   ArrowRight,
 } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { KeyboardSafeArea } from '@/components/ui'
 import { Alert } from 'react-native'
 
 import { auth$ } from '@/lib/legend-state/store'
@@ -146,7 +146,7 @@ function JoinGroupScreen() {
   }
 
   return (
-    <SafeArea edges={['top']}>
+    <KeyboardSafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -166,7 +166,7 @@ function JoinGroupScreen() {
             <YStack
               width={80}
               height={80}
-              bg="$blue10"
+              bg="$orange10"
               br="$10"
               alignItems="center"
               justifyContent="center"
@@ -187,13 +187,14 @@ function JoinGroupScreen() {
           <Card bg="$backgroundHover" p="$4" br="$4">
             <YStack gap="$3">
               <XStack gap="$2" alignItems="center">
-                <Key size={20} color="$blue10" />
+                <Key size={20} color="$orange10" />
                 <Text fontWeight="600" fontSize="$4">
                   Invite Code
                 </Text>
               </XStack>
               <Input
                 placeholder="ABCD12"
+                placeholderTextColor="$gray10"
                 value={inviteCode}
                 onChangeText={(text) => setInviteCode(text.toUpperCase())}
                 size="$6"
@@ -204,6 +205,8 @@ function JoinGroupScreen() {
                 autoCapitalize="characters"
                 maxLength={6}
                 autoFocus
+                color="$color"
+                bg="$backgroundStrong"
               />
               <Text color="$gray10" fontSize="$2" textAlign="center">
                 Enter the 6-character code
@@ -214,7 +217,7 @@ function JoinGroupScreen() {
           {/* Join Button */}
           <Button
             size="$5"
-            bg="$blue10"
+            bg="$orange10"
             icon={<ArrowRight size={20} />}
             disabled={loading || inviteCode.length !== 6}
             onPress={handleJoinGroup}
@@ -241,7 +244,7 @@ function JoinGroupScreen() {
           </Button>
         </YStack>
       </YStack>
-    </SafeArea>
+    </KeyboardSafeArea>
   )
 }
 

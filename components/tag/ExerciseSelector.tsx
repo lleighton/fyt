@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { YStack, XStack, Text, Input, ScrollView } from 'tamagui'
-import { Search } from '@tamagui/lucide-icons'
+import { Search, ChevronDown, ChevronRight } from '@tamagui/lucide-icons'
 import { observer } from '@legendapp/state/react'
 
 import { store$ } from '@/lib/legend-state/store'
@@ -12,6 +12,8 @@ type Exercise = Database['public']['Tables']['exercises']['Row']
 interface ExerciseSelectorProps {
   selectedExercise: Exercise | null
   onSelectExercise: (exercise: Exercise) => void
+  /** Show scaled variants under parent exercises */
+  showVariants?: boolean
 }
 
 type CategoryKey = 'upper_body' | 'core' | 'lower_body' | 'full_body'
@@ -23,52 +25,160 @@ const CATEGORIES: { key: CategoryKey; label: string; emoji: string }[] = [
   { key: 'full_body', label: 'Full Body', emoji: '🔥' },
 ]
 
+interface ExerciseWithVariants {
+  exercise: Exercise
+  isVariant: boolean
+  parentId: string | null
+  scalingFactor: number
+  variants: Array<{ exercise: Exercise; scalingFactor: number }>
+}
+
 /**
- * Exercise selector component with categories and search
+ * Exercise selector component with categories, search, and variant support
  */
 function ExerciseSelectorComponent({
   selectedExercise,
   onSelectExercise,
+  showVariants = true,
 }: ExerciseSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null)
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set())
 
-  // Get exercises from store
+  // Get exercises and variants from store
   const exercisesData = store$.exercises.get()
   const exercises: Exercise[] = exercisesData ? Object.values(exercisesData) : []
 
-  // Filter exercises by search and category
-  const filteredExercises = useMemo(() => {
-    return exercises
-      .filter((ex) => {
-        const matchesSearch =
-          !searchQuery ||
-          ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          ex.description?.toLowerCase().includes(searchQuery.toLowerCase())
-        const matchesCategory = !selectedCategory || ex.category === selectedCategory
-        return matchesSearch && matchesCategory
-      })
-      .sort((a, b) => a.display_order - b.display_order)
-  }, [exercises, searchQuery, selectedCategory])
+  // Get variant info for all exercises
+  const exercisesWithVariantInfo = useMemo(() => {
+    return exercises.map((exercise) => ({
+      exercise,
+      variantInfo: store$.getExerciseVariantInfo(exercise.id),
+      variants: store$.getExerciseVariants(exercise.id),
+    }))
+  }, [exercises])
 
-  // Group exercises by category for display
+  // Filter and organize exercises
+  const { parentExercises, variantExercises } = useMemo(() => {
+    const parents: typeof exercisesWithVariantInfo = []
+    const variants: typeof exercisesWithVariantInfo = []
+
+    exercisesWithVariantInfo.forEach((item) => {
+      const matchesSearch =
+        !searchQuery ||
+        item.exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.exercise.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesCategory = !selectedCategory || item.exercise.category === selectedCategory
+
+      if (!matchesSearch || !matchesCategory) return
+
+      if (item.variantInfo.isVariant && showVariants) {
+        variants.push(item)
+      } else {
+        parents.push(item)
+      }
+    })
+
+    return {
+      parentExercises: parents.sort((a, b) => a.exercise.display_order - b.exercise.display_order),
+      variantExercises: variants,
+    }
+  }, [exercisesWithVariantInfo, searchQuery, selectedCategory, showVariants])
+
+  // Group parent exercises by category
   const exercisesByCategory = useMemo(() => {
-    const grouped: Record<CategoryKey, Exercise[]> = {
+    const grouped: Record<CategoryKey, typeof parentExercises> = {
       upper_body: [],
       core: [],
       lower_body: [],
       full_body: [],
     }
 
-    filteredExercises.forEach((ex) => {
-      const cat = ex.category as CategoryKey
+    parentExercises.forEach((item) => {
+      const cat = item.exercise.category as CategoryKey
       if (grouped[cat]) {
-        grouped[cat].push(ex)
+        grouped[cat].push(item)
       }
     })
 
     return grouped
-  }, [filteredExercises])
+  }, [parentExercises])
+
+  // Toggle variant expansion for a parent exercise
+  const toggleExpanded = (exerciseId: string) => {
+    const newExpanded = new Set(expandedParents)
+    if (newExpanded.has(exerciseId)) {
+      newExpanded.delete(exerciseId)
+    } else {
+      newExpanded.add(exerciseId)
+    }
+    setExpandedParents(newExpanded)
+  }
+
+  // Get variants for a parent exercise that match current filters
+  const getMatchingVariants = (parentId: string) => {
+    return variantExercises.filter((v) => v.variantInfo.parentExercise?.id === parentId)
+  }
+
+  // Render a single exercise with optional variants
+  const renderExerciseWithVariants = (item: (typeof parentExercises)[0]) => {
+    const variants = showVariants ? getMatchingVariants(item.exercise.id) : []
+    const hasVariants = variants.length > 0
+    const isExpanded = expandedParents.has(item.exercise.id)
+
+    return (
+      <YStack key={item.exercise.id} gap="$1">
+        {/* Parent exercise card */}
+        <XStack gap="$2" alignItems="center">
+          {/* Expand/collapse button for variants */}
+          {hasVariants && (
+            <YStack
+              width={24}
+              height={24}
+              justifyContent="center"
+              alignItems="center"
+              pressStyle={{ opacity: 0.7 }}
+              onPress={() => toggleExpanded(item.exercise.id)}
+            >
+              {isExpanded ? (
+                <ChevronDown size={16} color="$gray10" />
+              ) : (
+                <ChevronRight size={16} color="$gray10" />
+              )}
+            </YStack>
+          )}
+
+          {/* Exercise card */}
+          <YStack flex={1} ml={hasVariants ? 0 : '$6'}>
+            <ExerciseCard
+              exercise={item.exercise}
+              selected={selectedExercise?.id === item.exercise.id}
+              onSelect={() => onSelectExercise(item.exercise)}
+            />
+          </YStack>
+        </XStack>
+
+        {/* Variant exercises (collapsible) */}
+        {hasVariants && isExpanded && (
+          <YStack gap="$1" ml="$8" pl="$2" borderLeftWidth={2} borderLeftColor="$purple4">
+            <Text fontSize="$2" color="$purple10" fontWeight="500" mb="$1">
+              Easier variations:
+            </Text>
+            {variants.map((variant) => (
+              <ExerciseCard
+                key={variant.exercise.id}
+                exercise={variant.exercise}
+                selected={selectedExercise?.id === variant.exercise.id}
+                onSelect={() => onSelectExercise(variant.exercise)}
+                variantInfo={variant.variantInfo}
+                compact
+              />
+            ))}
+          </YStack>
+        )}
+      </YStack>
+    )
+  }
 
   return (
     <YStack flex={1} gap="$4">
@@ -129,15 +239,11 @@ function ExerciseSelectorComponent({
           {selectedCategory ? (
             // Show only selected category
             <YStack gap="$2">
-              {filteredExercises.map((exercise) => (
-                <ExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  selected={selectedExercise?.id === exercise.id}
-                  onSelect={() => onSelectExercise(exercise)}
-                />
-              ))}
-              {filteredExercises.length === 0 && (
+              {parentExercises
+                .filter((item) => item.exercise.category === selectedCategory)
+                .map(renderExerciseWithVariants)}
+              {parentExercises.filter((item) => item.exercise.category === selectedCategory)
+                .length === 0 && (
                 <Text color="$gray10" textAlign="center" py="$4">
                   No exercises found
                 </Text>
@@ -160,14 +266,7 @@ function ExerciseSelectorComponent({
                       ({categoryExercises.length})
                     </Text>
                   </XStack>
-                  {categoryExercises.map((exercise) => (
-                    <ExerciseCard
-                      key={exercise.id}
-                      exercise={exercise}
-                      selected={selectedExercise?.id === exercise.id}
-                      onSelect={() => onSelectExercise(exercise)}
-                    />
-                  ))}
+                  {categoryExercises.map(renderExerciseWithVariants)}
                 </YStack>
               )
             })
@@ -194,7 +293,7 @@ function CategoryPill({
 }) {
   return (
     <XStack
-      bg={selected ? '$blue10' : '$gray3'}
+      bg={selected ? '$orange10' : '$gray3'}
       px="$3"
       height={36}
       br="$10"

@@ -27,7 +27,7 @@ import {
   ListOrdered,
 } from '@tamagui/lucide-icons'
 import { Alert } from 'react-native'
-import { SafeArea } from '@/components/ui'
+import { KeyboardSafeArea } from '@/components/ui'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -385,19 +385,19 @@ function ChallengeDetailScreen() {
 
   if (!challenge) {
     return (
-      <SafeArea>
+      <KeyboardSafeArea>
         <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
           <Text>Challenge not found</Text>
           <Button mt="$4" onPress={() => router.back()}>
             Go Back
           </Button>
         </YStack>
-      </SafeArea>
+      </KeyboardSafeArea>
     )
   }
 
   return (
-    <SafeArea edges={['top']}>
+    <KeyboardSafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -419,7 +419,7 @@ function ChallengeDetailScreen() {
               <XStack justifyContent="space-between" alignItems="flex-start">
                 <YStack flex={1} gap="$2">
                   <H1 fontSize="$8">{challenge.title}</H1>
-                  <Text fontSize="$5" color="$blue10">
+                  <Text fontSize="$5" color="$orange10">
                     {challenge.exercise}
                   </Text>
                 </YStack>
@@ -456,7 +456,7 @@ function ChallengeDetailScreen() {
                     Workout Steps:
                   </Text>
                   {challenge.steps.map((step: ChallengeStep, index: number) => (
-                    <Card key={index} bg="$blue2" p="$2" px="$3" br="$3">
+                    <Card key={index} bg="$orange2" p="$2" px="$3" br="$3">
                       <XStack gap="$2" alignItems="center">
                         <YStack
                           width={24}
@@ -464,7 +464,7 @@ function ChallengeDetailScreen() {
                           alignItems="center"
                           justifyContent="center"
                           br="$10"
-                          bg="$blue10"
+                          bg="$orange10"
                         >
                           <Text fontSize="$2" fontWeight="700" color="white">
                             {index + 1}
@@ -517,7 +517,7 @@ function ChallengeDetailScreen() {
             {/* Stats */}
             <XStack gap="$3">
               <Card flex={1} bg="$backgroundHover" p="$3" br="$4" alignItems="center">
-                <Users size={24} color="$blue10" />
+                <Users size={24} color="$orange10" />
                 <Text fontWeight="700" fontSize="$6" mt="$2">
                   {challengeParticipants.length}
                 </Text>
@@ -565,7 +565,7 @@ function ChallengeDetailScreen() {
             ) : !showLogCompletion ? (
               <Button
                 size="$5"
-                bg="$green10"
+                bg="$orange10"
                 icon={<Plus size={20} />}
                 onPress={() => setShowLogCompletion(true)}
               >
@@ -705,7 +705,7 @@ function ChallengeDetailScreen() {
                               size="$5"
                               minWidth={60}
                               variant={weightUnit === 'lbs' ? undefined : 'outlined'}
-                              bg={weightUnit === 'lbs' ? '$blue10' : undefined}
+                              bg={weightUnit === 'lbs' ? '$orange10' : undefined}
                               onPress={() => setWeightUnit('lbs')}
                             >
                               lbs
@@ -714,7 +714,7 @@ function ChallengeDetailScreen() {
                               size="$5"
                               minWidth={60}
                               variant={weightUnit === 'kg' ? undefined : 'outlined'}
-                              bg={weightUnit === 'kg' ? '$blue10' : undefined}
+                              bg={weightUnit === 'kg' ? '$orange10' : undefined}
                               onPress={() => setWeightUnit('kg')}
                             >
                               kg
@@ -774,7 +774,7 @@ function ChallengeDetailScreen() {
                     </Button>
                     <Button
                       flex={2}
-                      bg="$green10"
+                      bg="$orange10"
                       icon={<Check size={20} />}
                       disabled={
                         loading ||
@@ -841,7 +841,7 @@ function ChallengeDetailScreen() {
           </YStack>
         </ScrollView>
       </YStack>
-    </SafeArea>
+    </KeyboardSafeArea>
   )
 }
 
@@ -876,11 +876,11 @@ function LeaderboardRow({
 
   return (
     <Card
-      bg={isCurrentUser ? '$blue2' : '$backgroundHover'}
+      bg={isCurrentUser ? '$orange2' : '$backgroundHover'}
       p="$3"
       br="$4"
       borderWidth={isCurrentUser ? 2 : 0}
-      borderColor={isCurrentUser ? '$blue10' : 'transparent'}
+      borderColor={isCurrentUser ? '$orange10' : 'transparent'}
     >
       <XStack alignItems="center" gap="$3">
         {/* Rank */}

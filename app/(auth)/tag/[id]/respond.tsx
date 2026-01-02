@@ -3,17 +3,30 @@ import { Alert, ActivityIndicator } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, H1, Button, Card, Input, ScrollView } from 'tamagui'
-import { X, Send, Clock, Check } from '@tamagui/lucide-icons'
+import { X, Send, Clock, Check, ChevronDown, ArrowRight, Camera } from '@tamagui/lucide-icons'
+import * as ImagePicker from 'expo-image-picker'
 import { KeyboardSafeArea } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
+import { useImageUpload } from '@/lib/hooks'
 import { TagEvents } from '@/lib/analytics'
+
+interface ValidExercise {
+  exercise_id: string
+  exercise_name: string
+  exercise_icon: string | null
+  exercise_type: string
+  is_variant: boolean
+  scaling_factor: number
+  effective_target: number
+}
 
 /**
  * Tag Response Screen
  *
  * Shows the tag details and allows user to respond with their result
+ * Supports selecting variant exercises (e.g., Knee Pushups instead of Pushups)
  */
 function TagRespondScreen() {
   const router = useRouter()
@@ -25,11 +38,23 @@ function TagRespondScreen() {
   const [submitting, setSubmitting] = useState(false)
   const [value, setValue] = useState<number | null>(null)
 
-  // Load tag details
+  // Exercise variant selection
+  const [validExercises, setValidExercises] = useState<ValidExercise[]>([])
+  const [selectedExercise, setSelectedExercise] = useState<ValidExercise | null>(null)
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false)
+
+  // Proof capture
+  const [proofUri, setProofUri] = useState<string | null>(null)
+  const [proofType, setProofType] = useState<'photo' | 'video' | null>(null)
+  const [capturing, setCapturing] = useState(false)
+  const { uploading: uploadingProof, uploadFromUri } = useImageUpload()
+
+  // Load tag details and valid exercises
   useEffect(() => {
     const loadTag = async () => {
       if (!tagId) return
 
+      // Load tag details
       const { data, error } = await (supabase
         .from('tags') as any)
         .select(`
@@ -58,6 +83,22 @@ function TagRespondScreen() {
       }
 
       setTag(data)
+
+      // Load valid completion exercises (including variants)
+      const { data: exercises, error: exercisesError } = await (supabase.rpc as any)(
+        'get_valid_completion_exercises',
+        { p_tag_id: tagId }
+      )
+
+      if (!exercisesError && exercises) {
+        setValidExercises(exercises)
+        // Default to the original exercise
+        const original = exercises.find((e: ValidExercise) => !e.is_variant)
+        if (original) {
+          setSelectedExercise(original)
+        }
+      }
+
       setLoading(false)
     }
 
@@ -74,10 +115,114 @@ function TagRespondScreen() {
     }
   }
 
+  // Handle proof capture
+  const handleCaptureProof = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync()
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Camera permission is needed to add proof of your workout.'
+        )
+        return
+      }
+
+      setCapturing(true)
+
+      Alert.alert('Add Proof', 'How would you like to add proof?', [
+        {
+          text: 'Take Photo',
+          onPress: async () => {
+            const result = await ImagePicker.launchCameraAsync({
+              mediaTypes: 'images',
+              allowsEditing: true,
+              quality: 0.8,
+              aspect: [1, 1],
+            })
+
+            if (!result.canceled && result.assets[0]) {
+              setProofUri(result.assets[0].uri)
+              setProofType('photo')
+            }
+            setCapturing(false)
+          },
+        },
+        {
+          text: 'Record Video',
+          onPress: async () => {
+            const result = await ImagePicker.launchCameraAsync({
+              mediaTypes: 'videos',
+              allowsEditing: true,
+              quality: 0.7,
+              videoMaxDuration: 15,
+            })
+
+            if (!result.canceled && result.assets[0]) {
+              setProofUri(result.assets[0].uri)
+              setProofType('video')
+            }
+            setCapturing(false)
+          },
+        },
+        {
+          text: 'Choose from Library',
+          onPress: async () => {
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: 'images',
+              allowsEditing: true,
+              quality: 0.8,
+              aspect: [1, 1],
+            })
+
+            if (!result.canceled && result.assets[0]) {
+              setProofUri(result.assets[0].uri)
+              setProofType('photo')
+            }
+            setCapturing(false)
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+          onPress: () => setCapturing(false),
+        },
+      ])
+    } catch (error) {
+      console.error('Error capturing proof:', error)
+      Alert.alert('Error', 'Failed to capture proof. Please try again.')
+      setCapturing(false)
+    }
+  }
+
+  // Remove proof
+  const handleRemoveProof = () => {
+    setProofUri(null)
+    setProofType(null)
+  }
+
+  // Calculate effective value based on selected exercise
+  const getEffectiveValue = () => {
+    if (value === null || !selectedExercise) return null
+    return Math.floor(value * selectedExercise.scaling_factor)
+  }
+
+  const effectiveValue = getEffectiveValue()
+  const meetsTarget = effectiveValue !== null && effectiveValue >= tag?.value
+  const beatsTarget = effectiveValue !== null && effectiveValue > tag?.value
+
   // Submit response
   const handleSubmit = async () => {
-    if (!session?.user?.id || !tag || value === null) {
+    if (!session?.user?.id || !tag || value === null || !selectedExercise) {
       Alert.alert('Error', 'Please enter your result')
+      return
+    }
+
+    // Validate that scaled value meets target
+    if (!meetsTarget) {
+      Alert.alert(
+        'Not Enough',
+        `Your ${value} ${selectedExercise.exercise_name} equals ${effectiveValue} effective ${tag.exercise?.type === 'time' ? 'seconds' : 'reps'}. You need at least ${tag.value} to complete this tag.`
+      )
       return
     }
 
@@ -96,18 +241,32 @@ function TagRespondScreen() {
         throw new Error('Could not find your tag invitation')
       }
 
-      // Use the RPC function to create completion and update recipient atomically
-      const { error: completionError } = await (supabase.rpc as any)(
-        'complete_tag_response',
-        {
-          p_tag_recipient_id: recipient.id,
-          p_value: value,
-          p_proof_url: null,
-          p_proof_type: null,
+      // Upload proof if provided
+      let proofUrl: string | null = null
+      if (proofUri && proofType) {
+        const uploadResult = await uploadFromUri(proofUri, {
+          pathPrefix: 'tag-proofs',
+          identifier: `${recipient.id}-response`,
+        })
+        if (uploadResult) {
+          proofUrl = uploadResult.publicUrl
         }
-      )
+      }
 
-      if (completionError) throw completionError
+      // Update the tag_recipient with completion data
+      const { error: updateError } = await (supabase
+        .from('tag_recipients') as any)
+        .update({
+          status: 'completed',
+          completed_value: value,
+          completed_exercise_id: selectedExercise.exercise_id,
+          completed_at: new Date().toISOString(),
+          proof_url: proofUrl,
+          proof_type: proofType,
+        })
+        .eq('id', recipient.id)
+
+      if (updateError) throw updateError
 
       // Update streak
       const { error: streakError } = await (supabase.rpc as any)(
@@ -122,33 +281,36 @@ function TagRespondScreen() {
         console.warn('Failed to update streak:', streakError)
       }
 
-      // Determine if user beat the tag
-      const didBeat = value > tag.value
-
       // Track tag response
       TagEvents.responded({
         tagId: tagId!,
         completedValue: value,
-        beatTarget: didBeat,
+        beatTarget: beatsTarget,
       })
 
+      // Show different message based on whether they used a variant
+      const usedVariant = selectedExercise.is_variant
+      const resultMessage = usedVariant
+        ? `You did ${value} ${selectedExercise.exercise_name} (= ${effectiveValue} ${tag.exercise?.name})`
+        : `You did ${value} ${tag.exercise?.name}`
+
       Alert.alert(
-        didBeat ? 'You Beat It!' : 'Nice Try!',
-        didBeat
-          ? `You did ${value} vs their ${tag.value}. Tag them back with a new challenge!`
-          : `You did ${value} vs their ${tag.value}. Keep training and try again next time!`,
+        beatsTarget ? 'You Beat It!' : 'Completed!',
+        beatsTarget
+          ? `${resultMessage} vs their ${tag.value}. Tag them back with a new challenge!`
+          : `${resultMessage}. You matched their ${tag.value}!`,
         [
           {
-            text: didBeat ? 'Tag Back' : 'OK',
+            text: beatsTarget ? 'Tag Back' : 'OK',
             onPress: () => {
-              if (didBeat) {
+              if (beatsTarget) {
                 router.replace('/(auth)/tag/create')
               } else {
                 router.back()
               }
             },
           },
-          ...(didBeat ? [{
+          ...(beatsTarget ? [{
             text: 'Later',
             style: 'cancel' as const,
             onPress: () => router.back(),
@@ -189,6 +351,7 @@ function TagRespondScreen() {
   const now = new Date()
   const hoursLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)))
   const isTimeBased = tag.exercise?.type === 'time'
+  const hasVariants = validExercises.filter(e => e.is_variant).length > 0
 
   return (
     <KeyboardSafeArea edges={['top', 'bottom']}>
@@ -267,11 +430,102 @@ function TagRespondScreen() {
               </YStack>
             </Card>
 
+            {/* Exercise Selection (if variants available) */}
+            {hasVariants && (
+              <YStack gap="$2">
+                <Text fontWeight="700" fontSize="$5">What did you do?</Text>
+                <Text color="$gray10" fontSize="$3">
+                  Select the exercise you performed
+                </Text>
+
+                {/* Selected Exercise Button */}
+                <Card
+                  bg="$gray2"
+                  p="$3"
+                  br="$4"
+                  pressStyle={{ bg: '$gray3' }}
+                  onPress={() => setShowExerciseSelector(!showExerciseSelector)}
+                >
+                  <XStack justifyContent="space-between" alignItems="center">
+                    <XStack gap="$3" alignItems="center">
+                      <Text fontSize={24}>{selectedExercise?.exercise_icon || '💪'}</Text>
+                      <YStack>
+                        <Text fontWeight="600" fontSize="$4">
+                          {selectedExercise?.exercise_name || 'Select Exercise'}
+                        </Text>
+                        {selectedExercise?.is_variant && (
+                          <XStack gap="$1" alignItems="center">
+                            <Text fontSize="$2" color="$purple10">
+                              {Math.round(selectedExercise.scaling_factor * 100)}% scaling
+                            </Text>
+                            <ArrowRight size={10} color="$purple10" />
+                            <Text fontSize="$2" color="$purple10">
+                              Need {selectedExercise.effective_target} to match
+                            </Text>
+                          </XStack>
+                        )}
+                      </YStack>
+                    </XStack>
+                    <ChevronDown size={20} color="$gray10" />
+                  </XStack>
+                </Card>
+
+                {/* Exercise Options */}
+                {showExerciseSelector && (
+                  <YStack gap="$1" bg="$gray1" br="$4" p="$2">
+                    {validExercises.map((exercise) => (
+                      <Card
+                        key={exercise.exercise_id}
+                        bg={selectedExercise?.exercise_id === exercise.exercise_id ? '$orange2' : '$background'}
+                        p="$3"
+                        br="$3"
+                        borderWidth={selectedExercise?.exercise_id === exercise.exercise_id ? 2 : 0}
+                        borderColor="$orange10"
+                        pressStyle={{ bg: '$gray2' }}
+                        onPress={() => {
+                          setSelectedExercise(exercise)
+                          setShowExerciseSelector(false)
+                        }}
+                      >
+                        <XStack justifyContent="space-between" alignItems="center">
+                          <XStack gap="$3" alignItems="center">
+                            <Text fontSize={20}>{exercise.exercise_icon || '💪'}</Text>
+                            <YStack>
+                              <XStack gap="$2" alignItems="center">
+                                <Text fontWeight="600" fontSize="$3">
+                                  {exercise.exercise_name}
+                                </Text>
+                                {exercise.is_variant && (
+                                  <XStack bg="$purple4" px="$1.5" py="$0.5" br="$2">
+                                    <Text fontSize={11} color="$purple11" fontWeight="600">
+                                      {Math.round(exercise.scaling_factor * 100)}%
+                                    </Text>
+                                  </XStack>
+                                )}
+                              </XStack>
+                              {exercise.is_variant && (
+                                <Text fontSize="$2" color="$gray10">
+                                  Need {exercise.effective_target} to match {tag.value}
+                                </Text>
+                              )}
+                            </YStack>
+                          </XStack>
+                          {selectedExercise?.exercise_id === exercise.exercise_id && (
+                            <Check size={18} color="$orange10" />
+                          )}
+                        </XStack>
+                      </Card>
+                    ))}
+                  </YStack>
+                )}
+              </YStack>
+            )}
+
             {/* Your Response */}
             <YStack gap="$3">
               <Text fontWeight="700" fontSize="$5">Your Result</Text>
               <Text color="$gray10" fontSize="$3">
-                How many {isTimeBased ? 'seconds' : 'reps'} did you do?
+                How many {isTimeBased ? 'seconds' : 'reps'} of {selectedExercise?.exercise_name || tag.exercise?.name} did you do?
               </Text>
 
               <XStack gap="$3" alignItems="center">
@@ -281,7 +535,7 @@ function TagRespondScreen() {
                   keyboardType="number-pad"
                   value={value?.toString() || ''}
                   onChangeText={handleValueChange}
-                  placeholder={tag.value?.toString() || '0'}
+                  placeholder={selectedExercise?.effective_target?.toString() || tag.value?.toString() || '0'}
                   textAlign="center"
                   fontSize={32}
                   fontWeight="700"
@@ -295,7 +549,7 @@ function TagRespondScreen() {
                   alignItems="center"
                 >
                   <Text color="$gray11" fontSize="$4" fontWeight="600">
-                    {isTimeBased ? 'seconds' : 'reps'}
+                    {isTimeBased ? 'sec' : 'reps'}
                   </Text>
                 </YStack>
               </XStack>
@@ -303,57 +557,131 @@ function TagRespondScreen() {
               {/* Quick Value Pills */}
               <XStack flexWrap="wrap" gap="$2">
                 {[
-                  Math.max(1, tag.value - 10),
-                  tag.value,
-                  tag.value + 5,
-                  tag.value + 10,
-                  tag.value + 20,
-                ].map((quickValue) => (
-                  <YStack
-                    key={quickValue}
-                    px="$3"
-                    py="$2"
-                    br="$10"
-                    bg={value === quickValue ? '$green10' : quickValue > tag.value ? '$green3' : '$gray3'}
-                    pressStyle={{ scale: 0.95, opacity: 0.8 }}
-                    animation="quick"
-                    onPress={() => setValue(quickValue)}
-                    cursor="pointer"
-                  >
-                    <Text
-                      color={value === quickValue ? 'white' : quickValue > tag.value ? '$green11' : '$gray11'}
-                      fontSize="$3"
-                      fontWeight="600"
+                  Math.max(1, (selectedExercise?.effective_target || tag.value) - 10),
+                  selectedExercise?.effective_target || tag.value,
+                  (selectedExercise?.effective_target || tag.value) + 5,
+                  (selectedExercise?.effective_target || tag.value) + 10,
+                  (selectedExercise?.effective_target || tag.value) + 20,
+                ].map((quickValue) => {
+                  const qvEffective = selectedExercise
+                    ? Math.floor(quickValue * selectedExercise.scaling_factor)
+                    : quickValue
+                  const qvMeets = qvEffective >= tag.value
+                  const qvBeats = qvEffective > tag.value
+
+                  return (
+                    <YStack
+                      key={quickValue}
+                      px="$3"
+                      py="$2"
+                      br="$10"
+                      bg={value === quickValue ? '$green10' : qvBeats ? '$green3' : qvMeets ? '$orange3' : '$gray3'}
+                      pressStyle={{ scale: 0.95, opacity: 0.8 }}
+                      animation="quick"
+                      onPress={() => setValue(quickValue)}
+                      cursor="pointer"
                     >
-                      {quickValue}{quickValue > tag.value ? ' ✓' : ''}
-                    </Text>
-                  </YStack>
-                ))}
+                      <Text
+                        color={value === quickValue ? 'white' : qvBeats ? '$green11' : qvMeets ? '$orange11' : '$gray11'}
+                        fontSize="$3"
+                        fontWeight="600"
+                      >
+                        {quickValue}{qvBeats ? ' ✓' : qvMeets ? ' =' : ''}
+                      </Text>
+                    </YStack>
+                  )
+                })}
               </XStack>
 
-              {/* Beat Indicator */}
-              {value !== null && (
-                <Card
-                  bg={value > tag.value ? '$green2' : '$red2'}
-                  p="$3"
-                  br="$4"
-                  borderWidth={1}
-                  borderColor={value > tag.value ? '$green7' : '$red7'}
-                >
-                  <XStack gap="$2" alignItems="center" justifyContent="center">
-                    <Check size={18} color={value > tag.value ? '$green10' : '$red10'} />
-                    <Text
-                      color={value > tag.value ? '$green11' : '$red11'}
-                      fontWeight="600"
-                    >
-                      {value > tag.value
-                        ? `You beat them by ${value - tag.value}!`
-                        : value === tag.value
-                        ? 'Tied! Need to beat, not match.'
-                        : `${tag.value - value} short of beating them`}
+              {/* Proof Section */}
+              <YStack gap="$2" mt="$2">
+                <Text fontWeight="600" fontSize="$4">
+                  Add Proof (Optional)
+                </Text>
+                <Text color="$gray10" fontSize="$3">
+                  Add a photo or video to verify your workout
+                </Text>
+
+                {proofUri ? (
+                  <Card bg="$green2" p="$3" br="$4" borderWidth={1} borderColor="$green7">
+                    <XStack justifyContent="space-between" alignItems="center">
+                      <XStack gap="$2" alignItems="center">
+                        <Camera size={20} color="$green10" />
+                        <Text color="$green11" fontWeight="600">
+                          {proofType === 'video' ? 'Video added' : 'Photo added'}
+                        </Text>
+                      </XStack>
+                      <Button
+                        size="$2"
+                        circular
+                        bg="$red10"
+                        icon={<X size={14} color="white" />}
+                        onPress={handleRemoveProof}
+                      />
+                    </XStack>
+                  </Card>
+                ) : (
+                  <Button
+                    size="$5"
+                    bg="$gray3"
+                    icon={
+                      capturing ? (
+                        <ActivityIndicator size="small" />
+                      ) : (
+                        <Camera size={24} color="$gray11" />
+                      )
+                    }
+                    onPress={handleCaptureProof}
+                    disabled={capturing}
+                  >
+                    <Text color="$gray11" fontWeight="600">
+                      {capturing ? 'Opening Camera...' : 'Add Photo or Video'}
                     </Text>
-                  </XStack>
-                </Card>
+                  </Button>
+                )}
+              </YStack>
+
+              {/* Effective Value & Beat Indicator */}
+              {value !== null && selectedExercise && (
+                <YStack gap="$2">
+                  {/* Show effective value if using variant */}
+                  {selectedExercise.is_variant && effectiveValue !== null && (
+                    <Card bg="$purple2" p="$3" br="$4" borderWidth={1} borderColor="$purple7">
+                      <XStack gap="$2" alignItems="center" justifyContent="center">
+                        <Text color="$purple11" fontSize="$3">
+                          {value} {selectedExercise.exercise_name}
+                        </Text>
+                        <ArrowRight size={14} color="$purple10" />
+                        <Text color="$purple11" fontWeight="700" fontSize="$4">
+                          = {effectiveValue} {tag.exercise?.name}
+                        </Text>
+                      </XStack>
+                    </Card>
+                  )}
+
+                  {/* Beat indicator */}
+                  <Card
+                    bg={beatsTarget ? '$green2' : meetsTarget ? '$orange2' : '$red2'}
+                    p="$3"
+                    br="$4"
+                    borderWidth={1}
+                    borderColor={beatsTarget ? '$green7' : meetsTarget ? '$orange7' : '$red7'}
+                  >
+                    <XStack gap="$2" alignItems="center" justifyContent="center">
+                      <Check size={18} color={beatsTarget ? '$green10' : meetsTarget ? '$orange10' : '$red10'} />
+                      <Text
+                        color={beatsTarget ? '$green11' : meetsTarget ? '$orange11' : '$red11'}
+                        fontWeight="600"
+                      >
+                        {beatsTarget
+                          ? `You beat them by ${(effectiveValue || 0) - tag.value}!`
+                          : meetsTarget
+                          ? 'Matched! Challenge completed.'
+                          : `${tag.value - (effectiveValue || 0)} short of completing`}
+                      </Text>
+                    </XStack>
+                  </Card>
+                </YStack>
               )}
             </YStack>
           </YStack>
@@ -363,20 +691,26 @@ function TagRespondScreen() {
         <YStack px="$4" py="$4" borderTopWidth={1} borderTopColor="$gray4">
           <Button
             size="$5"
-            bg="$green10"
+            bg={meetsTarget ? '$orange10' : '$gray6'}
             icon={
-              submitting ? (
+              submitting || uploadingProof ? (
                 <ActivityIndicator color="white" />
               ) : (
                 <Send size={20} color="white" />
               )
             }
             onPress={handleSubmit}
-            disabled={value === null || submitting}
-            opacity={value !== null && !submitting ? 1 : 0.5}
+            disabled={!meetsTarget || submitting || uploadingProof}
+            opacity={meetsTarget && !submitting && !uploadingProof ? 1 : 0.5}
           >
             <Text color="white" fontWeight="700">
-              {submitting ? 'Submitting...' : 'Submit Result'}
+              {uploadingProof
+                ? 'Uploading proof...'
+                : submitting
+                ? 'Submitting...'
+                : meetsTarget
+                ? 'Submit Result'
+                : 'Need more to complete'}
             </Text>
           </Button>
         </YStack>

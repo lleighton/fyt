@@ -26,9 +26,9 @@ import {
   Trash2,
   AlertTriangle,
 } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { KeyboardSafeArea } from '@/components/ui'
 
-import { store$, auth$, profile$, completions$ } from '@/lib/legend-state/store'
+import { store$, auth$, profile$, completions$, tagRecipients$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
 import ActivityChart from '@/components/activity/ActivityChart'
 import { useRefresh } from '@/lib/sync-service'
@@ -95,6 +95,22 @@ function ProfileScreen() {
             })
             console.log('[ProfileScreen] Loaded', completionsData.length, 'completions from Supabase')
           }
+
+          // Load tag recipients (for activity chart)
+          const { data: tagRecipientsData, error: tagRecipientsError } = await supabase
+            .from('tag_recipients')
+            .select('*')
+            .eq('recipient_id', session.user.id)
+
+          if (tagRecipientsError) throw tagRecipientsError
+
+          // Update tagRecipients$ observable
+          if (tagRecipientsData) {
+            tagRecipientsData.forEach((recipient) => {
+              ;(tagRecipients$ as any)[recipient.id].set(recipient)
+            })
+            console.log('[ProfileScreen] Loaded', tagRecipientsData.length, 'tag recipients from Supabase')
+          }
         } catch (error) {
           console.error('[ProfileScreen] Error loading data:', error)
         }
@@ -112,7 +128,14 @@ function ProfileScreen() {
     }
   }, [profile?.first_name, profile?.last_name, isEditing])
 
-  const totalCompletions = completions ? Object.keys(completions).length : 0
+  const tagRecipients = store$.tagRecipients.get()
+
+  // Count both challenge completions AND tag response completions
+  const challengeCompletions = completions ? Object.keys(completions).length : 0
+  const tagCompletions = tagRecipients
+    ? Object.values(tagRecipients).filter((r: any) => r?.status === 'completed').length
+    : 0
+  const totalCompletions = challengeCompletions + tagCompletions
 
   const handleSaveProfile = async () => {
     // Get fresh profile from store
@@ -297,7 +320,7 @@ function ProfileScreen() {
   }
 
   return (
-    <SafeArea edges={['top']}>
+    <KeyboardSafeArea edges={['top']}>
       <ScrollView
         flex={1}
         bg="$background"
@@ -325,7 +348,7 @@ function ProfileScreen() {
                 {profile?.avatar_url ? (
                   <Avatar.Image src={profile.avatar_url} />
                 ) : (
-                  <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                  <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                     <User size={40} color="white" />
                   </Avatar.Fallback>
                 )}
@@ -335,7 +358,7 @@ function ProfileScreen() {
                   position="absolute"
                   bottom={0}
                   right={0}
-                  bg="$blue10"
+                  bg="$orange10"
                   p="$2"
                   br="$10"
                 >
@@ -348,7 +371,7 @@ function ProfileScreen() {
                   right={0}
                   size="$3"
                   circular
-                  bg="$blue10"
+                  bg="$orange10"
                   icon={<Camera size={16} color="white" />}
                   onPress={handlePickAvatar}
                 />
@@ -410,7 +433,7 @@ function ProfileScreen() {
                   <Button
                     flex={1}
                     size="$4"
-                    bg="$blue10"
+                    bg="$orange10"
                     onPress={handleSaveProfile}
                     disabled={loading}
                   >
@@ -492,12 +515,12 @@ function ProfileScreen() {
             {/* Sign Out */}
             <Button
               size="$5"
-              bg="$gray8"
-              icon={<LogOut size={20} color="white" />}
+              bg="$gray4"
+              icon={<LogOut size={20} color="$gray12" />}
               onPress={handleSignOut}
               accessibilityLabel="Sign out of your account"
             >
-              <Text color="white" fontWeight="600">Sign Out</Text>
+              <Text color="$gray12" fontWeight="600">Sign Out</Text>
             </Button>
 
             {/* Danger Zone */}
@@ -535,7 +558,7 @@ function ProfileScreen() {
           </YStack>
         </YStack>
       </ScrollView>
-    </SafeArea>
+    </KeyboardSafeArea>
   )
 }
 

@@ -263,7 +263,7 @@ function TagDetailScreen() {
                     br="$4"
                   >
                     <XStack gap="$3" alignItems="center">
-                      <Avatar circular size="$4" bg="$blue10">
+                      <Avatar circular size="$4" bg="$orange10">
                         {recipient.profile?.avatar_url ? (
                           <Avatar.Image src={recipient.profile.avatar_url} />
                         ) : (
@@ -284,7 +284,7 @@ function TagDetailScreen() {
                             </Text>
                           )}
                           {recipient.recipient_id === session?.user?.id && !isSender && (
-                            <Text fontSize="$3" color="$blue10" fontWeight="600">
+                            <Text fontSize="$3" color="$orange10" fontWeight="600">
                               (you)
                             </Text>
                           )}
@@ -305,7 +305,7 @@ function TagDetailScreen() {
                           isCompleted
                             ? didBeat
                               ? '$green10'
-                              : '$blue10'
+                              : '$orange10'
                             : recipient.status === 'expired'
                             ? '$red4'
                             : '$gray4'
@@ -334,7 +334,7 @@ function TagDetailScreen() {
           <YStack px="$4" py="$4" borderTopWidth={1} borderTopColor="$gray4">
             <Button
               size="$5"
-              bg="$green10"
+              bg="$orange10"
               icon={<Zap size={20} color="white" />}
               onPress={() => router.push(`/(auth)/tag/${tagId}/respond` as any)}
             >

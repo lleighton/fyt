@@ -206,12 +206,12 @@ function InviteMembersScreen() {
                 {selectedUsers.map((user) => (
                   <Card
                     key={user.id}
-                    bg="$blue2"
+                    bg="$orange2"
                     px="$3"
                     py="$2"
                     br="$10"
                     borderWidth={1}
-                    borderColor="$blue7"
+                    borderColor="$orange7"
                     pressStyle={{ scale: 0.95 }}
                     animation="quick"
                     onPress={() => handleRemoveUser(user.id)}
@@ -221,7 +221,7 @@ function InviteMembersScreen() {
                         {user.avatar_url ? (
                           <Avatar.Image src={user.avatar_url} />
                         ) : (
-                          <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                          <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                             <Text color="white" fontSize="$1" fontWeight="700">
                               {(user.first_name || user.username || 'U')[0]?.toUpperCase() || 'U'}
                             </Text>
@@ -231,7 +231,7 @@ function InviteMembersScreen() {
                       <Text fontSize="$3" fontWeight="500">
                         {user.first_name || user.username}
                       </Text>
-                      <X size={14} color="$blue10" />
+                      <X size={14} color="$orange10" />
                     </XStack>
                   </Card>
                 ))}
@@ -253,7 +253,7 @@ function InviteMembersScreen() {
         <YStack px="$4" py="$4" borderTopWidth={1} borderTopColor="$gray4">
           <Button
             size="$5"
-            bg={selectedUsers.length > 0 ? '$green10' : '$gray6'}
+            bg={selectedUsers.length > 0 ? '$orange10' : '$gray6'}
             icon={
               loading ? (
                 <ActivityIndicator color="white" />

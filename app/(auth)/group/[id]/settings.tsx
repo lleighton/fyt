@@ -34,7 +34,7 @@ import {
   Mail,
 } from '@tamagui/lucide-icons'
 import {
-  SafeArea,
+  KeyboardSafeArea,
   MembersListSkeleton,
   SkeletonCircle,
   SkeletonText,
@@ -150,7 +150,7 @@ function GroupSettingsScreen() {
   // Show skeleton while loading
   if (!group && isInitialLoading) {
     return (
-      <SafeArea edges={['top', 'bottom']}>
+      <KeyboardSafeArea edges={['top', 'bottom']}>
         <YStack flex={1} bg="$background">
           {/* Header skeleton */}
           <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -186,21 +186,21 @@ function GroupSettingsScreen() {
             </YStack>
           </YStack>
         </YStack>
-      </SafeArea>
+      </KeyboardSafeArea>
     )
   }
 
   // Redirect if not admin (after loading)
   if (!group || !isAdmin) {
     return (
-      <SafeArea>
+      <KeyboardSafeArea>
         <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
           <Text>You don't have permission to access group settings</Text>
           <Button mt="$4" onPress={() => router.back()}>
             Go Back
           </Button>
         </YStack>
-      </SafeArea>
+      </KeyboardSafeArea>
     )
   }
 
@@ -508,7 +508,7 @@ function GroupSettingsScreen() {
   }
 
   return (
-    <SafeArea edges={['top', 'bottom']}>
+    <KeyboardSafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -538,7 +538,7 @@ function GroupSettingsScreen() {
                   {/* Avatar */}
                   <XStack gap="$4" alignItems="center">
                     <YStack position="relative">
-                      <Avatar circular size="$8" bg="$blue10">
+                      <Avatar circular size="$8" bg="$orange10">
                         {group.avatar_url ? (
                           <Avatar.Image src={group.avatar_url} />
                         ) : (
@@ -553,7 +553,7 @@ function GroupSettingsScreen() {
                         right={-4}
                         size="$3"
                         circular
-                        bg="$blue10"
+                        bg="$orange10"
                         icon={
                           uploadingImage ? (
                             <ActivityIndicator size="small" color="white" />
@@ -604,7 +604,7 @@ function GroupSettingsScreen() {
 
                   {/* Save Button */}
                   <Button
-                    bg="$blue10"
+                    bg="$orange10"
                     onPress={handleSaveInfo}
                     disabled={saving}
                   >
@@ -636,7 +636,10 @@ function GroupSettingsScreen() {
                     checked={isPrivate}
                     onCheckedChange={setIsPrivate}
                     size="$4"
-                  />
+                    backgroundColor={isPrivate ? '$orange6' : '$gray5'}
+                  >
+                    <Switch.Thumb animation="quick" backgroundColor="white" />
+                  </Switch>
                 </XStack>
               </Card>
             </YStack>
@@ -655,15 +658,18 @@ function GroupSettingsScreen() {
                     py="$3"
                     br="$4"
                     alignItems="center"
-                    justifyContent="space-between"
+                    justifyContent="center"
+                    position="relative"
                   >
-                    <Text fontWeight="700" fontSize={28} letterSpacing={4}>
+                    <Text fontWeight="700" fontSize={28} letterSpacing={4} color="black">
                       {inviteCode}
                     </Text>
                     <Button
+                      position="absolute"
+                      right="$3"
                       size="$3"
                       circular
-                      bg="$blue10"
+                      bg="$orange10"
                       icon={<Copy size={18} color="white" />}
                       onPress={handleCopyCode}
                     />
@@ -708,7 +714,7 @@ function GroupSettingsScreen() {
                     <YStack key={member.user_id}>
                       {index > 0 && <Separator my="$2" />}
                       <XStack p="$2" gap="$3" alignItems="center">
-                        <Avatar circular size="$4" bg="$blue10">
+                        <Avatar circular size="$4" bg="$orange10">
                           {member.profile?.avatar_url ? (
                             <Avatar.Image src={member.profile.avatar_url} />
                           ) : (
@@ -724,7 +730,7 @@ function GroupSettingsScreen() {
                               {member.profile?.display_name || 'User'}
                             </Text>
                             {isCurrentUser && (
-                              <Text color="$blue10" fontSize="$3">(You)</Text>
+                              <Text color="$orange10" fontSize="$3">(You)</Text>
                             )}
                           </XStack>
                           <XStack gap="$2" alignItems="center">
@@ -898,7 +904,7 @@ function GroupSettingsScreen() {
 
             {selectedMember.role === 'member' ? (
               <Button
-                bg="$blue10"
+                bg="$orange10"
                 icon={<ShieldCheck size={18} color="white" />}
                 onPress={() => handleChangeRole(selectedMember, 'admin')}
               >
@@ -931,7 +937,7 @@ function GroupSettingsScreen() {
           </YStack>
         )}
       </YStack>
-    </SafeArea>
+    </KeyboardSafeArea>
   )
 }
 

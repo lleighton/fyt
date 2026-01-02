@@ -142,7 +142,7 @@ export function ResultInput({
             width={56}
             height={56}
             br="$4"
-            bg="$blue4"
+            bg="$orange4"
             justifyContent="center"
             alignItems="center"
           >
@@ -216,7 +216,7 @@ export function ResultInput({
             px="$3"
             py="$2"
             br="$10"
-            bg={value === quickValue ? '$blue10' : '$gray3'}
+            bg={value === quickValue ? '$orange10' : '$gray3'}
             pressStyle={{ scale: 0.95, opacity: 0.8 }}
             animation="quick"
             onPress={() => onValueChange(quickValue)}

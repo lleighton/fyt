@@ -150,7 +150,7 @@ function GroupsScreen() {
           <Button
             size="$4"
             circular
-            bg="$blue10"
+            bg="$orange10"
             icon={<Plus size={20} color="white" />}
             onPress={() => router.push('/(auth)/group/create')}
           />
@@ -291,7 +291,7 @@ function GroupsScreen() {
                 <YStack gap="$3" mt="$4">
                   <Button
                     size="$5"
-                    bg="$blue10"
+                    bg="$orange10"
                     icon={<Plus size={20} />}
                     onPress={() => router.push('/(auth)/group/create')}
                   >
@@ -317,7 +317,7 @@ function GroupsScreen() {
                   <Button
                     flex={1}
                     size="$4"
-                    bg="$blue10"
+                    bg="$orange10"
                     icon={<Plus size={18} />}
                     onPress={() => router.push('/(auth)/group/create')}
                   >
@@ -359,7 +359,7 @@ function GroupsScreen() {
                       >
                         <XStack gap="$4" alignItems="center">
                           {/* Avatar */}
-                          <Avatar circular size="$6" bg="$blue10">
+                          <Avatar circular size="$6" bg="$orange10">
                             {group.avatar_url ? (
                               <Avatar.Image src={group.avatar_url} />
                             ) : (

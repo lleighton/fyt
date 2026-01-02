@@ -133,12 +133,12 @@ function UserSearchComponent({
               return (
                 <Card
                   key={user.id}
-                  bg={isSelected ? '$blue2' : '$gray2'}
+                  bg={isSelected ? '$orange2' : '$gray2'}
                   p="$3"
                   br="$4"
                   borderWidth={isSelected ? 2 : 0}
-                  borderColor={isSelected ? '$blue10' : 'transparent'}
-                  pressStyle={{ scale: 0.98, bg: isSelected ? '$blue3' : '$gray3' }}
+                  borderColor={isSelected ? '$orange10' : 'transparent'}
+                  pressStyle={{ scale: 0.98, bg: isSelected ? '$orange3' : '$gray3' }}
                   animation="quick"
                   onPress={() => onSelectUser(user)}
                 >
@@ -147,7 +147,7 @@ function UserSearchComponent({
                       {user.avatar_url ? (
                         <Avatar.Image src={user.avatar_url} />
                       ) : (
-                        <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                        <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                           <Text color="white" fontWeight="700">
                             {(user.first_name || user.username || 'U')[0]?.toUpperCase() || 'U'}
                           </Text>
@@ -172,7 +172,7 @@ function UserSearchComponent({
                         width={24}
                         height={24}
                         br="$10"
-                        bg="$blue10"
+                        bg="$orange10"
                         justifyContent="center"
                         alignItems="center"
                       >

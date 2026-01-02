@@ -288,7 +288,7 @@ function ProfileSetupScreen() {
                   Suggestion:
                 </Text>
                 <Text
-                  color="$blue10"
+                  color="$orange10"
                   fontSize="$2"
                   fontWeight="600"
                   pressStyle={{ opacity: 0.7 }}
@@ -311,7 +311,7 @@ function ProfileSetupScreen() {
                   width={48}
                   height={48}
                   br="$10"
-                  bg="$blue10"
+                  bg="$orange10"
                   justifyContent="center"
                   alignItems="center"
                 >
@@ -337,7 +337,7 @@ function ProfileSetupScreen() {
           {/* Submit Button */}
           <Button
             size="$5"
-            bg={canSubmit ? '$green10' : '$gray6'}
+            bg={canSubmit ? '$orange10' : '$gray6'}
             onPress={handleSubmit}
             disabled={!canSubmit}
             opacity={canSubmit ? 1 : 0.5}

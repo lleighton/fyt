@@ -132,7 +132,7 @@ function LoginScreen() {
           <>
             {/* Email Input Screen */}
             <YStack alignItems="center" gap="$3">
-              <Mail size={48} color="$blue10" />
+              <Mail size={48} color="$orange10" />
               <H1 fontSize="$9" textAlign="center">Welcome to fyt</H1>
               <Text color="$gray10" textAlign="center" maxWidth={400}>
                 Sign in with your email to start competing with friends
@@ -162,7 +162,7 @@ function LoginScreen() {
 
               <Button
                 size="$5"
-                bg="$blue10"
+                bg="$orange10"
                 onPress={handleSendOtp}
                 disabled={loading || !email}
                 icon={loading ? <Spinner color="white" /> : undefined}
@@ -180,7 +180,7 @@ function LoginScreen() {
           <>
             {/* OTP Entry Screen */}
             <YStack alignItems="center" gap="$3">
-              <KeyRound size={48} color="$blue10" />
+              <KeyRound size={48} color="$orange10" />
               <H1 fontSize="$9" textAlign="center">Check your email</H1>
               <Text color="$gray10" textAlign="center" maxWidth={400}>
                 We sent a verification code to {email}
@@ -215,7 +215,7 @@ function LoginScreen() {
 
               <Button
                 size="$5"
-                bg="$blue10"
+                bg="$orange10"
                 onPress={handleVerifyOtp}
                 disabled={loading || otp.length !== 6}
                 icon={loading ? <Spinner color="white" /> : undefined}
@@ -231,7 +231,7 @@ function LoginScreen() {
                 disabled={loading}
                 accessibilityLabel="Change email address"
               >
-                <Text color="$blue10">Change email</Text>
+                <Text color="$orange10">Change email</Text>
               </Button>
             </YStack>
           </>

@@ -195,7 +195,7 @@ function RecipientSelectorComponent({
         <XStack justifyContent="space-between" alignItems="center">
           <XStack gap="$3" alignItems="center" flex={1}>
             {isPublic ? (
-              <Globe size={24} color="$blue10" />
+              <Globe size={24} color="$orange10" />
             ) : (
               <Lock size={24} color="$gray10" />
             )}
@@ -214,9 +214,9 @@ function RecipientSelectorComponent({
             size="$4"
             checked={isPublic}
             onCheckedChange={onTogglePublic}
-            bg={isPublic ? '$blue10' : '$gray6'}
+            backgroundColor={isPublic ? '$orange6' : '$gray5'}
           >
-            <Switch.Thumb animation="quick" />
+            <Switch.Thumb animation="quick" backgroundColor="white" />
           </Switch>
         </XStack>
       </Card>
@@ -232,12 +232,12 @@ function RecipientSelectorComponent({
               {Array.from(selectedUsersData.values()).map((user) => (
                 <Card
                   key={user.id}
-                  bg="$blue2"
+                  bg="$orange2"
                   px="$3"
                   py="$2"
                   br="$10"
                   borderWidth={1}
-                  borderColor="$blue7"
+                  borderColor="$orange7"
                   pressStyle={{ scale: 0.95 }}
                   animation="quick"
                   onPress={() => handleSelectUser(user)}
@@ -247,7 +247,7 @@ function RecipientSelectorComponent({
                       {user.avatar_url ? (
                         <Avatar.Image src={user.avatar_url} />
                       ) : (
-                        <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+                        <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
                           <Text color="white" fontSize="$1" fontWeight="700">
                             {(user.first_name || user.username || 'U')[0]?.toUpperCase() || 'U'}
                           </Text>
@@ -257,7 +257,7 @@ function RecipientSelectorComponent({
                     <Text fontSize="$3" fontWeight="500">
                       {getDisplayName(user)}
                     </Text>
-                    <X size={14} color="$blue10" />
+                    <X size={14} color="$orange10" />
                   </XStack>
                 </Card>
               ))}
@@ -331,7 +331,7 @@ function RecipientSelectorComponent({
                   From Your Groups
                 </Text>
                 {selectedFriends.length > 0 && (
-                  <Text color="$blue10" fontSize="$3" fontWeight="600">
+                  <Text color="$orange10" fontSize="$3" fontWeight="600">
                     {selectedFriends.length} selected
                   </Text>
                 )}
@@ -380,8 +380,8 @@ function RecipientSelectorComponent({
 
       {/* Selection Summary */}
       {totalSelected > 0 && (
-        <Card bg="$blue2" p="$3" br="$4" borderWidth={1} borderColor="$blue7">
-          <Text color="$blue11" fontWeight="600" textAlign="center">
+        <Card bg="$orange2" p="$3" br="$4" borderWidth={1} borderColor="$orange7">
+          <Text color="$orange11" fontWeight="600" textAlign="center">
             Tagging {totalSelected} {totalSelected === 1 ? 'recipient' : 'recipients'}
           </Text>
         </Card>
@@ -408,11 +408,11 @@ function SelectableUserCard({
 }) {
   return (
     <Card
-      bg={selected ? '$blue2' : '$gray2'}
+      bg={selected ? '$orange2' : '$gray2'}
       p="$3"
       br="$4"
       borderWidth={selected ? 2 : 0}
-      borderColor={selected ? '$blue10' : 'transparent'}
+      borderColor={selected ? '$orange10' : 'transparent'}
       pressStyle={{ scale: 0.98 }}
       animation="quick"
       onPress={onToggle}
@@ -422,7 +422,7 @@ function SelectableUserCard({
           {user.avatar_url ? (
             <Avatar.Image src={user.avatar_url} />
           ) : (
-            <Avatar.Fallback bg="$blue10" justifyContent="center" alignItems="center">
+            <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
               <Text color="white" fontWeight="700">
                 {(user.first_name || user.display_name || 'U')[0]?.toUpperCase() || 'U'}
               </Text>
@@ -456,7 +456,7 @@ function SelectableUserCard({
             width={24}
             height={24}
             br="$10"
-            bg="$blue10"
+            bg="$orange10"
             justifyContent="center"
             alignItems="center"
           >

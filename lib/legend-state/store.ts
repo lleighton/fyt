@@ -52,9 +52,11 @@ type Group = Tables['groups']['Row']
 type ChallengeParticipant = Tables['challenge_participants']['Row']
 // Tag system types
 type Exercise = Tables['exercises']['Row']
+type ExerciseVariant = Tables['exercise_variants']['Row']
 type Tag = Tables['tags']['Row']
 type TagRecipient = Tables['tag_recipients']['Row']
 type Streak = Tables['streaks']['Row']
+type GroupGoal = Tables['group_goals']['Row']
 
 /**
  * Challenges observable - synced with Supabase
@@ -168,6 +170,19 @@ export const exercises$ = observable(
     filter: (select: any) => select.eq('is_active', true).order('display_order'),
     persist: getSafePersistConfig('exercises_v1'),
     realtime: false, // Exercises don't change often
+  })
+)
+
+/**
+ * Exercise Variants observable - links variant exercises to parents with scaling factors
+ * e.g., Knee Pushups -> Pushups with 0.5x scaling
+ */
+export const exerciseVariants$ = observable(
+  syncedSupabase({
+    supabase,
+    collection: 'exercise_variants',
+    persist: getSafePersistConfig('exercise_variants_v1'),
+    realtime: false, // Variants don't change often
   })
 )
 
@@ -308,6 +323,7 @@ export const store$: any = {
 
   // Tag system accessors
   exercises: exercises$,
+  exerciseVariants: exerciseVariants$,
   tags: tags$,
   tagRecipients: tagRecipients$,
   streaks: streaks$,
@@ -318,9 +334,11 @@ export const store$: any = {
   /**
    * Computed: Activity grid data (GitHub-style)
    * Returns { [date]: count } for last 365 days
+   * Includes both challenge completions AND tag response completions
    */
   activityGrid: (): Record<string, number> => {
     const completions = completions$.get()
+    const tagRecipients = tagRecipients$.get()
     const grid: Record<string, number> = {}
 
     // Initialize last 365 days with 0
@@ -335,11 +353,23 @@ export const store$: any = {
       }
     }
 
-    // Count completions per day
+    // Count challenge completions per day
     if (completions) {
       Object.values(completions).forEach((completion: any) => {
         if (completion?.completed_at) {
           const date = completion.completed_at.split('T')[0]
+          if (date && grid[date] !== undefined) {
+            grid[date]++
+          }
+        }
+      })
+    }
+
+    // Count tag response completions per day
+    if (tagRecipients) {
+      Object.values(tagRecipients).forEach((recipient: any) => {
+        if (recipient?.status === 'completed' && recipient?.completed_at) {
+          const date = recipient.completed_at.split('T')[0]
           if (date && grid[date] !== undefined) {
             grid[date]++
           }
@@ -402,9 +432,11 @@ export const store$: any = {
   /**
    * Computed: Activity data for time period (for charts)
    * Returns array of { date: string, count: number } for last N days
+   * Includes both challenge completions AND tag response completions
    */
   activityForPeriod: (days: number): Array<{ date: string; count: number }> => {
     const completions = completions$.get()
+    const tagRecipients = tagRecipients$.get()
     const data: Array<{ date: string; count: number }> = []
     const today = new Date()
 
@@ -419,11 +451,24 @@ export const store$: any = {
       }
     }
 
-    // Count completions per day
+    // Count challenge completions per day
     if (completions) {
       Object.values(completions).forEach((completion: any) => {
         if (completion?.completed_at) {
           const completionDate = completion.completed_at.split('T')[0]
+          const dataPoint = data.find((d) => d.date === completionDate)
+          if (dataPoint) {
+            dataPoint.count++
+          }
+        }
+      })
+    }
+
+    // Count tag response completions per day
+    if (tagRecipients) {
+      Object.values(tagRecipients).forEach((recipient: any) => {
+        if (recipient?.status === 'completed' && recipient?.completed_at) {
+          const completionDate = recipient.completed_at.split('T')[0]
           const dataPoint = data.find((d) => d.date === completionDate)
           if (dataPoint) {
             dataPoint.count++
@@ -515,6 +560,120 @@ export const store$: any = {
     }
 
     return byCategory
+  },
+
+  /**
+   * Computed: Get variant info for an exercise
+   * Returns parent exercise info if this is a variant, null otherwise
+   */
+  getExerciseVariantInfo: (exerciseId: string): {
+    isVariant: boolean
+    parentExercise: Exercise | null
+    scalingFactor: number
+  } => {
+    const variantsData = exerciseVariants$.get()
+    const exercisesData = exercises$.get()
+
+    if (!variantsData || !exercisesData) {
+      return { isVariant: false, parentExercise: null, scalingFactor: 1 }
+    }
+
+    // Find if this exercise is a variant
+    const variant = Object.values(variantsData).find(
+      (v: any) => v?.variant_exercise_id === exerciseId
+    ) as ExerciseVariant | undefined
+
+    if (!variant) {
+      return { isVariant: false, parentExercise: null, scalingFactor: 1 }
+    }
+
+    // Get the parent exercise
+    const parentExercise = Object.values(exercisesData).find(
+      (e: any) => e?.id === variant.parent_exercise_id
+    ) as Exercise | undefined
+
+    return {
+      isVariant: true,
+      parentExercise: parentExercise || null,
+      scalingFactor: variant.scaling_factor,
+    }
+  },
+
+  /**
+   * Computed: Get all variants for a parent exercise
+   */
+  getExerciseVariants: (parentExerciseId: string): Array<{
+    exercise: Exercise
+    scalingFactor: number
+  }> => {
+    const variantsData = exerciseVariants$.get()
+    const exercisesData = exercises$.get()
+
+    if (!variantsData || !exercisesData) return []
+
+    const variants = Object.values(variantsData).filter(
+      (v: any) => v?.parent_exercise_id === parentExerciseId
+    ) as ExerciseVariant[]
+
+    return variants
+      .map((variant) => {
+        const exercise = Object.values(exercisesData).find(
+          (e: any) => e?.id === variant.variant_exercise_id
+        ) as Exercise | undefined
+        if (!exercise) return null
+        return {
+          exercise,
+          scalingFactor: variant.scaling_factor,
+        }
+      })
+      .filter(Boolean) as Array<{ exercise: Exercise; scalingFactor: number }>
+  },
+
+  /**
+   * Computed: Exercises grouped with their variants
+   * Parent exercises include their variants as children
+   */
+  exercisesWithVariants: (): Array<{
+    exercise: Exercise
+    isVariant: boolean
+    parentId: string | null
+    scalingFactor: number
+    variants: Array<{ exercise: Exercise; scalingFactor: number }>
+  }> => {
+    const exercisesData = exercises$.get()
+    const variantsData = exerciseVariants$.get()
+
+    if (!exercisesData) return []
+
+    const variantIds = new Set<string>()
+    const variantMap = new Map<string, { parentId: string; scalingFactor: number }>()
+
+    // Build variant lookup
+    if (variantsData) {
+      Object.values(variantsData).forEach((v: any) => {
+        if (v?.variant_exercise_id) {
+          variantIds.add(v.variant_exercise_id)
+          variantMap.set(v.variant_exercise_id, {
+            parentId: v.parent_exercise_id,
+            scalingFactor: v.scaling_factor,
+          })
+        }
+      })
+    }
+
+    // Map exercises with variant info
+    return Object.values(exercisesData).map((exercise: any) => {
+      const variantInfo = variantMap.get(exercise.id)
+      const variants = store$.getExerciseVariants(exercise.id)
+
+      return {
+        exercise,
+        isVariant: variantIds.has(exercise.id),
+        parentId: variantInfo?.parentId || null,
+        scalingFactor: variantInfo?.scalingFactor || 1,
+        variants,
+      }
+    })
   },
 
   /**

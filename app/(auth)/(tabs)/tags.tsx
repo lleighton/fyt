@@ -156,22 +156,22 @@ function TagsScreen() {
             <H1 fontSize="$8">Tags</H1>
             <Button
               size="$4"
-              bg="$green10"
+              bg="$orange6"
               icon={<Plus size={20} color="white" />}
               circular
               onPress={() => router.push('/(auth)/tag/create')}
             />
           </XStack>
 
-          {/* Filter Cards */}
+          {/* Filter Cards - WCAG AA compliant with orange brand */}
           <XStack gap="$3">
             <Card
               flex={1}
-              bg={activeFilter === 'sent' ? '$green9' : '$gray3'}
+              bg={activeFilter === 'sent' ? '$orange6' : '$gray3'}
               p="$4"
               br="$5"
               borderWidth={activeFilter === 'sent' ? 2 : 0}
-              borderColor="$green10"
+              borderColor="$orange10"
               pressStyle={{ scale: 0.97, opacity: 0.9 }}
               animation="quick"
               onPress={() => setActiveFilter('sent')}
@@ -187,7 +187,7 @@ function TagsScreen() {
             </Card>
             <Card
               flex={1}
-              bg={activeFilter === 'received' ? '$orange9' : '$gray3'}
+              bg={activeFilter === 'received' ? '$orange6' : '$gray3'}
               p="$4"
               br="$5"
               borderWidth={activeFilter === 'received' ? 2 : 0}
@@ -207,11 +207,11 @@ function TagsScreen() {
             </Card>
             <Card
               flex={1}
-              bg={activeFilter === 'completed' ? '$blue9' : '$gray3'}
+              bg={activeFilter === 'completed' ? '$orange6' : '$gray3'}
               p="$4"
               br="$5"
               borderWidth={activeFilter === 'completed' ? 2 : 0}
-              borderColor="$blue10"
+              borderColor="$orange10"
               pressStyle={{ scale: 0.97, opacity: 0.9 }}
               animation="quick"
               onPress={() => setActiveFilter('completed')}
@@ -338,7 +338,7 @@ function EmptyState({
           <Button
             mt="$2"
             size="$4"
-            bg="$green10"
+            bg="$orange6"
             icon={<Plus size={20} color="white" />}
             onPress={onAction}
           >
@@ -390,7 +390,7 @@ function SentTagCard({
           width={48}
           height={48}
           br="$4"
-          bg="$green3"
+          bg="$orange3"
           justifyContent="center"
           alignItems="center"
         >
@@ -506,7 +506,7 @@ function CompletedTagCard({
 
   return (
     <Card
-      bg={isOwnTag ? '$green2' : '$blue2'}
+      bg={isOwnTag ? '$green2' : '$orange2'}
       p="$4"
       br="$5"
       borderWidth={0}
@@ -515,7 +515,7 @@ function CompletedTagCard({
       shadowOpacity={0.1}
       shadowRadius={4}
       elevation={1}
-      pressStyle={{ scale: 0.98, bg: isOwnTag ? '$green3' : '$blue3' }}
+      pressStyle={{ scale: 0.98, bg: isOwnTag ? '$green3' : '$orange3' }}
       animation="quick"
       onPress={onPress}
     >
@@ -524,7 +524,7 @@ function CompletedTagCard({
           width={48}
           height={48}
           br="$4"
-          bg={isOwnTag ? '$green4' : didBeat ? '$green4' : '$blue4'}
+          bg={isOwnTag ? '$green4' : didBeat ? '$green4' : '$orange4'}
           justifyContent="center"
           alignItems="center"
         >
@@ -549,20 +549,20 @@ function CompletedTagCard({
             {isOwnTag ? 'You sent this tag' : `From ${tag.sender?.display_name || 'Someone'}`}
           </Text>
           <XStack gap="$2" alignItems="center">
-            <Text color={isOwnTag ? '$green11' : '$blue11'} fontSize="$3" fontWeight="600">
+            <Text color={isOwnTag ? '$green11' : '$orange11'} fontSize="$3" fontWeight="600">
               {isOwnTag ? 'Your score' : 'Their'}: {tag.value}
             </Text>
             {!isOwnTag && (
               <>
                 <Text color="$gray10" fontSize="$3">→</Text>
-                <Text color={didBeat ? '$green11' : '$blue11'} fontSize="$3" fontWeight="600">
+                <Text color={didBeat ? '$green11' : '$orange11'} fontSize="$3" fontWeight="600">
                   Yours: {completedValue || tag.value}
                 </Text>
               </>
             )}
           </XStack>
         </YStack>
-        <ChevronRight size={20} color={isOwnTag ? '$green10' : '$blue10'} />
+        <ChevronRight size={20} color={isOwnTag ? '$green10' : '$orange10'} />
       </XStack>
     </Card>
   )

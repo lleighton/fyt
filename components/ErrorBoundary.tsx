@@ -130,7 +130,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <YStack gap="$3" width="100%" maxWidth={300}>
             <Button
               size="$5"
-              bg="$blue10"
+              bg="$orange10"
               icon={<RefreshCw size={20} color="white" />}
               onPress={this.handleReload}
               accessibilityLabel="Reload the app"

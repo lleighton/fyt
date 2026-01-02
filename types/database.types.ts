@@ -472,6 +472,8 @@ export interface Database {
           recipient_phone: string | null
           status: 'pending' | 'completed' | 'expired' | 'declined'
           completed_value: number | null
+          completed_exercise_id: string | null
+          scaled_value: number | null
           completed_at: string | null
           proof_url: string | null
           proof_type: 'photo' | 'video' | null
@@ -488,6 +490,8 @@ export interface Database {
           recipient_phone?: string | null
           status?: 'pending' | 'completed' | 'expired' | 'declined'
           completed_value?: number | null
+          completed_exercise_id?: string | null
+          scaled_value?: number | null
           completed_at?: string | null
           proof_url?: string | null
           proof_type?: 'photo' | 'video' | null
@@ -504,6 +508,8 @@ export interface Database {
           recipient_phone?: string | null
           status?: 'pending' | 'completed' | 'expired' | 'declined'
           completed_value?: number | null
+          completed_exercise_id?: string | null
+          scaled_value?: number | null
           completed_at?: string | null
           proof_url?: string | null
           proof_type?: 'photo' | 'video' | null
@@ -553,6 +559,141 @@ export interface Database {
           streak_started_at?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      // ============================================
+      // EXERCISE VARIANTS & GROUP GOALS
+      // ============================================
+      exercise_variants: {
+        Row: {
+          id: string
+          parent_exercise_id: string
+          variant_exercise_id: string
+          scaling_factor: number
+          description: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          parent_exercise_id: string
+          variant_exercise_id: string
+          scaling_factor: number
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          parent_exercise_id?: string
+          variant_exercise_id?: string
+          scaling_factor?: number
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      group_goals: {
+        Row: {
+          id: string
+          group_id: string
+          exercise_id: string | null
+          category: 'upper_body' | 'core' | 'lower_body' | 'full_body' | 'all' | null
+          target_value: number
+          target_unit: 'reps' | 'seconds' | 'completions'
+          period_type: 'week' | 'month' | 'custom'
+          starts_at: string
+          ends_at: string
+          title: string
+          description: string | null
+          icon: string | null
+          include_variants: boolean
+          created_by: string
+          current_value: number
+          status: 'active' | 'completed' | 'cancelled'
+          created_at: string
+          updated_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          exercise_id?: string | null
+          category?: 'upper_body' | 'core' | 'lower_body' | 'full_body' | 'all' | null
+          target_value: number
+          target_unit: 'reps' | 'seconds' | 'completions'
+          period_type: 'week' | 'month' | 'custom'
+          starts_at: string
+          ends_at: string
+          title: string
+          description?: string | null
+          icon?: string | null
+          include_variants?: boolean
+          created_by: string
+          current_value?: number
+          status?: 'active' | 'completed' | 'cancelled'
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          exercise_id?: string | null
+          category?: 'upper_body' | 'core' | 'lower_body' | 'full_body' | 'all' | null
+          target_value?: number
+          target_unit?: 'reps' | 'seconds' | 'completions'
+          period_type?: 'week' | 'month' | 'custom'
+          starts_at?: string
+          ends_at?: string
+          title?: string
+          description?: string | null
+          icon?: string | null
+          include_variants?: boolean
+          created_by?: string
+          current_value?: number
+          status?: 'active' | 'completed' | 'cancelled'
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+      }
+      goal_contributions: {
+        Row: {
+          id: string
+          goal_id: string
+          user_id: string
+          tag_recipient_id: string | null
+          exercise_id: string | null
+          raw_value: number
+          scaled_value: number
+          scaling_factor: number
+          contributed_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          goal_id: string
+          user_id: string
+          tag_recipient_id?: string | null
+          exercise_id?: string | null
+          raw_value: number
+          scaled_value: number
+          scaling_factor?: number
+          contributed_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          goal_id?: string
+          user_id?: string
+          tag_recipient_id?: string | null
+          exercise_id?: string | null
+          raw_value?: number
+          scaled_value?: number
+          scaling_factor?: number
+          contributed_at?: string
+          created_at?: string
         }
       }
     }
@@ -627,6 +768,214 @@ export interface Database {
       expire_pending_tags: {
         Args: Record<string, never>
         Returns: number
+      }
+      // Exercise variant functions
+      get_exercise_parent: {
+        Args: { p_exercise_id: string }
+        Returns: {
+          parent_id: string
+          parent_name: string
+          scaling_factor: number
+        }[]
+      }
+      get_exercise_variants: {
+        Args: { p_exercise_id: string }
+        Returns: {
+          variant_id: string
+          variant_name: string
+          variant_icon: string | null
+          scaling_factor: number
+          description: string | null
+        }[]
+      }
+      // Group stats functions
+      get_group_exercise_totals: {
+        Args: {
+          p_group_id: string
+          p_time_filter?: string
+          p_include_variants?: boolean
+        }
+        Returns: {
+          exercise_id: string
+          exercise_name: string
+          exercise_icon: string | null
+          exercise_type: string
+          exercise_unit: string
+          category: string
+          total_value: number
+          total_completions: number
+          top_contributor_id: string | null
+          top_contributor_name: string | null
+          top_contributor_avatar: string | null
+          top_contributor_value: number | null
+        }[]
+      }
+      get_group_member_stats: {
+        Args: {
+          p_group_id: string
+          p_time_filter?: string
+          p_include_variants?: boolean
+        }
+        Returns: {
+          user_id: string
+          display_name: string | null
+          avatar_url: string | null
+          total_value: number
+          total_completions: number
+          unique_exercises: number
+        }[]
+      }
+      get_group_activity_summary: {
+        Args: {
+          p_group_id: string
+          p_time_filter?: string
+        }
+        Returns: {
+          total_completions: number
+          total_reps: number
+          total_seconds: number
+          active_members: number
+          unique_exercises: number
+          active_goals: number
+          completed_goals: number
+        }[]
+      }
+      get_group_active_goals: {
+        Args: { p_group_id: string }
+        Returns: {
+          goal_id: string
+          title: string
+          description: string | null
+          icon: string | null
+          exercise_id: string | null
+          exercise_name: string | null
+          exercise_icon: string | null
+          category: string | null
+          target_value: number
+          target_unit: string
+          current_value: number
+          progress_percent: number
+          starts_at: string
+          ends_at: string
+          time_remaining: string
+          contributor_count: number
+        }[]
+      }
+      get_goal_details: {
+        Args: { p_goal_id: string }
+        Returns: {
+          goal_id: string
+          group_id: string
+          title: string
+          description: string | null
+          icon: string | null
+          exercise_id: string | null
+          exercise_name: string | null
+          exercise_icon: string | null
+          category: string | null
+          target_value: number
+          target_unit: string
+          current_value: number
+          progress_percent: number
+          status: string
+          starts_at: string
+          ends_at: string
+          created_by: string
+          created_at: string
+          completed_at: string | null
+          include_variants: boolean
+        }[]
+      }
+      get_goal_contributors: {
+        Args: {
+          p_goal_id: string
+          p_limit?: number
+        }
+        Returns: {
+          user_id: string
+          display_name: string | null
+          avatar_url: string | null
+          total_contribution: number
+          contribution_count: number
+        }[]
+      }
+      get_user_goal_contributions: {
+        Args: {
+          p_user_id: string
+          p_group_id: string
+        }
+        Returns: {
+          goal_id: string
+          goal_title: string
+          user_contribution: number
+          contribution_percent: number
+          rank_in_goal: number
+        }[]
+      }
+      get_pair_exercise_totals: {
+        Args: {
+          p_user_id: string
+          p_partner_id: string
+          p_time_filter?: string
+          p_include_variants?: boolean
+        }
+        Returns: {
+          exercise_id: string
+          exercise_name: string
+          exercise_icon: string | null
+          exercise_type: string
+          category: string
+          combined_total: number
+          user_total: number
+          partner_total: number
+        }[]
+      }
+      create_group_goal: {
+        Args: {
+          p_group_id: string
+          p_title: string
+          p_target_value: number
+          p_target_unit: string
+          p_period_type: string
+          p_exercise_id?: string | null
+          p_category?: string | null
+          p_description?: string | null
+          p_icon?: string | null
+          p_starts_at?: string | null
+          p_ends_at?: string | null
+          p_include_variants?: boolean
+        }
+        Returns: string
+      }
+      cancel_group_goal: {
+        Args: { p_goal_id: string }
+        Returns: boolean
+      }
+      // Recipient exercise choice functions
+      calculate_scaled_completion: {
+        Args: {
+          p_tag_exercise_id: string
+          p_completed_exercise_id: string
+          p_completed_value: number
+        }
+        Returns: {
+          is_valid: boolean
+          scaling_factor: number
+          scaled_value: number
+          is_same_exercise: boolean
+        }[]
+      }
+      get_valid_completion_exercises: {
+        Args: { p_tag_id: string }
+        Returns: {
+          exercise_id: string
+          exercise_name: string
+          exercise_icon: string | null
+          exercise_type: string
+          is_variant: boolean
+          scaling_factor: number
+          effective_target: number
+        }[]
       }
     }
     Enums: {

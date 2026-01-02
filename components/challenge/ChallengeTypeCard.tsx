@@ -35,7 +35,7 @@ export function ChallengeTypeCard({
         ? '$orange2'
         : type === 'for_time'
           ? '$green2'
-          : '$blue2'
+          : '$orange2'
     : '$gray2'
 
   const borderColor =
@@ -45,7 +45,7 @@ export function ChallengeTypeCard({
         ? '$orange10'
         : type === 'for_time'
           ? '$green10'
-          : '$blue10'
+          : '$orange10'
 
   return (
     <Card

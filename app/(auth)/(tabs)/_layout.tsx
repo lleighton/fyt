@@ -69,7 +69,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.blue10.get(),
+        tabBarActiveTintColor: theme.orange10?.get() || '#F97316',
         tabBarInactiveTintColor: theme.gray10.get(),
         tabBarStyle: {
           backgroundColor: theme.background.get(),

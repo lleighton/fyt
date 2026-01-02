@@ -205,7 +205,7 @@ function StepCard({
             >
               Step {index + 1}
             </Text>
-            <XStack bg="$blue10" px="$2" py="$0.5" br="$6">
+            <XStack bg="$orange10" px="$2" py="$0.5" br="$6">
               <Text
                 fontSize="$1"
                 color="white"
@@ -301,7 +301,7 @@ function AddStepForm({
                 key={type}
                 size="$3"
                 variant={newStep.type === type ? undefined : 'outlined'}
-                bg={newStep.type === type ? '$blue10' : undefined}
+                bg={newStep.type === type ? '$orange10' : undefined}
                 onPress={() => onUpdateNewStep({ ...newStep, type })}
                 flex={1}
                 minWidth={80}
@@ -317,7 +317,7 @@ function AddStepForm({
           <StrengthFields newStep={newStep} onUpdateNewStep={onUpdateNewStep} />
         )}
 
-        <Button size="$4" bg="$blue10" icon={<Plus size={18} />} onPress={onAdd}>
+        <Button size="$4" bg="$orange10" icon={<Plus size={18} />} onPress={onAdd}>
           Add Step
         </Button>
       </YStack>
@@ -388,7 +388,7 @@ function StrengthFields({
               size="$4"
               minWidth={60}
               variant={newStep.weight_unit === 'lbs' ? undefined : 'outlined'}
-              bg={newStep.weight_unit === 'lbs' ? '$blue10' : undefined}
+              bg={newStep.weight_unit === 'lbs' ? '$orange10' : undefined}
               onPress={() => onUpdateNewStep({ ...newStep, weight_unit: 'lbs' })}
             >
               lbs
@@ -397,7 +397,7 @@ function StrengthFields({
               size="$4"
               minWidth={60}
               variant={newStep.weight_unit === 'kg' ? undefined : 'outlined'}
-              bg={newStep.weight_unit === 'kg' ? '$blue10' : undefined}
+              bg={newStep.weight_unit === 'kg' ? '$orange10' : undefined}
               onPress={() => onUpdateNewStep({ ...newStep, weight_unit: 'kg' })}
             >
               kg
