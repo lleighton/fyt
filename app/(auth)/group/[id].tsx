@@ -122,7 +122,7 @@ function GroupDetailScreen() {
 
   // Fetch tags for this group - stale-while-revalidate pattern
   useEffect(() => {
-    if (!id || !group?.members) return
+    if (!id) return
 
     const fetchGroupTags = async () => {
       // Only show loading skeleton if we have NO data (first load)
@@ -132,10 +132,7 @@ function GroupDetailScreen() {
       }
 
       try {
-        // Get member IDs
-        const memberIds = group.members.map((m: any) => m.user_id)
-
-        // Fetch tags where recipients include group members
+        // Fetch tags that were explicitly created for this group
         const { data, error } = await (supabase
           .from('tags') as any)
           .select(`
@@ -165,6 +162,7 @@ function GroupDetailScreen() {
               completed_value
             )
           `)
+          .eq('group_id', id) // Only tags explicitly created for this group
           .eq('deleted', false)
           .order('created_at', { ascending: false })
           .limit(20)
@@ -172,12 +170,7 @@ function GroupDetailScreen() {
         if (error) {
           console.error('[GroupDetail] Error fetching tags:', error)
         } else {
-          // Filter to tags where at least one recipient is a group member
-          const filteredTags = (data || []).filter((tag: any) => {
-            if (!tag.recipients) return false
-            return tag.recipients.some((r: any) => memberIds.includes(r.recipient_id))
-          })
-          setGroupTags(filteredTags)
+          setGroupTags(data || [])
         }
       } catch (err) {
         console.error('[GroupDetail] Error:', err)
@@ -189,7 +182,7 @@ function GroupDetailScreen() {
     }
 
     fetchGroupTags()
-  }, [id, group?.members])
+  }, [id])
 
   // Fetch active goals for this group
   useEffect(() => {
@@ -563,7 +556,7 @@ function GroupDetailScreen() {
             {/* Invite Code Card */}
             {group.is_private && (
               <Card
-                bg="$purple2"
+                bg="$orange2"
                 p="$5"
                 br="$6"
                 borderWidth={0}
@@ -645,24 +638,36 @@ function GroupDetailScreen() {
               </Button>
             </XStack>
 
-            {/* Tabs */}
+            {/* Tabs - with text labels for accessibility */}
             <TamaguiTabs
               defaultValue="tags"
               orientation="horizontal"
               flexDirection="column"
             >
               <TamaguiTabs.List gap="$2">
-                <TamaguiTabs.Tab value="tags" flex={1} accessibilityLabel="Tags">
-                  <Tag size={20} />
+                <TamaguiTabs.Tab value="tags" flex={1} accessibilityLabel="Tags tab">
+                  <YStack alignItems="center" gap="$1">
+                    <Tag size={18} />
+                    <Text fontSize="$1" fontWeight="500">Tags</Text>
+                  </YStack>
                 </TamaguiTabs.Tab>
-                <TamaguiTabs.Tab value="stats" flex={1} accessibilityLabel="Stats">
-                  <BarChart3 size={20} />
+                <TamaguiTabs.Tab value="stats" flex={1} accessibilityLabel="Stats tab">
+                  <YStack alignItems="center" gap="$1">
+                    <BarChart3 size={18} />
+                    <Text fontSize="$1" fontWeight="500">Stats</Text>
+                  </YStack>
                 </TamaguiTabs.Tab>
-                <TamaguiTabs.Tab value="members" flex={1} accessibilityLabel="Members">
-                  <Users size={20} />
+                <TamaguiTabs.Tab value="members" flex={1} accessibilityLabel="Members tab">
+                  <YStack alignItems="center" gap="$1">
+                    <Users size={18} />
+                    <Text fontSize="$1" fontWeight="500">Members</Text>
+                  </YStack>
                 </TamaguiTabs.Tab>
-                <TamaguiTabs.Tab value="leaderboard" flex={1} accessibilityLabel="Leaderboard">
-                  <Trophy size={20} />
+                <TamaguiTabs.Tab value="leaderboard" flex={1} accessibilityLabel="Leaderboard tab">
+                  <YStack alignItems="center" gap="$1">
+                    <Trophy size={18} />
+                    <Text fontSize="$1" fontWeight="500">Ranks</Text>
+                  </YStack>
                 </TamaguiTabs.Tab>
               </TamaguiTabs.List>
 
@@ -755,7 +760,7 @@ function GroupDetailScreen() {
                         {isAdmin && (
                           <Button
                             size="$3"
-                            bg="$purple10"
+                            bg="$orange10"
                             onPress={() => router.push(`/(auth)/group/${id}/goals` as any)}
                           >
                             <Text color="white" fontWeight="600" fontSize="$3">Manage</Text>
@@ -774,8 +779,8 @@ function GroupDetailScreen() {
 
                   {/* No Goals - Admin CTA */}
                   {activeGoals.length === 0 && isAdmin && (
-                    <Card bg="$purple2" p="$5" br="$4" alignItems="center">
-                      <Target size={48} color="$purple10" />
+                    <Card bg="$orange2" p="$5" br="$4" alignItems="center">
+                      <Target size={48} color="$orange10" />
                       <Text fontWeight="700" fontSize="$5" mt="$3" textAlign="center">
                         Set a Group Goal
                       </Text>
@@ -784,7 +789,7 @@ function GroupDetailScreen() {
                       </Text>
                       <Button
                         size="$4"
-                        bg="$purple10"
+                        bg="$orange10"
                         onPress={() => router.push(`/(auth)/group/${id}/goals` as any)}
                       >
                         <Text color="white" fontWeight="600">Create Goal</Text>
@@ -968,30 +973,28 @@ function GroupDetailScreen() {
                       )}
 
                       {/* Full Leaderboard List */}
-                      {leaderboardData.map((member: any, index: number) => (
+                      {leaderboardData.map((member: any, index: number) => {
+                        const isCurrentUser = member.user_id === session?.user?.id
+                        return (
                         <Card
                           key={member.user_id}
-                          bg={
-                            member.user_id === session?.user?.id
-                              ? '$orange2'
-                              : '$backgroundHover'
-                          }
+                          bg={isCurrentUser ? '$orange2' : '$backgroundHover'}
                           p="$3"
                           br="$4"
-                          borderWidth={member.user_id === session?.user?.id ? 1 : 0}
+                          borderWidth={isCurrentUser ? 1 : 0}
                           borderColor="$orange7"
                         >
                           <XStack gap="$3" alignItems="center">
                             {/* Rank */}
                             <YStack width={32} height={32} alignItems="center" justifyContent="center">
                               {index === 0 ? (
-                                <Medal size={24} color="$yellow10" />
+                                <Medal size={24} color={isCurrentUser ? '$yellow9' : '$yellow10'} />
                               ) : index === 1 ? (
                                 <Medal size={24} color="$gray10" />
                               ) : index === 2 ? (
-                                <Medal size={24} color="$orange10" />
+                                <Medal size={24} color={isCurrentUser ? '$orange11' : '$orange10'} />
                               ) : (
-                                <Text fontSize="$4" fontWeight="700" color="$gray11">
+                                <Text fontSize="$4" fontWeight="700" color={isCurrentUser ? '$orange12' : '$gray11'}>
                                   {member.rank}
                                 </Text>
                               )}
@@ -1007,29 +1010,29 @@ function GroupDetailScreen() {
                             {/* Name and Stats */}
                             <YStack flex={1}>
                               <XStack alignItems="center" gap="$2">
-                                <Text fontWeight="600" fontSize="$4" numberOfLines={1}>
+                                <Text fontWeight="600" fontSize="$4" numberOfLines={1} color={isCurrentUser ? '$orange12' : '$color'}>
                                   {member.display_name || 'User'}
                                 </Text>
                                 {member.role === 'admin' && (
-                                  <Crown size={14} color="$yellow10" />
+                                  <Crown size={14} color={isCurrentUser ? '$yellow9' : '$yellow10'} />
                                 )}
-                                {member.user_id === session?.user?.id && (
-                                  <Text fontSize="$3" color="$orange10" fontWeight="600">
+                                {isCurrentUser && (
+                                  <Text fontSize="$3" color="$orange11" fontWeight="600">
                                     (You)
                                   </Text>
                                 )}
                               </XStack>
                               <XStack gap="$3" mt="$1">
                                 <XStack gap="$1" alignItems="center">
-                                  <Trophy size={12} color="$gray10" />
-                                  <Text fontSize="$3" color="$gray10">
+                                  <Trophy size={12} color={isCurrentUser ? '$orange11' : '$gray10'} />
+                                  <Text fontSize="$3" color={isCurrentUser ? '$orange11' : '$gray10'}>
                                     {member.group_challenge_completions} completions
                                   </Text>
                                 </XStack>
                                 {member.avg_performance > 0 && (
                                   <XStack gap="$1" alignItems="center">
-                                    <TrendingUp size={12} color="$gray10" />
-                                    <Text fontSize="$3" color="$gray10">
+                                    <TrendingUp size={12} color={isCurrentUser ? '$orange11' : '$gray10'} />
+                                    <Text fontSize="$3" color={isCurrentUser ? '$orange11' : '$gray10'}>
                                       {Math.round(member.avg_performance)} avg
                                     </Text>
                                   </XStack>
@@ -1039,16 +1042,16 @@ function GroupDetailScreen() {
 
                             {/* Points */}
                             <YStack alignItems="flex-end">
-                              <Text fontSize="$5" fontWeight="700" color="$orange10">
+                              <Text fontSize="$5" fontWeight="700" color={isCurrentUser ? '$orange12' : '$orange10'}>
                                 {member.group_challenge_points}
                               </Text>
-                              <Text fontSize="$2" color="$gray10">
+                              <Text fontSize="$2" color={isCurrentUser ? '$orange11' : '$gray10'}>
                                 points
                               </Text>
                             </YStack>
                           </XStack>
                         </Card>
-                      ))}
+                      )})}
                     </YStack>
                   )}
                 </YStack>

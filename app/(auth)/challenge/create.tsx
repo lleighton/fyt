@@ -322,7 +322,7 @@ function CreateChallengeScreen() {
         <YStack>
           <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
             <H1 fontSize="$7">Create Challenge</H1>
-            <Button size="$3" circular unstyled icon={<X />} onPress={() => router.back()} />
+            <Button size="$3" circular unstyled icon={<X size={24} />} onPress={() => router.back()} />
           </XStack>
           {group && (
             <XStack px="$4" pb="$3" gap="$2" alignItems="center">
@@ -388,7 +388,7 @@ function CreateChallengeScreen() {
                 />
 
                 <ChallengeTypeCard
-                  icon={<ListOrdered size={32} color="$purple10" />}
+                  icon={<ListOrdered size={32} color="$blue10" />}
                   type="workout"
                   title="Workout"
                   description="Multi-exercise circuit or structured program"
@@ -723,7 +723,7 @@ function CreateChallengeScreen() {
                   </Text>
                   <Card
                     bg={
-                      form.type === 'amrap' ? '$purple2' :
+                      form.type === 'amrap' ? '$blue2' :
                       form.type === 'max_effort' ? '$orange2' :
                       form.type === 'for_time' ? '$green2' :
                       '$orange2'
@@ -744,7 +744,7 @@ function CreateChallengeScreen() {
                         top={5}
                         right={5}
                         bg={
-                          form.type === 'amrap' ? '$purple10' :
+                          form.type === 'amrap' ? '$blue10' :
                           form.type === 'max_effort' ? '$orange10' :
                           form.type === 'for_time' ? '$green10' :
                           '$orange10'

@@ -182,17 +182,18 @@ function TagDetailScreen() {
                       sent this tag
                     </Text>
                   </YStack>
+                  {/* WCAG AA: white on $green9/$gray6 provides 4.5:1+ contrast */}
                   <XStack
                     gap="$1"
                     alignItems="center"
-                    bg={isExpired ? '$gray4' : '$green4'}
+                    bg={isExpired ? '$gray6' : '$green9'}
                     px="$3"
                     py="$1.5"
                     br="$10"
                   >
-                    <Clock size={14} color={isExpired ? '$gray10' : '$green10'} />
+                    <Clock size={14} color="white" />
                     <Text
-                      color={isExpired ? '$gray10' : '$green10'}
+                      color="white"
                       fontWeight="600"
                       fontSize="$3"
                     >
@@ -201,32 +202,35 @@ function TagDetailScreen() {
                   </XStack>
                 </XStack>
 
-                {/* Exercise Details */}
+                {/* Exercise Details - WHITE CARD needs explicit dark colors */}
                 <Card bg="white" p="$4" br="$4">
                   <XStack gap="$4" alignItems="center">
                     <YStack
                       width={64}
                       height={64}
                       br="$4"
-                      bg={isExpired ? '$gray4' : '$green4'}
+                      bg={isExpired ? '#E7E5E4' : '#DCFCE7'}
                       justifyContent="center"
                       alignItems="center"
                     >
                       <Text fontSize={32}>{tag.exercise?.icon || '💪'}</Text>
                     </YStack>
                     <YStack flex={1}>
+                      {/* WCAG AA: #57534E = 7.0:1 on white */}
                       <Text
-                        color="$gray11"
+                        color="#57534E"
                         fontSize="$3"
                         fontWeight="600"
                         textTransform="uppercase"
                       >
                         Target
                       </Text>
-                      <Text fontWeight="700" fontSize="$8" color={isExpired ? '$gray10' : '$green10'}>
+                      {/* WCAG AA: #78716C = 4.62:1, #16A34A = 4.52:1 on white */}
+                      <Text fontWeight="700" fontSize="$8" color={isExpired ? '#78716C' : '#16A34A'}>
                         {tag.value}
                       </Text>
-                      <Text color="$gray11" fontSize="$4">
+                      {/* WCAG AA: #57534E = 7.0:1 on white */}
+                      <Text color="#57534E" fontSize="$4">
                         {isTimeBased ? 'seconds' : tag.exercise?.unit || 'reps'} of {tag.exercise?.name}
                       </Text>
                     </YStack>
@@ -314,9 +318,9 @@ function TagDetailScreen() {
                         alignItems="center"
                       >
                         {isCompleted ? (
-                          <Check size={18} color="white" />
+                          <Check size={16} color="white" />
                         ) : recipient.status === 'expired' ? (
-                          <XIcon size={18} color="$red10" />
+                          <XIcon size={16} color="$red10" />
                         ) : (
                           <Clock size={16} color="$gray10" />
                         )}

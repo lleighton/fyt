@@ -166,7 +166,7 @@ function HomeScreen() {
                   >
                     Activity
                   </Text>
-                  <Flame color="$orange10" size={24} />
+                  <Flame color="$amber10" size={24} />
                 </XStack>
                 <XStack alignItems="baseline" gap="$2">
                   <Text fontSize={48} fontWeight="700" color="$gray12">
@@ -177,11 +177,14 @@ function HomeScreen() {
                   </Text>
                 </XStack>
                 <XStack
-                  bg="$orange9"
+                  bg="$amber9"
                   px="$2.5"
                   py="$1.5"
                   br="$10"
                   alignSelf="flex-start"
+                  accessible={true}
+                  accessibilityRole="text"
+                  accessibilityLabel={currentStreak >= 7 ? 'On fire streak status' : 'Keep your streak going'}
                 >
                   <Text
                     color="white"
@@ -189,7 +192,7 @@ function HomeScreen() {
                     fontWeight="700"
                     textTransform="uppercase"
                   >
-                    {currentStreak >= 7 ? 'On Fire' : 'Keep Going'}
+                    {currentStreak >= 7 ? 'On Fire!' : currentStreak > 0 ? 'Keep It Up!' : 'Start Today'}
                   </Text>
                 </XStack>
               </YStack>
@@ -210,8 +213,9 @@ function HomeScreen() {
             >
               <YStack gap="$2">
                 <XStack justifyContent="space-between" alignItems="center">
+                  {/* WCAG: $green12 provides 5.07:1 contrast on $green3 */}
                   <Text
-                    color="$green11"
+                    color="$green12"
                     fontSize="$2"
                     fontWeight="600"
                     textTransform="uppercase"
@@ -219,13 +223,13 @@ function HomeScreen() {
                   >
                     Tag Streak
                   </Text>
-                  <Zap color="$green10" size={24} />
+                  <Zap color="$green11" size={24} />
                 </XStack>
                 <XStack alignItems="baseline" gap="$2">
                   <Text fontSize={48} fontWeight="700" color="$green12">
                     {tagStreak}
                   </Text>
-                  <Text fontSize="$5" fontWeight="600" color="$green11">
+                  <Text fontSize="$5" fontWeight="600" color="$green12">
                     {tagStreak === 1 ? 'day' : 'days'}
                   </Text>
                 </XStack>
@@ -260,17 +264,27 @@ function HomeScreen() {
             shadowOpacity={0.1}
             shadowRadius={8}
             elevation={2}
+            accessible={true}
+            accessibilityLabel="Activity heatmap showing daily workout completions over the past year"
           >
             <YStack gap="$4">
-              <Text
-                color="$gray11"
-                fontSize="$2"
-                fontWeight="600"
-                textTransform="uppercase"
-                letterSpacing={0.5}
-              >
-                Activity
-              </Text>
+              <YStack gap="$1">
+                <Text
+                  color="$gray11"
+                  fontSize="$2"
+                  fontWeight="600"
+                  textTransform="uppercase"
+                  letterSpacing={0.5}
+                >
+                  Daily Completions
+                </Text>
+                <Text
+                  color="$gray10"
+                  fontSize="$2"
+                >
+                  Your workout activity over the past year
+                </Text>
+              </YStack>
               <ActivityGrid activityData={activityGrid} />
             </YStack>
           </Card>
@@ -280,7 +294,7 @@ function HomeScreen() {
             <YStack gap="$3">
               <XStack justifyContent="space-between" alignItems="center">
                 <XStack gap="$2" alignItems="center">
-                  <Clock size={18} color="$orange10" />
+                  <Clock size={18} color="$coral10" />
                   <Text
                     color="$gray11"
                     fontSize="$3"
@@ -292,7 +306,7 @@ function HomeScreen() {
                   </Text>
                 </XStack>
                 <XStack
-                  bg="$orange10"
+                  bg="$coral10"
                   px="$2"
                   py="$1"
                   br="$10"
@@ -314,12 +328,12 @@ function HomeScreen() {
                 return (
                   <Card
                     key={tagRecipient.id}
-                    bg="$orange2"
+                    bg="$coral2"
                     p="$4"
                     br="$5"
                     borderWidth={2}
-                    borderColor="$orange7"
-                    pressStyle={{ scale: 0.98, bg: '$orange3' }}
+                    borderColor="$coral7"
+                    pressStyle={{ scale: 0.98, bg: '$coral3' }}
                     animation="quick"
                     onPress={() => router.push(`/(auth)/tag/${tag.id}/respond` as any)}
                   >
@@ -328,7 +342,7 @@ function HomeScreen() {
                         width={48}
                         height={48}
                         br="$4"
-                        bg="$orange4"
+                        bg="$coral4"
                         justifyContent="center"
                         alignItems="center"
                       >
@@ -338,17 +352,18 @@ function HomeScreen() {
                         <Text fontWeight="700" fontSize="$4">
                           {tag.sender?.display_name || 'Someone'} tagged you
                         </Text>
-                        <Text color="$gray11" fontSize="$3">
+                        {/* WCAG: $coral12 provides good contrast on $coral2 */}
+                        <Text color="$coral12" fontSize="$3">
                           {tag.value} {tag.exercise?.type === 'time' ? 'sec' : 'reps'} of {tag.exercise?.name}
                         </Text>
                         <XStack gap="$1" alignItems="center">
-                          <Clock size={12} color="$orange10" />
-                          <Text color="$orange10" fontSize="$2" fontWeight="600">
+                          <Clock size={12} color="$coral12" />
+                          <Text color="$coral12" fontSize="$2" fontWeight="600">
                             {hoursLeft}h left to respond
                           </Text>
                         </XStack>
                       </YStack>
-                      <ChevronRight size={20} color="$orange10" />
+                      <ChevronRight size={20} color="$coral12" />
                     </XStack>
                   </Card>
                 )
@@ -358,7 +373,7 @@ function HomeScreen() {
 
           {/* Tag Someone - Primary CTA */}
           <Card
-            bg="$orange6"
+            bg="$coral6"
             p="$5"
             br="$6"
             borderWidth={0}

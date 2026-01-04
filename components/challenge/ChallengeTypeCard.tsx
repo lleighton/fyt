@@ -30,7 +30,7 @@ export function ChallengeTypeCard({
 }: ChallengeTypeCardProps) {
   const bgColor = selected
     ? type === 'amrap'
-      ? '$purple2'
+      ? '$blue2'
       : type === 'max_effort'
         ? '$orange2'
         : type === 'for_time'
@@ -40,7 +40,7 @@ export function ChallengeTypeCard({
 
   const borderColor =
     type === 'amrap'
-      ? '$purple10'
+      ? '$blue10'
       : type === 'max_effort'
         ? '$orange10'
         : type === 'for_time'

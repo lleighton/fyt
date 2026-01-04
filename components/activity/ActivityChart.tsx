@@ -160,7 +160,7 @@ function ActivityChart({ defaultPeriod = 7 }: ActivityChartProps) {
         {/* Chart */}
         <YStack gap="$3">
 
-          <Svg width={width} height={height}>
+          <Svg width={width} height={height} pointerEvents="box-none">
             {/* Y-axis grid lines */}
             {[0, 0.5, 1].map((ratio) => {
               const y = padding.top + chartHeight * (1 - ratio)

@@ -182,7 +182,7 @@ function GoalsScreen() {
           {isAdmin && (
             <Button
               size="$4"
-              bg="$purple10"
+              bg="$orange10"
               icon={<Plus size={20} color="white" />}
               onPress={() => setShowCreator(true)}
             >
@@ -196,7 +196,7 @@ function GoalsScreen() {
           <Button
             flex={1}
             size="$3"
-            bg={filter === 'active' ? '$purple10' : '$gray3'}
+            bg={filter === 'active' ? '$orange10' : '$gray3'}
             onPress={() => setFilter('active')}
           >
             <Text
@@ -209,7 +209,7 @@ function GoalsScreen() {
           <Button
             flex={1}
             size="$3"
-            bg={filter === 'completed' ? '$purple10' : '$gray3'}
+            bg={filter === 'completed' ? '$orange10' : '$gray3'}
             onPress={() => setFilter('completed')}
           >
             <Text
@@ -222,7 +222,7 @@ function GoalsScreen() {
           <Button
             flex={1}
             size="$3"
-            bg={filter === 'all' ? '$purple10' : '$gray3'}
+            bg={filter === 'all' ? '$orange10' : '$gray3'}
             onPress={() => setFilter('all')}
           >
             <Text
@@ -258,7 +258,7 @@ function GoalsScreen() {
                         <Button
                           mt="$4"
                           size="$4"
-                          bg="$purple10"
+                          bg="$orange10"
                           icon={<Plus size={20} color="white" />}
                           onPress={() => setShowCreator(true)}
                         >

@@ -50,41 +50,34 @@ interface KeyboardSafeAreaProps extends SafeAreaViewProps {
 /**
  * SafeArea with keyboard avoidance for screens with inputs
  * Automatically handles keyboard on iOS to prevent input/button overlap
- * Tapping outside inputs will dismiss the keyboard
+ *
+ * Note: Keyboard dismiss is NOT handled here to avoid blocking scroll.
+ * Use ScrollView's keyboardDismissMode="on-drag" or keyboardShouldPersistTaps
+ * to control keyboard behavior in scrollable content.
  */
 export function KeyboardSafeArea({
   style,
   children,
   keyboardBehavior = 'padding',
   keyboardVerticalOffset = 0,
-  dismissOnTap = true,
+  dismissOnTap = true, // Kept for API compatibility but no longer used
   ...props
 }: KeyboardSafeAreaProps) {
   const colorScheme = useColorScheme()
   const backgroundColor = colorScheme === 'dark' ? '#000000' : '#ffffff'
-
-  const content = (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? keyboardBehavior : undefined}
-      keyboardVerticalOffset={keyboardVerticalOffset}
-    >
-      {children}
-    </KeyboardAvoidingView>
-  )
 
   return (
     <SafeAreaView
       style={[{ flex: 1, backgroundColor }, style]}
       {...props}
     >
-      {dismissOnTap ? (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={{ flex: 1 }}>{content}</View>
-        </TouchableWithoutFeedback>
-      ) : (
-        content
-      )}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? keyboardBehavior : undefined}
+        keyboardVerticalOffset={keyboardVerticalOffset}
+      >
+        {children}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }

@@ -159,7 +159,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
             <Button
               flex={1}
               size="$4"
-              bg={goalType === 'exercise' ? '$purple10' : '$gray3'}
+              bg={goalType === 'exercise' ? '$orange10' : '$gray3'}
               onPress={() => setGoalType('exercise')}
             >
               <Text color={goalType === 'exercise' ? 'white' : '$gray11'} fontWeight="600">
@@ -169,7 +169,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
             <Button
               flex={1}
               size="$4"
-              bg={goalType === 'category' ? '$purple10' : '$gray3'}
+              bg={goalType === 'category' ? '$orange10' : '$gray3'}
               onPress={() => setGoalType('category')}
             >
               <Text color={goalType === 'category' ? 'white' : '$gray11'} fontWeight="600">
@@ -192,11 +192,11 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
                 {parentExercises.slice(0, 10).map((exercise) => (
                   <Card
                     key={exercise.id}
-                    bg={selectedExercise?.id === exercise.id ? '$purple2' : '$gray2'}
+                    bg={selectedExercise?.id === exercise.id ? '$orange2' : '$gray2'}
                     p="$3"
                     br="$4"
                     borderWidth={selectedExercise?.id === exercise.id ? 2 : 0}
-                    borderColor="$purple10"
+                    borderColor="$orange10"
                     pressStyle={{ scale: 0.98 }}
                     animation="quick"
                     onPress={() => setSelectedExercise(exercise)}
@@ -213,7 +213,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
                         {exercise.name}
                       </Text>
                       {selectedExercise?.id === exercise.id && (
-                        <Check size={16} color="$purple10" />
+                        <Check size={16} color="$orange10" />
                       )}
                     </YStack>
                   </Card>
@@ -231,11 +231,11 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
               {CATEGORIES.map((cat) => (
                 <Card
                   key={cat.key}
-                  bg={selectedCategory === cat.key ? '$purple2' : '$gray2'}
+                  bg={selectedCategory === cat.key ? '$orange2' : '$gray2'}
                   p="$3"
                   br="$4"
                   borderWidth={selectedCategory === cat.key ? 2 : 0}
-                  borderColor="$purple10"
+                  borderColor="$orange10"
                   pressStyle={{ scale: 0.98 }}
                   animation="quick"
                   onPress={() => setSelectedCategory(cat.key)}
@@ -244,7 +244,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
                     <Text fontSize={24}>{cat.emoji}</Text>
                     <Text fontWeight="600" flex={1}>{cat.label}</Text>
                     {selectedCategory === cat.key && (
-                      <Check size={20} color="$purple10" />
+                      <Check size={20} color="$orange10" />
                     )}
                   </XStack>
                 </Card>
@@ -280,7 +280,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
               <Button
                 key={val}
                 size="$3"
-                bg={targetValue === val.toString() ? '$purple10' : '$gray3'}
+                bg={targetValue === val.toString() ? '$orange10' : '$gray3'}
                 onPress={() => setTargetValue(val.toString())}
               >
                 <Text
@@ -301,11 +301,11 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
             {PERIOD_OPTIONS.map((period) => (
               <Card
                 key={period.key}
-                bg={periodType === period.key ? '$purple2' : '$gray2'}
+                bg={periodType === period.key ? '$orange2' : '$gray2'}
                 p="$3"
                 br="$4"
                 borderWidth={periodType === period.key ? 2 : 0}
-                borderColor="$purple10"
+                borderColor="$orange10"
                 pressStyle={{ scale: 0.98 }}
                 animation="quick"
                 onPress={() => setPeriodType(period.key)}
@@ -316,7 +316,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
                     <Text color="$gray10" fontSize="$2">{period.description}</Text>
                   </YStack>
                   {periodType === period.key && (
-                    <Check size={20} color="$purple10" />
+                    <Check size={20} color="$orange10" />
                   )}
                 </XStack>
               </Card>
@@ -371,7 +371,7 @@ function GoalCreatorComponent({ groupId, onSuccess, onCancel }: GoalCreatorProps
           <Button
             flex={1}
             size="$5"
-            bg="$purple10"
+            bg="$orange10"
             onPress={handleSubmit}
             disabled={submitting || !targetValue}
             opacity={submitting || !targetValue ? 0.5 : 1}

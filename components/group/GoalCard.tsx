@@ -148,25 +148,25 @@ function GoalCardComponent({ goal, onPress, showProgress = true }: GoalCardProps
               width={48}
               height={48}
               br="$4"
-              bg={isCompleted ? '$green4' : '$purple4'}
+              bg={isCompleted ? '$green4' : '$orange4'}
               justifyContent="center"
               alignItems="center"
             >
               <Text fontSize={24}>{getGoalIcon()}</Text>
             </YStack>
 
-            {/* Title & Label */}
+            {/* Title & Label - adapt colors for WCAG on green/gray backgrounds */}
             <YStack flex={1}>
               <Text fontWeight="700" fontSize="$4" numberOfLines={1}>
                 {goal.title}
               </Text>
               <XStack gap="$2" alignItems="center">
-                <Target size={12} color="$gray10" />
-                <Text color="$gray10" fontSize="$3">
+                <Target size={12} color={isCompleted ? '$green12' : '$gray10'} />
+                <Text color={isCompleted ? '$green12' : '$gray10'} fontSize="$3">
                   {getGoalLabel()}
                 </Text>
                 {goal.include_variants && (
-                  <Text color="$purple10" fontSize="$2" fontWeight="600">
+                  <Text color={isCompleted ? '$green11' : '$orange10'} fontSize="$2" fontWeight="600">
                     +variants
                   </Text>
                 )}
@@ -197,30 +197,30 @@ function GoalCardComponent({ goal, onPress, showProgress = true }: GoalCardProps
           <Progress value={percentage} bg="$gray4" height={12} br="$10">
             <Progress.Indicator
               animation="bouncy"
-              bg={isCompleted ? '$green10' : '$purple10'}
+              bg={isCompleted ? '$green10' : '$orange10'}
             />
           </Progress>
 
           {/* Progress Numbers */}
           <XStack justifyContent="space-between" alignItems="center">
-            <Text fontWeight="600" color={isCompleted ? '$green11' : '$purple11'}>
+            <Text fontWeight="600" color={isCompleted ? '$green11' : '$orange11'}>
               {formatNumber(progress?.current_value ?? goal.current_value)} / {formatNumber(goal.target_value)}
             </Text>
-            <Text fontWeight="700" color={isCompleted ? '$green10' : '$purple10'}>
+            <Text fontWeight="700" color={isCompleted ? '$green10' : '$orange10'}>
               {Math.round(percentage)}%
             </Text>
           </XStack>
         </YStack>
 
-        {/* Contributors */}
+        {/* Contributors - use $green12 on green bg for WCAG compliance */}
         {progress && progress.contributor_count > 0 && (
           <XStack gap="$2" alignItems="center">
-            <Users size={14} color="$gray10" />
-            <Text color="$gray10" fontSize="$3">
+            <Users size={14} color={isCompleted ? '$green12' : '$gray10'} />
+            <Text color={isCompleted ? '$green12' : '$gray10'} fontSize="$3">
               {progress.contributor_count} contributor{progress.contributor_count !== 1 ? 's' : ''}
             </Text>
             {progress.top_contributors?.[0]?.display_name && (
-              <Text color="$gray10" fontSize="$3">
+              <Text color={isCompleted ? '$green12' : '$gray10'} fontSize="$3">
                 • Top: {progress.top_contributors[0].display_name}
               </Text>
             )}
@@ -229,7 +229,7 @@ function GoalCardComponent({ goal, onPress, showProgress = true }: GoalCardProps
 
         {/* Description */}
         {goal.description && (
-          <Text color="$gray10" fontSize="$3" numberOfLines={2}>
+          <Text color={isCompleted ? '$green12' : '$gray10'} fontSize="$3" numberOfLines={2}>
             {goal.description}
           </Text>
         )}

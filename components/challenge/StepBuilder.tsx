@@ -160,7 +160,8 @@ export function StepBuilder({ steps, onUpdateSteps }: StepBuilderProps) {
           shadowRadius={4}
           elevation={1}
         >
-          <Text fontSize="$4" color="$orange11" textAlign="center" fontWeight="600">
+          {/* WCAG: $orange12 provides 5.40:1 contrast on $orange2 */}
+          <Text fontSize="$4" color="$orange12" textAlign="center" fontWeight="600">
             Add at least one more exercise to continue
           </Text>
         </Card>

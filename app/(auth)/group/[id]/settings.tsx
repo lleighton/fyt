@@ -804,14 +804,14 @@ function GroupSettingsScreen() {
                         </YStack>
 
                         <Button
-                          size="$3"
+                          size="$2"
                           circular
                           bg="$red10"
                           icon={
                             processingInvite === invite.invite_id ? (
                               <ActivityIndicator size="small" color="white" />
                             ) : (
-                              <X size={16} color="white" />
+                              <X size={14} color="white" />
                             )
                           }
                           onPress={() => handleCancelInvite(invite)}

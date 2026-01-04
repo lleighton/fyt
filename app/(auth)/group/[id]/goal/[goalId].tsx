@@ -194,7 +194,7 @@ function GoalDetailScreen() {
           <YStack px="$4" gap="$4" pb="$6">
             {/* Hero Card */}
             <Card
-              bg={isCompleted ? '$green2' : '$purple2'}
+              bg={isCompleted ? '$green2' : '$orange2'}
               p="$5"
               br="$6"
               borderWidth={isCompleted ? 2 : 0}
@@ -206,7 +206,7 @@ function GoalDetailScreen() {
                   width={80}
                   height={80}
                   br="$6"
-                  bg={isCompleted ? '$green4' : '$purple4'}
+                  bg={isCompleted ? '$green4' : '$orange4'}
                   justifyContent="center"
                   alignItems="center"
                 >
@@ -224,7 +224,7 @@ function GoalDetailScreen() {
                 {/* Progress Numbers */}
                 <YStack alignItems="center" gap="$1">
                   <XStack alignItems="baseline" gap="$2">
-                    <Text fontSize={48} fontWeight="700" color={isCompleted ? '$green10' : '$purple10'}>
+                    <Text fontSize={48} fontWeight="700" color={isCompleted ? '$green10' : '$orange10'}>
                       {formatNumber(currentValue)}
                     </Text>
                     <Text fontSize="$5" color="$gray10">
@@ -241,7 +241,7 @@ function GoalDetailScreen() {
                   <Progress value={percentage} bg="$gray4" height={16} br="$10">
                     <Progress.Indicator
                       animation="bouncy"
-                      bg={isCompleted ? '$green10' : '$purple10'}
+                      bg={isCompleted ? '$green10' : '$orange10'}
                     />
                   </Progress>
                   <XStack justifyContent="space-between">
@@ -250,7 +250,7 @@ function GoalDetailScreen() {
                         ? `${formatNumber(goal.target_value - currentValue)} to go`
                         : 'Target reached!'}
                     </Text>
-                    <Text fontWeight="700" color={isCompleted ? '$green10' : '$purple10'}>
+                    <Text fontWeight="700" color={isCompleted ? '$green10' : '$orange10'}>
                       {Math.round(percentage)}%
                     </Text>
                   </XStack>
@@ -272,13 +272,13 @@ function GoalDetailScreen() {
             <Card bg="$backgroundHover" p="$4" br="$4">
               <YStack gap="$3">
                 <XStack gap="$2" alignItems="center">
-                  <Target size={18} color="$purple10" />
+                  <Target size={18} color="$orange10" />
                   <Text fontWeight="600">
                     {goal.exercise?.name || goal.category?.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase()) || 'All Exercises'}
                   </Text>
                   {goal.include_variants && (
-                    <XStack bg="$purple4" px="$2" py="$0.5" br="$2">
-                      <Text fontSize="$2" color="$purple11" fontWeight="600">
+                    <XStack bg="$orange6" px="$2" py="$0.5" br="$2">
+                      <Text fontSize="$2" color="white" fontWeight="600">
                         +variants
                       </Text>
                     </XStack>
@@ -344,20 +344,20 @@ function GoalDetailScreen() {
                           {/* Rank */}
                           <YStack width={32} height={32} alignItems="center" justifyContent="center">
                             {index === 0 ? (
-                              <Award size={24} color="$yellow10" />
+                              <Award size={24} color={isCurrentUser ? '$yellow9' : '$yellow10'} />
                             ) : index === 1 ? (
                               <Award size={22} color="$gray10" />
                             ) : index === 2 ? (
-                              <Award size={20} color="$orange10" />
+                              <Award size={20} color={isCurrentUser ? '$orange11' : '$orange10'} />
                             ) : (
-                              <Text fontSize="$4" fontWeight="700" color="$gray11">
+                              <Text fontSize="$4" fontWeight="700" color={isCurrentUser ? '$orange12' : '$gray11'}>
                                 {index + 1}
                               </Text>
                             )}
                           </YStack>
 
                           {/* Avatar */}
-                          <Avatar circular size="$4" bg="$purple10">
+                          <Avatar circular size="$4" bg="$orange10">
                             {contributor.avatar_url ? (
                               <Avatar.Image src={contributor.avatar_url} />
                             ) : (
@@ -372,26 +372,26 @@ function GoalDetailScreen() {
                           {/* Name & Stats */}
                           <YStack flex={1}>
                             <XStack gap="$2" alignItems="center">
-                              <Text fontWeight="600" numberOfLines={1}>
+                              <Text fontWeight="600" numberOfLines={1} color={isCurrentUser ? '$orange12' : '$color'}>
                                 {contributor.display_name || 'User'}
                               </Text>
                               {isCurrentUser && (
-                                <Text fontSize="$2" color="$orange10" fontWeight="600">
+                                <Text fontSize="$2" color="$orange11" fontWeight="600">
                                   (You)
                                 </Text>
                               )}
                             </XStack>
-                            <Text color="$gray10" fontSize="$2">
+                            <Text color={isCurrentUser ? '$orange11' : '$gray10'} fontSize="$2">
                               {contributor.contribution_count} completion{contributor.contribution_count !== 1 ? 's' : ''} • {Math.round(contributionPercentage)}% of total
                             </Text>
                           </YStack>
 
                           {/* Contribution Value */}
                           <YStack alignItems="flex-end">
-                            <Text fontSize="$5" fontWeight="700" color="$purple10">
+                            <Text fontSize="$5" fontWeight="700" color={isCurrentUser ? '$orange12' : '$orange10'}>
                               {formatNumber(contributor.contribution)}
                             </Text>
-                            <Text fontSize="$2" color="$gray10">
+                            <Text fontSize="$2" color={isCurrentUser ? '$orange11' : '$gray10'}>
                               {goal.target_unit}
                             </Text>
                           </YStack>

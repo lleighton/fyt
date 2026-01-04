@@ -10,11 +10,12 @@ import { createTamagui, createTokens, createTheme } from 'tamagui'
 // Brand: Energetic but approachable, competitive but not aggressive,
 // warm and inviting to users of any age or ability.
 //
-// Orange primary because it:
-// - Encourages social interaction and community
-// - Combines energy (red) with friendliness (yellow)
-// - Represents motivation, positive attitude, enthusiasm
-// - Drives action without aggression
+// Coral-Pink primary because it:
+// - Feels warm and energetic without the Strava-orange association
+// - Modern, fresh aesthetic popular in social/lifestyle apps
+// - Combines energy (red/pink) with warmth (coral/peach)
+// - Supports gradient brand identity for premium feel
+// - Stands out uniquely in the fitness app landscape
 // ============================================================================
 
 // ----------------------------------------------------------------------------
@@ -125,24 +126,32 @@ const bodyFont = createInterFont(
 // ----------------------------------------------------------------------------
 
 const palette = {
-  // Primary Orange - Energy, motivation, social warmth
-  orange50: '#FFF7ED',
-  orange100: '#FFEDD5',
-  orange200: '#FED7AA',
-  orange300: '#FDBA74',
-  orange400: '#FB923C',
-  orange500: '#F97316', // Primary brand color
-  orange600: '#EA580C',
-  orange700: '#C2410C',
-  orange800: '#9A3412',
-  orange900: '#7C2D12',
+  // Primary Coral-Pink - Energy, warmth, modern social feel
+  // Distinct from Strava orange, feels fresh and premium
+  coral50: '#FFF1F2',
+  coral100: '#FFE4E6',
+  coral200: '#FECDD3',
+  coral300: '#FDA4AF',
+  coral400: '#FB7185',
+  coral500: '#F43F5E', // Primary brand color - vibrant coral-rose
+  coral600: '#E11D48',
+  coral700: '#BE123C',
+  coral800: '#9F1239',
+  coral900: '#881337',
 
-  // Accent Gold - Streaks, achievements
-  gold400: '#FACC15',
-  gold500: '#EAB308',
-  gold600: '#CA8A04',
+  // Secondary Amber - Streaks, achievements, fire moments
+  // Keeps warmth for motivation/celebration without being primary
+  amber50: '#FFFBEB',
+  amber400: '#FBBF24',
+  amber500: '#F59E0B',
+  amber600: '#D97706',
 
-  // Energy Red - CTAs, competitive moments
+  // Accent Pink - Gradients, highlights
+  pink400: '#F472B6',
+  pink500: '#EC4899',
+  pink600: '#DB2777',
+
+  // Energy Red - Urgent CTAs, competitive moments
   red500: '#EF4444',
   red600: '#DC2626',
 
@@ -150,18 +159,18 @@ const palette = {
   green500: '#22C55E',
   green600: '#16A34A',
 
-  // Neutral Warm Grays
-  gray50: '#FAFAF9',
-  gray100: '#F5F5F4',
-  gray200: '#E7E5E4',
-  gray300: '#D6D3D1',
-  gray400: '#A8A29E',
-  gray500: '#78716C',
-  gray600: '#57534E',
-  gray700: '#44403C',
-  gray800: '#292524',
-  gray900: '#1C1917',
-  gray950: '#0C0A09',
+  // Neutral Cool Grays (shifted slightly cooler to complement coral)
+  gray50: '#FAFAFA',
+  gray100: '#F4F4F5',
+  gray200: '#E4E4E7',
+  gray300: '#D4D4D8',
+  gray400: '#A1A1AA',
+  gray500: '#71717A',
+  gray600: '#52525B',
+  gray700: '#3F3F46',
+  gray800: '#27272A',
+  gray900: '#18181B',
+  gray950: '#09090B',
 
   // Utility
   white: '#FFFFFF',
@@ -269,6 +278,10 @@ const tokens = createTokens({
     gray10: palette.gray500,
     gray11: palette.gray600,
     gray12: palette.gray900,
+    // Coral aliases (primary brand)
+    coral10: palette.coral500,
+    // Amber aliases (streaks, achievements)
+    amber10: palette.amber500,
     // Purple for goals/secondary accent
     purple50: '#FAF5FF',
     purple100: '#F3E8FF',
@@ -287,14 +300,14 @@ const lightTheme = createTheme({
   background: palette.gray50,
   backgroundHover: palette.gray100,
   backgroundPress: palette.gray200,
-  backgroundFocus: palette.orange50,
+  backgroundFocus: palette.coral50,
   backgroundStrong: palette.white,
   backgroundTransparent: palette.transparent,
 
-  // Primary (orange)
-  primary: palette.orange500,
-  primaryHover: palette.orange600,
-  primaryPress: palette.orange700,
+  // Primary (coral-pink)
+  primary: palette.coral500,
+  primaryHover: palette.coral600,
+  primaryPress: palette.coral700,
 
   // Text
   color: palette.gray900,
@@ -310,13 +323,13 @@ const lightTheme = createTheme({
   borderColor: palette.gray200,
   borderColorHover: palette.gray300,
   borderColorPress: palette.gray400,
-  borderColorFocus: palette.orange400,
+  borderColorFocus: palette.coral400,
 
   // Shadows
-  shadowColor: 'rgba(28, 25, 23, 0.08)',
-  shadowColorHover: 'rgba(28, 25, 23, 0.12)',
-  shadowColorPress: 'rgba(28, 25, 23, 0.16)',
-  shadowColorFocus: 'rgba(249, 115, 22, 0.24)',
+  shadowColor: 'rgba(24, 24, 27, 0.08)',
+  shadowColorHover: 'rgba(24, 24, 27, 0.12)',
+  shadowColorPress: 'rgba(24, 24, 27, 0.16)',
+  shadowColorFocus: 'rgba(244, 63, 94, 0.24)',
 
   // Purple - Goals and secondary accent
   purple1: '#FAF5FF',
@@ -371,31 +384,61 @@ const lightTheme = createTheme({
   green11: palette.green600,
   green12: '#14532D',
 
-  orange1: palette.orange50,
-  orange2: palette.orange100,
-  orange3: palette.orange200,
-  orange4: palette.orange300,
-  orange5: palette.orange400,
-  orange6: palette.orange500,
-  orange7: palette.orange500,
-  orange8: palette.orange600,
-  orange9: palette.orange700,
-  orange10: palette.orange500,
-  orange11: palette.orange600,
-  orange12: palette.orange900,
+  // Coral-Pink scale (primary brand)
+  coral1: palette.coral50,
+  coral2: palette.coral100,
+  coral3: palette.coral200,
+  coral4: palette.coral300,
+  coral5: palette.coral400,
+  coral6: palette.coral500,
+  coral7: palette.coral500,
+  coral8: palette.coral600,
+  coral9: palette.coral700,
+  coral10: palette.coral500,
+  coral11: palette.coral600,
+  coral12: palette.coral900,
 
-  yellow1: '#FEFCE8',
-  yellow2: '#FEF9C3',
-  yellow3: '#FEF08A',
-  yellow4: palette.gold400,
-  yellow5: palette.gold400,
-  yellow6: palette.gold500,
-  yellow7: palette.gold500,
-  yellow8: palette.gold600,
-  yellow9: '#A16207',
-  yellow10: palette.gold500,
-  yellow11: palette.gold600,
-  yellow12: '#713F12',
+  // Orange mapped to coral for backwards compatibility
+  orange1: palette.coral50,
+  orange2: palette.coral100,
+  orange3: palette.coral200,
+  orange4: palette.coral300,
+  orange5: palette.coral400,
+  orange6: palette.coral500,
+  orange7: palette.coral500,
+  orange8: palette.coral600,
+  orange9: palette.coral700,
+  orange10: palette.coral500,
+  orange11: palette.coral600,
+  orange12: palette.coral900,
+
+  // Amber scale (streaks, achievements, fire)
+  amber1: palette.amber50,
+  amber2: '#FEF3C7',
+  amber3: '#FDE68A',
+  amber4: palette.amber400,
+  amber5: palette.amber400,
+  amber6: palette.amber500,
+  amber7: palette.amber500,
+  amber8: palette.amber600,
+  amber9: '#B45309',
+  amber10: palette.amber500,
+  amber11: palette.amber600,
+  amber12: '#78350F',
+
+  // Yellow mapped to amber for backwards compatibility
+  yellow1: palette.amber50,
+  yellow2: '#FEF3C7',
+  yellow3: '#FDE68A',
+  yellow4: palette.amber400,
+  yellow5: palette.amber400,
+  yellow6: palette.amber500,
+  yellow7: palette.amber500,
+  yellow8: palette.amber600,
+  yellow9: '#B45309',
+  yellow10: palette.amber500,
+  yellow11: palette.amber600,
+  yellow12: '#78350F',
 })
 
 // ----------------------------------------------------------------------------
@@ -407,14 +450,14 @@ const darkTheme = createTheme({
   background: palette.gray950,
   backgroundHover: palette.gray900,
   backgroundPress: palette.gray800,
-  backgroundFocus: palette.orange900,
+  backgroundFocus: palette.coral900,
   backgroundStrong: palette.gray900,
   backgroundTransparent: palette.transparent,
 
-  // Primary (orange - brighter for dark mode)
-  primary: palette.orange500,
-  primaryHover: palette.orange400,
-  primaryPress: palette.orange600,
+  // Primary (coral-pink - vibrant for dark mode)
+  primary: palette.coral500,
+  primaryHover: palette.coral400,
+  primaryPress: palette.coral600,
 
   // Text
   color: palette.gray50,
@@ -423,20 +466,23 @@ const darkTheme = createTheme({
   colorFocus: palette.gray50,
   colorTransparent: palette.transparent,
 
-  // Placeholder
-  placeholderColor: palette.gray500,
+  // Secondary text - WCAG AA compliant (4.5:1 contrast on dark backgrounds)
+  colorSecondary: palette.gray400,
+
+  // Placeholder - improved contrast
+  placeholderColor: palette.gray400,
 
   // Borders
   borderColor: palette.gray800,
   borderColorHover: palette.gray700,
   borderColorPress: palette.gray600,
-  borderColorFocus: palette.orange500,
+  borderColorFocus: palette.coral500,
 
   // Shadows
   shadowColor: 'rgba(0, 0, 0, 0.3)',
   shadowColorHover: 'rgba(0, 0, 0, 0.4)',
   shadowColorPress: 'rgba(0, 0, 0, 0.5)',
-  shadowColorFocus: 'rgba(249, 115, 22, 0.3)',
+  shadowColorFocus: 'rgba(244, 63, 94, 0.3)',
 
   // Purple - Goals and secondary accent (VIBRANT for dark mode)
   purple1: '#2E1065',
@@ -461,8 +507,9 @@ const darkTheme = createTheme({
   gray7: palette.gray400,
   gray8: palette.gray300,
   gray9: palette.gray200,
-  gray10: palette.gray400,
-  gray11: palette.gray300,
+  // WCAG AA: gray10/11 need 4.5:1 contrast on dark backgrounds
+  gray10: '#A1A1AA',
+  gray11: '#D4D4D8',
   gray12: palette.gray50,
 
   red1: '#2A0808',
@@ -491,31 +538,61 @@ const darkTheme = createTheme({
   green11: '#4ADE80',
   green12: '#86EFAC',
 
-  orange1: palette.orange900,
-  orange2: palette.orange800,
-  orange3: palette.orange700,
-  orange4: palette.orange600,
-  orange5: palette.orange500,
-  orange6: palette.orange500,
-  orange7: palette.orange500,
-  orange8: palette.orange400,
-  orange9: palette.orange300,
-  orange10: palette.orange500,
-  orange11: palette.orange400,
-  orange12: palette.orange200,
+  // Coral-Pink scale (primary brand - vibrant for dark mode)
+  coral1: palette.coral900,
+  coral2: palette.coral800,
+  coral3: palette.coral700,
+  coral4: palette.coral600,
+  coral5: palette.coral500,
+  coral6: palette.coral500,
+  coral7: palette.coral500,
+  coral8: palette.coral400,
+  coral9: palette.coral300,
+  coral10: palette.coral500,
+  coral11: palette.coral400,
+  coral12: palette.coral200,
 
-  yellow1: '#422006',
-  yellow2: '#713F12',
-  yellow3: '#854D0E',
-  yellow4: '#A16207',
-  yellow5: palette.gold600,
-  yellow6: palette.gold500,
-  yellow7: palette.gold500,
-  yellow8: palette.gold400,
-  yellow9: palette.gold500,
-  yellow10: palette.gold500,
-  yellow11: palette.gold400,
-  yellow12: '#FEF9C3',
+  // Orange mapped to coral for backwards compatibility
+  orange1: palette.coral900,
+  orange2: palette.coral800,
+  orange3: palette.coral700,
+  orange4: palette.coral600,
+  orange5: palette.coral500,
+  orange6: palette.coral500,
+  orange7: palette.coral500,
+  orange8: palette.coral400,
+  orange9: palette.coral300,
+  orange10: palette.coral500,
+  orange11: palette.coral400,
+  orange12: palette.coral200,
+
+  // Amber scale (streaks, achievements, fire - vibrant for dark mode)
+  amber1: '#451A03',
+  amber2: '#78350F',
+  amber3: '#92400E',
+  amber4: '#B45309',
+  amber5: palette.amber600,
+  amber6: palette.amber500,
+  amber7: palette.amber500,
+  amber8: palette.amber400,
+  amber9: palette.amber500,
+  amber10: palette.amber500,
+  amber11: palette.amber400,
+  amber12: '#FEF3C7',
+
+  // Yellow mapped to amber for backwards compatibility
+  yellow1: '#451A03',
+  yellow2: '#78350F',
+  yellow3: '#92400E',
+  yellow4: '#B45309',
+  yellow5: palette.amber600,
+  yellow6: palette.amber500,
+  yellow7: palette.amber500,
+  yellow8: palette.amber400,
+  yellow9: palette.amber500,
+  yellow10: palette.amber500,
+  yellow11: palette.amber400,
+  yellow12: '#FEF3C7',
 })
 
 // ----------------------------------------------------------------------------

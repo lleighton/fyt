@@ -94,7 +94,7 @@ export function ExerciseCard({
               position="absolute"
               bottom={-4}
               right={-4}
-              bg="$purple10"
+              bg="$orange10"
               px="$1.5"
               py="$0.5"
               br="$2"
@@ -113,10 +113,10 @@ export function ExerciseCard({
               {exercise.name}
             </Text>
 
-            {/* Compact scaling badge */}
+            {/* Compact scaling badge - use darker bg for better contrast */}
             {isVariant && compact && (
-              <XStack bg="$purple4" px="$1.5" py="$0.5" br="$2">
-                <Text fontSize={11} color="$purple11" fontWeight="600">
+              <XStack bg="$orange6" px="$1.5" py="$0.5" br="$2">
+                <Text fontSize={11} color="white" fontWeight="600">
                   {formatScaling(variantInfo!.scalingFactor)}
                 </Text>
               </XStack>
@@ -126,8 +126,8 @@ export function ExerciseCard({
           {/* Variant info line */}
           {isVariant && !compact && (
             <XStack gap="$1" alignItems="center">
-              <ArrowRight size={12} color="$purple10" />
-              <Text fontSize="$2" color="$purple10" fontWeight="500">
+              <ArrowRight size={12} color="$orange10" />
+              <Text fontSize="$2" color="$orange10" fontWeight="500">
                 Counts toward {variantInfo!.parentExercise!.name}
               </Text>
             </XStack>

@@ -19,7 +19,7 @@ export const ActivityGrid = observer(({
   const scrollViewRef = useRef<any>(null)
 
   console.log('[ActivityGrid] Total days in grid:', Object.keys(activityGrid).length)
-  const daysWithActivity = Object.entries(activityGrid).filter(([_, count]) => count > 0)
+  const daysWithActivity = Object.entries(activityGrid).filter(([_, count]) => (count as number) > 0)
   console.log('[ActivityGrid] Days with activity:', daysWithActivity.length)
   console.log('[ActivityGrid] Activity days:', daysWithActivity.slice(0, 5))
 
@@ -84,26 +84,35 @@ export const ActivityGrid = observer(({
           {weeks.map((week, weekIndex) => (
             <YStack key={weekIndex} gap="$0.5">
               {week.map((day) => (
-                <ActivityCell key={day.date} count={day.count} />
+                <ActivityCell key={day.date} count={day.count} date={day.date} />
               ))}
             </YStack>
           ))}
         </XStack>
       </ScrollView>
 
-      {/* Legend */}
-      <XStack gap="$2" alignItems="center" mt="$2">
+      {/* Legend - accessible with labels */}
+      <XStack gap="$2" alignItems="center" mt="$2" accessible={true} accessibilityRole="text" accessibilityLabel="Activity legend: colors range from gray for no activity to coral-pink for 6 or more activities per day">
         <Text fontSize="$3" color="$gray10">
           Less
         </Text>
-        {[0, 1, 2, 3, 4].map((level) => (
-          <View
-            key={level}
-            w={12}
-            h={12}
-            br="$1"
-            bg={getColorForLevel(level)}
-          />
+        {[
+          { level: 0, label: '0' },
+          { level: 1, label: '1' },
+          { level: 2, label: '2-3' },
+          { level: 3, label: '4-5' },
+          { level: 4, label: '6+' },
+        ].map(({ level, label }) => (
+          <YStack key={level} alignItems="center" gap="$0.5">
+            <View
+              w={12}
+              h={12}
+              br="$1"
+              bg={getColorForLevel(level)}
+              accessible={true}
+              accessibilityLabel={`${label} activities`}
+            />
+          </YStack>
         ))}
         <Text fontSize="$3" color="$gray10">
           More
@@ -116,7 +125,7 @@ export const ActivityGrid = observer(({
 /**
  * Single cell in the activity grid
  */
-function ActivityCell({ count }: { count: number }) {
+function ActivityCell({ count, date }: { count: number; date?: string }) {
   const level = getLevel(count)
   const color = getColorForLevel(level)
 
@@ -127,7 +136,10 @@ function ActivityCell({ count }: { count: number }) {
       br="$1"
       bg={color}
       borderWidth={count > 0 ? 2 : 0.5}
-      borderColor={count > 0 ? "$orange10" : "$gray6"}
+      borderColor={count > 0 ? "$coral10" : "$gray6"}
+      accessible={true}
+      accessibilityRole="image"
+      accessibilityLabel={`${count} ${count === 1 ? 'activity' : 'activities'}${date ? ` on ${date}` : ''}`}
     />
   )
 }
@@ -144,20 +156,20 @@ function getLevel(count: number): number {
 }
 
 /**
- * Get color for intensity level (orange brand scale)
+ * Get color for intensity level (coral-pink brand scale)
  */
 function getColorForLevel(level: number): string {
   switch (level) {
     case 0:
       return '$gray5'
     case 1:
-      return '$orange7'
+      return '$coral7'
     case 2:
-      return '$orange8'
+      return '$coral8'
     case 3:
-      return '$orange9'
+      return '$coral9'
     case 4:
-      return '$orange10'
+      return '$coral10'
     default:
       return '$gray5'
   }

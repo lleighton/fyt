@@ -406,6 +406,49 @@ export const store$: any = {
   },
 
   /**
+   * Computed: Longest streak count (all-time best)
+   * Scans through all activity data to find the longest consecutive streak
+   */
+  longestStreak: (): number => {
+    const grid = store$.activityGrid()
+    let longest = 0
+    let current = 0
+
+    // Get sorted dates from oldest to newest
+    const dates = Object.keys(grid).sort()
+
+    for (let i = 0; i < dates.length; i++) {
+      const date = dates[i]
+      if (date && grid[date] && grid[date] > 0) {
+        // Check if this is consecutive with previous day
+        if (i > 0) {
+          const prevDate = dates[i - 1]
+          const currentDate = new Date(date)
+          const previousDate = new Date(prevDate || '')
+          const diffDays = Math.round((currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24))
+
+          if (diffDays === 1) {
+            current++
+          } else {
+            // Gap in dates, start new streak
+            current = 1
+          }
+        } else {
+          current = 1
+        }
+
+        if (current > longest) {
+          longest = current
+        }
+      } else {
+        current = 0
+      }
+    }
+
+    return longest
+  },
+
+  /**
    * Computed: Challenges by type
    */
   challengesByType: () => {

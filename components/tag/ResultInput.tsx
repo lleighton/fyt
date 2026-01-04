@@ -242,12 +242,13 @@ export function ResultInput({
           Add a photo or video to verify your workout
         </Text>
 
+        {/* WCAG AA: $green12 provides 5.07:1 contrast on $green2 */}
         {proofUri ? (
           <Card bg="$green2" p="$3" br="$4" borderWidth={1} borderColor="$green7">
             <XStack justifyContent="space-between" alignItems="center">
               <XStack gap="$2" alignItems="center">
-                <Camera size={20} color="$green10" />
-                <Text color="$green11" fontWeight="600">
+                <Camera size={20} color="$green12" />
+                <Text color="$green12" fontWeight="600">
                   {proofType === 'video' ? 'Video added' : 'Photo added'}
                 </Text>
               </XStack>

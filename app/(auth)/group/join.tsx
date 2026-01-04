@@ -155,7 +155,7 @@ function JoinGroupScreen() {
             size="$3"
             circular
             unstyled
-            icon={<X />}
+            icon={<X size={24} />}
             onPress={() => router.back()}
           />
         </XStack>

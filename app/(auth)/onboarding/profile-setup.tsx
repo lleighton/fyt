@@ -271,9 +271,9 @@ function ProfileSetupScreen() {
                 {usernameChecking ? (
                   <ActivityIndicator size="small" />
                 ) : usernameAvailable === true ? (
-                  <Check size={20} color="$green10" />
+                  <Check size={16} color="$green10" />
                 ) : usernameAvailable === false ? (
-                  <X size={20} color="$red10" />
+                  <X size={16} color="$red10" />
                 ) : null}
               </XStack>
             </XStack>

@@ -90,7 +90,7 @@ function GroupExerciseStatsComponent({
       <XStack gap="$2" justifyContent="center">
         <Button
           size="$3"
-          bg={timeFilter === 'week' ? '$purple10' : '$backgroundHover'}
+          bg={timeFilter === 'week' ? '$orange10' : '$backgroundHover'}
           color={timeFilter === 'week' ? 'white' : '$gray11'}
           onPress={() => onTimeFilterChange('week')}
           flex={1}
@@ -99,7 +99,7 @@ function GroupExerciseStatsComponent({
         </Button>
         <Button
           size="$3"
-          bg={timeFilter === 'month' ? '$purple10' : '$backgroundHover'}
+          bg={timeFilter === 'month' ? '$orange10' : '$backgroundHover'}
           color={timeFilter === 'month' ? 'white' : '$gray11'}
           onPress={() => onTimeFilterChange('month')}
           flex={1}
@@ -108,7 +108,7 @@ function GroupExerciseStatsComponent({
         </Button>
         <Button
           size="$3"
-          bg={timeFilter === 'all_time' ? '$purple10' : '$backgroundHover'}
+          bg={timeFilter === 'all_time' ? '$orange10' : '$backgroundHover'}
           color={timeFilter === 'all_time' ? 'white' : '$gray11'}
           onPress={() => onTimeFilterChange('all_time')}
           flex={1}
@@ -148,7 +148,7 @@ function GroupExerciseStatsComponent({
                   width={56}
                   height={56}
                   br="$4"
-                  bg="$purple4"
+                  bg="$orange4"
                   justifyContent="center"
                   alignItems="center"
                 >
@@ -163,8 +163,8 @@ function GroupExerciseStatsComponent({
 
                   {/* Total */}
                   <XStack gap="$2" alignItems="center">
-                    <TrendingUp size={14} color="$purple10" />
-                    <Text color="$purple11" fontWeight="600">
+                    <TrendingUp size={14} color="$orange10" />
+                    <Text color="$orange11" fontWeight="600">
                       {formatNumber(stat.total_value)} total
                     </Text>
                     <Text color="$gray10" fontSize="$2">
@@ -185,7 +185,7 @@ function GroupExerciseStatsComponent({
 
                 {/* Big Total Number */}
                 <YStack alignItems="flex-end">
-                  <Text fontSize="$7" fontWeight="700" color="$purple10">
+                  <Text fontSize="$7" fontWeight="700" color="$orange10">
                     {formatNumber(stat.total_value)}
                   </Text>
                 </YStack>

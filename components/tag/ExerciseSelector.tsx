@@ -160,8 +160,8 @@ function ExerciseSelectorComponent({
 
         {/* Variant exercises (collapsible) */}
         {hasVariants && isExpanded && (
-          <YStack gap="$1" ml="$8" pl="$2" borderLeftWidth={2} borderLeftColor="$purple4">
-            <Text fontSize="$2" color="$purple10" fontWeight="500" mb="$1">
+          <YStack gap="$1" ml="$8" pl="$2" borderLeftWidth={2} borderLeftColor="$orange4">
+            <Text fontSize="$2" color="$orange10" fontWeight="500" mb="$1">
               Easier variations:
             </Text>
             {variants.map((variant) => (

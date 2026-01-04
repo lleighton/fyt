@@ -433,10 +433,10 @@ function ChallengeDetailScreen() {
                     </XStack>
                   </Card>
                 ) : isUserCompleted ? (
-                  <Card bg="$green2" p="$2" px="$3" br="$4" borderWidth={2} borderColor="$green10">
+                  <Card bg="$green9" p="$2" px="$3" br="$4">
                     <XStack alignItems="center" gap="$1">
-                      <CheckCircle size={16} color="$green10" />
-                      <Text fontSize="$2" fontWeight="700" color="$green10">
+                      <CheckCircle size={16} color="white" />
+                      <Text fontSize="$2" fontWeight="700" color="white">
                         COMPLETED
                       </Text>
                     </XStack>

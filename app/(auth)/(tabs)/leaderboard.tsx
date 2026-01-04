@@ -110,14 +110,45 @@ function LeaderboardScreen() {
 
         {leaderboardData.length === 0 ? (
           <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
-            <Zap size={64} color="$gray8" />
-            <Text color="$gray10" fontSize="$5" fontWeight="600" mt="$4" textAlign="center">
+            <Zap size={64} color="$gray10" />
+            <Text color="$color" fontSize="$5" fontWeight="600" mt="$4" textAlign="center">
               No tag activity yet
             </Text>
             <Text color="$gray10" fontSize="$3" mt="$2" textAlign="center">
               Start tagging friends to build your leaderboard!
             </Text>
           </YStack>
+        ) : leaderboardData.length <= 3 ? (
+          /* Sparse leaderboard - encourage more social engagement */
+          <ScrollView flex={1}>
+            <YStack p="$4" gap="$4">
+              {/* Existing entries */}
+              <YStack gap="$2">
+                {byBeaten.map((user, index) => (
+                  <LeaderboardRow
+                    key={user.user_id}
+                    rank={index + 1}
+                    user={user}
+                    value={user.tags_beaten}
+                    label="beaten"
+                  />
+                ))}
+              </YStack>
+
+              {/* Invite more friends prompt */}
+              <Card bg="$orange2" p="$5" br="$5" borderWidth={1} borderColor="$orange7">
+                <YStack alignItems="center" gap="$3">
+                  <User size={40} color="$orange10" />
+                  <Text color="$color" fontWeight="600" fontSize="$4" textAlign="center">
+                    Grow your network!
+                  </Text>
+                  <Text color="$gray11" fontSize="$3" textAlign="center">
+                    Tag more friends to compete and climb the leaderboard together
+                  </Text>
+                </YStack>
+              </Card>
+            </YStack>
+          </ScrollView>
         ) : (
           <TamaguiTabs
             defaultValue="beaten"

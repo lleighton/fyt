@@ -359,7 +359,7 @@ function RecipientSelectorComponent({
                   Groups
                 </Text>
                 {selectedGroups.length > 0 && (
-                  <Text color="$purple10" fontSize="$3" fontWeight="600">
+                  <Text color="$orange10" fontSize="$3" fontWeight="600">
                     {selectedGroups.length} selected
                   </Text>
                 )}
@@ -381,7 +381,8 @@ function RecipientSelectorComponent({
       {/* Selection Summary */}
       {totalSelected > 0 && (
         <Card bg="$orange2" p="$3" br="$4" borderWidth={1} borderColor="$orange7">
-          <Text color="$orange11" fontWeight="600" textAlign="center">
+          {/* WCAG: $orange12 provides 5.40:1 contrast on $orange2 */}
+          <Text color="$orange12" fontWeight="600" textAlign="center">
             Tagging {totalSelected} {totalSelected === 1 ? 'recipient' : 'recipients'}
           </Text>
         </Card>
@@ -484,11 +485,11 @@ function SelectableGroupCard({
 
   return (
     <Card
-      bg={selected ? '$purple2' : '$gray2'}
+      bg={selected ? '$orange2' : '$gray2'}
       p="$3"
       br="$4"
       borderWidth={selected ? 2 : 0}
-      borderColor={selected ? '$purple10' : 'transparent'}
+      borderColor={selected ? '$orange10' : 'transparent'}
       pressStyle={{ scale: 0.98 }}
       animation="quick"
       onPress={onToggle}
@@ -498,11 +499,11 @@ function SelectableGroupCard({
           width={44}
           height={44}
           br="$4"
-          bg={selected ? '$purple4' : '$gray4'}
+          bg={selected ? '$orange4' : '$gray4'}
           justifyContent="center"
           alignItems="center"
         >
-          <Users size={22} color={selected ? '$purple10' : '$gray10'} />
+          <Users size={22} color={selected ? '$orange10' : '$gray10'} />
         </YStack>
 
         <YStack flex={1}>
@@ -519,7 +520,7 @@ function SelectableGroupCard({
             width={24}
             height={24}
             br="$10"
-            bg="$purple10"
+            bg="$orange10"
             justifyContent="center"
             alignItems="center"
           >
