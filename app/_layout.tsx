@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { useColorScheme } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
@@ -12,6 +11,7 @@ import { useAuthLinking } from '@/lib/auth-linking'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { initSentry } from '@/lib/monitoring'
 import { initAnalytics, PostHogProvider, posthogConfig } from '@/lib/analytics'
+import { SettingsProvider, useSettings } from '@/lib/settings-context'
 
 // Initialize Sentry as early as possible
 initSentry()
@@ -23,16 +23,10 @@ initAnalytics()
 SplashScreen.preventAutoHideAsync()
 
 /**
- * Root layout component
- *
- * Provides:
- * - Tamagui theme provider
- * - Color scheme detection
- * - Auth state management
- * - Navigation stack
+ * Inner layout that uses settings context for theme
  */
-function RootLayout() {
-  const colorScheme = useColorScheme()
+function AppContent() {
+  const { effectiveTheme } = useSettings()
   const isLoading = auth$.isLoading.get()
 
   // Handle deep link authentication callbacks (magic links)
@@ -45,41 +39,59 @@ function RootLayout() {
   }, [isLoading])
 
   if (isLoading) {
-    // Keep splash screen visible while loading
     return null
   }
 
-  const isDark = colorScheme === 'dark'
+  const isDark = effectiveTheme === 'dark'
 
+  return (
+    <TamaguiProvider config={config} defaultTheme={effectiveTheme}>
+      <Theme name={effectiveTheme}>
+        <ErrorBoundary>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+              contentStyle: {
+                backgroundColor: isDark ? '#000000' : '#ffffff',
+              },
+              navigationBarColor: isDark ? '#000000' : '#ffffff',
+            }}
+          >
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(public)" />
+          </Stack>
+        </ErrorBoundary>
+        <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
+      </Theme>
+    </TamaguiProvider>
+  )
+}
+
+// Wrap AppContent in observer to react to auth state
+const ObservedAppContent = observer(AppContent)
+
+/**
+ * Root layout component
+ *
+ * Provides:
+ * - Settings provider (theme, notifications, preferences)
+ * - Tamagui theme provider
+ * - Auth state management
+ * - Navigation stack
+ */
+function RootLayout() {
   return (
     <PostHogProvider
       apiKey={posthogConfig.apiKey}
       options={{ host: posthogConfig.host }}
       autocapture={false}
     >
-      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
-        <Theme name={colorScheme ?? 'light'}>
-          <ErrorBoundary>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'slide_from_right',
-                contentStyle: {
-                  backgroundColor: isDark ? '#000000' : '#ffffff',
-                },
-                navigationBarColor: isDark ? '#000000' : '#ffffff',
-              }}
-            >
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(public)" />
-            </Stack>
-          </ErrorBoundary>
-          <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={isDark ? '#000000' : '#ffffff'} />
-        </Theme>
-      </TamaguiProvider>
+      <SettingsProvider>
+        <ObservedAppContent />
+      </SettingsProvider>
     </PostHogProvider>
   )
 }
 
-// Wrap in observer to react to auth state changes
-export default observer(RootLayout)
+export default RootLayout

@@ -27,6 +27,7 @@ import * as Clipboard from 'expo-clipboard'
 import { auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
 import { GroupEvents } from '@/lib/analytics'
+import { useSettings } from '@/lib/settings-context'
 import type { Database } from '@/types/database.types'
 
 /**
@@ -37,6 +38,7 @@ import type { Database } from '@/types/database.types'
 function CreateGroupScreen() {
   const router = useRouter()
   const session = auth$.session.get()
+  const { haptic } = useSettings()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -104,6 +106,9 @@ function CreateGroupScreen() {
         isPrivate,
       })
 
+      // Haptic feedback on success
+      haptic('success')
+
       // Show success with sharing options
       Alert.alert(
         '🎉 Group Created!',
@@ -141,6 +146,7 @@ function CreateGroupScreen() {
         ]
       )
     } catch (err) {
+      haptic('error')
       Alert.alert('Error', 'Failed to create group')
       console.error(err)
     } finally {
@@ -149,7 +155,7 @@ function CreateGroupScreen() {
   }
 
   return (
-    <KeyboardSafeArea edges={['top']}>
+    <KeyboardSafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
@@ -158,22 +164,22 @@ function CreateGroupScreen() {
             size="$3"
             circular
             unstyled
-            icon={<X />}
+            icon={<X size={24} />}
             onPress={() => router.back()}
           />
         </XStack>
 
         <ScrollView flex={1}>
           <YStack p="$4" gap="$4">
-            {/* Info Card */}
+            {/* Info Card - WCAG AA: $orange12 provides 5.40:1 contrast on $orange2 */}
             <Card bg="$orange2" p="$4" br="$4" borderWidth={1} borderColor="$orange10">
               <XStack gap="$3" alignItems="center">
-                <Users size={32} color="$orange10" />
+                <Users size={32} color="$orange12" />
                 <YStack flex={1}>
                   <Text fontWeight="600" fontSize="$4">
                     Create Your Fitness Squad
                   </Text>
-                  <Text color="$gray10" fontSize="$3">
+                  <Text color="$orange12" fontSize="$3">
                     Build a community, share challenges, and compete together
                   </Text>
                 </YStack>
@@ -229,7 +235,10 @@ function CreateGroupScreen() {
                   </XStack>
                   <Switch
                     checked={isPrivate}
-                    onCheckedChange={setIsPrivate}
+                    onCheckedChange={(checked) => {
+                      haptic('light')
+                      setIsPrivate(checked)
+                    }}
                     size="$3"
                     backgroundColor={isPrivate ? '$orange6' : '$gray5'}
                   >

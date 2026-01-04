@@ -9,6 +9,7 @@ import { SafeArea } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
 import { TagEvents } from '@/lib/analytics'
+import { useSettings } from '@/lib/settings-context'
 import { ExerciseSelector, ResultInput, RecipientSelector } from '@/components/tag'
 import type { Database } from '@/types/database.types'
 
@@ -52,6 +53,7 @@ function CreateTagScreen() {
   const router = useRouter()
   const { groupId } = useLocalSearchParams<{ groupId?: string }>()
   const session = auth$.session.get()
+  const { settings, haptic } = useSettings()
 
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<TagForm>(INITIAL_FORM)
@@ -89,12 +91,14 @@ function CreateTagScreen() {
   // Navigation
   const handleNext = () => {
     if (step < 3 && canProceed()) {
+      haptic('light')
       setStep(step + 1)
     }
   }
 
   const handleBack = () => {
     if (step > 1) {
+      haptic('light')
       setStep(step - 1)
     }
   }
@@ -114,11 +118,14 @@ function CreateTagScreen() {
     setLoading(true)
 
     try {
-      // Calculate expiry (24 hours from now)
+      // Calculate expiry based on user's preferred tag duration
       const expiresAt = new Date()
-      expiresAt.setHours(expiresAt.getHours() + 24)
+      expiresAt.setHours(expiresAt.getHours() + settings.preferences.defaultTagDuration)
 
       // 1. Create the tag record
+      // Use the first selected group as the tag's group_id (for goal tracking)
+      const tagGroupId = form.selectedGroups.length > 0 ? form.selectedGroups[0] : null
+
       const { data: tagData, error: tagError } = await (supabase
         .from('tags') as any)
         .insert({
@@ -127,6 +134,7 @@ function CreateTagScreen() {
           value: form.value,
           is_public: form.isPublic,
           expires_at: expiresAt.toISOString(),
+          group_id: tagGroupId, // Link to group for goal tracking
           // proof_url would be uploaded separately if we implement storage
         })
         .select()
@@ -176,6 +184,7 @@ function CreateTagScreen() {
         recipient_id: session.user.id,
         status: 'completed' as const,
         completed_value: form.value, // Sender's score is their completed value
+        completed_at: new Date().toISOString(), // Set completion timestamp for goal tracking
       }
 
       const allRecipients = [senderRecipient, ...friendRecipients, ...groupRecipients]
@@ -237,10 +246,13 @@ function CreateTagScreen() {
         recipientCount: allRecipients.length - 1,
       })
 
+      // Success - trigger haptic feedback
+      haptic('success')
+
       // Success!
       Alert.alert(
         'Tag Sent!',
-        `You tagged ${allRecipients.length} ${allRecipients.length === 1 ? 'person' : 'people'} with ${form.value} ${form.exercise.name}. They have 24 hours to beat it!`,
+        `You tagged ${allRecipients.length} ${allRecipients.length === 1 ? 'person' : 'people'} with ${form.value} ${form.exercise.name}. They have ${settings.preferences.defaultTagDuration} hours to beat it!`,
         [
           {
             text: 'OK',
@@ -250,6 +262,7 @@ function CreateTagScreen() {
       )
     } catch (error: any) {
       console.error('Error creating tag:', error)
+      haptic('error')
       Alert.alert('Error', error.message || 'Failed to create tag. Please try again.')
     } finally {
       setLoading(false)

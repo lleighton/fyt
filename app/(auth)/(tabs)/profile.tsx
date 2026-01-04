@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Alert, ActivityIndicator, RefreshControl } from 'react-native'
+import { Alert, ActivityIndicator, RefreshControl, Switch as RNSwitch, useColorScheme } from 'react-native'
 import { observer } from '@legendapp/state/react'
 import { useFocusEffect } from 'expo-router'
 import {
@@ -14,17 +14,27 @@ import {
   Avatar,
   Input,
   Separator,
+  Switch,
 } from 'tamagui'
 import {
   User,
   Edit3,
   LogOut,
-  Settings,
   Bell,
   Camera,
   AtSign,
   Trash2,
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Smartphone,
+  Sun,
+  Moon,
+  Vibrate,
+  Clock,
+  Zap,
+  Users,
+  Target,
 } from '@tamagui/lucide-icons'
 import { KeyboardSafeArea } from '@/components/ui'
 
@@ -33,7 +43,7 @@ import { supabase } from '@/lib/supabase'
 import ActivityChart from '@/components/activity/ActivityChart'
 import { useRefresh } from '@/lib/sync-service'
 import { AuthEvents, resetAnalytics } from '@/lib/analytics'
-import { useImageUpload } from '@/lib/hooks'
+import { useImageUpload, useSettings } from '@/lib/hooks'
 
 /**
  * Profile screen
@@ -44,6 +54,7 @@ function ProfileScreen() {
   const profile = store$.profile.get()
   const completions = store$.completions.get()
   const currentStreak = store$.currentStreak()
+  const longestStreak = store$.longestStreak()
 
   // Pull-to-refresh
   const { isRefreshing, onRefresh } = useRefresh()
@@ -56,6 +67,12 @@ function ProfileScreen() {
   const [lastName, setLastName] = useState(profile?.last_name || '')
   const [loading, setLoading] = useState(false)
   const [deletingAccount, setDeletingAccount] = useState(false)
+
+  // Settings
+  const { settings, setNotification, setPreference } = useSettings()
+  const [notificationsExpanded, setNotificationsExpanded] = useState(false)
+  const [preferencesExpanded, setPreferencesExpanded] = useState(false)
+  const systemColorScheme = useColorScheme()
 
   // Load data when screen comes into focus (fallback for sync)
   useFocusEffect(
@@ -324,21 +341,15 @@ function ProfileScreen() {
       <ScrollView
         flex={1}
         bg="$background"
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
         <YStack p="$4" gap="$4">
           {/* Header */}
-          <XStack justifyContent="space-between" alignItems="center">
-            <H1 fontSize="$8">Profile</H1>
-            <Button
-              size="$3"
-              unstyled
-              icon={<Settings size={20} />}
-              onPress={() => Alert.alert('Settings', 'Settings coming soon!')}
-            />
-          </XStack>
+          <H1 fontSize="$8">Profile</H1>
 
           {/* Profile Header - Instagram Style */}
           <XStack gap="$4" alignItems="center">
@@ -400,7 +411,7 @@ function ProfileScreen() {
 
               <YStack alignItems="center">
                 <Text fontWeight="700" fontSize="$6">
-                  {profile?.longest_streak || 0}
+                  {longestStreak}
                 </Text>
                 <Text color="$gray10" fontSize="$2">
                   Best Streak
@@ -488,28 +499,233 @@ function ProfileScreen() {
           {/* Activity Chart */}
           <ActivityChart defaultPeriod={7} />
 
-          {/* Actions */}
+          {/* Settings */}
           <YStack gap="$3">
             <H2 fontSize="$5">Settings</H2>
 
+            {/* Notifications Section */}
             <Card bg="$backgroundHover" overflow="hidden" br="$4">
               <Button
                 bg="transparent"
                 justifyContent="flex-start"
-                icon={<Bell size={20} />}
-                onPress={() => Alert.alert('Notifications', 'Notification settings coming soon!')}
+                icon={<Bell size={20} color="$orange10" />}
+                iconAfter={notificationsExpanded ? <ChevronUp size={20} color="$gray10" /> : <ChevronDown size={20} color="$gray10" />}
+                onPress={() => setNotificationsExpanded(!notificationsExpanded)}
               >
-                Notifications
+                <Text flex={1}>Notifications</Text>
               </Button>
-              <Separator />
+
+              {notificationsExpanded && (
+                <YStack>
+                  <Separator />
+                  {/* Master toggle */}
+                  <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+                    <XStack gap="$3" alignItems="center" flex={1}>
+                      <Smartphone size={18} color="$gray11" />
+                      <YStack flex={1}>
+                        <Text fontWeight="600">Push Notifications</Text>
+                        <Text fontSize="$2" color="$gray10">Enable all notifications</Text>
+                      </YStack>
+                    </XStack>
+                    <Switch
+                      size="$3"
+                      checked={settings.notifications.enabled}
+                      onCheckedChange={(checked) => setNotification('enabled', checked)}
+                      bg={settings.notifications.enabled ? '$green10' : '$gray6'}
+                    >
+                      <Switch.Thumb animation="quick" bg="white" />
+                    </Switch>
+                  </XStack>
+
+                  {settings.notifications.enabled && (
+                    <>
+                      <Separator />
+                      <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+                        <XStack gap="$3" alignItems="center" flex={1}>
+                          <Zap size={18} color="$gray11" />
+                          <Text>Tag received</Text>
+                        </XStack>
+                        <Switch
+                          size="$3"
+                          checked={settings.notifications.tagReceived}
+                          onCheckedChange={(checked) => setNotification('tagReceived', checked)}
+                          bg={settings.notifications.tagReceived ? '$green10' : '$gray6'}
+                        >
+                          <Switch.Thumb animation="quick" bg="white" />
+                        </Switch>
+                      </XStack>
+
+                      <Separator />
+                      <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+                        <XStack gap="$3" alignItems="center" flex={1}>
+                          <Users size={18} color="$gray11" />
+                          <Text>Group invites</Text>
+                        </XStack>
+                        <Switch
+                          size="$3"
+                          checked={settings.notifications.groupInvites}
+                          onCheckedChange={(checked) => setNotification('groupInvites', checked)}
+                          bg={settings.notifications.groupInvites ? '$green10' : '$gray6'}
+                        >
+                          <Switch.Thumb animation="quick" bg="white" />
+                        </Switch>
+                      </XStack>
+
+                      <Separator />
+                      <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+                        <XStack gap="$3" alignItems="center" flex={1}>
+                          <Target size={18} color="$gray11" />
+                          <Text>Challenge reminders</Text>
+                        </XStack>
+                        <Switch
+                          size="$3"
+                          checked={settings.notifications.challengeReminders}
+                          onCheckedChange={(checked) => setNotification('challengeReminders', checked)}
+                          bg={settings.notifications.challengeReminders ? '$green10' : '$gray6'}
+                        >
+                          <Switch.Thumb animation="quick" bg="white" />
+                        </Switch>
+                      </XStack>
+
+                      <Separator />
+                      <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+                        <XStack gap="$3" alignItems="center" flex={1}>
+                          <Zap size={18} color="$gray11" />
+                          <Text>Streak alerts</Text>
+                        </XStack>
+                        <Switch
+                          size="$3"
+                          checked={settings.notifications.streakAlerts}
+                          onCheckedChange={(checked) => setNotification('streakAlerts', checked)}
+                          bg={settings.notifications.streakAlerts ? '$green10' : '$gray6'}
+                        >
+                          <Switch.Thumb animation="quick" bg="white" />
+                        </Switch>
+                      </XStack>
+                    </>
+                  )}
+                </YStack>
+              )}
+            </Card>
+
+            {/* Preferences Section */}
+            <Card bg="$backgroundHover" overflow="hidden" br="$4">
               <Button
                 bg="transparent"
                 justifyContent="flex-start"
-                icon={<Settings size={20} />}
-                onPress={() => Alert.alert('Preferences', 'Preferences coming soon!')}
+                icon={<Sun size={20} color="$orange10" />}
+                iconAfter={preferencesExpanded ? <ChevronUp size={20} color="$gray10" /> : <ChevronDown size={20} color="$gray10" />}
+                onPress={() => setPreferencesExpanded(!preferencesExpanded)}
               >
-                Preferences
+                <Text flex={1}>Preferences</Text>
               </Button>
+
+              {preferencesExpanded && (
+                <YStack>
+                  <Separator />
+                  {/* Theme */}
+                  <YStack px="$4" py="$3" gap="$2">
+                    <Text fontWeight="600">Theme</Text>
+                    <XStack gap="$2">
+                      {(['light', 'dark', 'system'] as const).map((theme) => (
+                        <Button
+                          key={theme}
+                          flex={1}
+                          size="$3"
+                          bg={settings.preferences.theme === theme ? '$orange10' : '$gray4'}
+                          onPress={() => setPreference('theme', theme)}
+                        >
+                          <XStack gap="$1" alignItems="center">
+                            {theme === 'light' && <Sun size={14} color={settings.preferences.theme === theme ? 'white' : '$gray11'} />}
+                            {theme === 'dark' && <Moon size={14} color={settings.preferences.theme === theme ? 'white' : '$gray11'} />}
+                            {theme === 'system' && <Smartphone size={14} color={settings.preferences.theme === theme ? 'white' : '$gray11'} />}
+                            <Text
+                              fontSize="$2"
+                              fontWeight="600"
+                              color={settings.preferences.theme === theme ? 'white' : '$gray11'}
+                              textTransform="capitalize"
+                            >
+                              {theme}
+                            </Text>
+                          </XStack>
+                        </Button>
+                      ))}
+                    </XStack>
+                    <Text fontSize="$2" color="$gray10">
+                      Current: {settings.preferences.theme === 'system' ? `System (${systemColorScheme})` : settings.preferences.theme}
+                    </Text>
+                  </YStack>
+
+                  <Separator />
+                  {/* Units */}
+                  <YStack px="$4" py="$3" gap="$2">
+                    <Text fontWeight="600">Units</Text>
+                    <XStack gap="$2">
+                      {(['metric', 'imperial'] as const).map((unit) => (
+                        <Button
+                          key={unit}
+                          flex={1}
+                          size="$3"
+                          bg={settings.preferences.units === unit ? '$orange10' : '$gray4'}
+                          onPress={() => setPreference('units', unit)}
+                        >
+                          <Text
+                            fontWeight="600"
+                            color={settings.preferences.units === unit ? 'white' : '$gray11'}
+                            textTransform="capitalize"
+                          >
+                            {unit === 'metric' ? 'Metric (kg, km)' : 'Imperial (lb, mi)'}
+                          </Text>
+                        </Button>
+                      ))}
+                    </XStack>
+                  </YStack>
+
+                  <Separator />
+                  {/* Default Tag Duration */}
+                  <YStack px="$4" py="$3" gap="$2">
+                    <XStack gap="$2" alignItems="center">
+                      <Clock size={18} color="$gray11" />
+                      <Text fontWeight="600">Default Tag Duration</Text>
+                    </XStack>
+                    <XStack gap="$2">
+                      {([12, 24, 48] as const).map((hours) => (
+                        <Button
+                          key={hours}
+                          flex={1}
+                          size="$3"
+                          bg={settings.preferences.defaultTagDuration === hours ? '$orange10' : '$gray4'}
+                          onPress={() => setPreference('defaultTagDuration', hours)}
+                        >
+                          <Text
+                            fontWeight="600"
+                            color={settings.preferences.defaultTagDuration === hours ? 'white' : '$gray11'}
+                          >
+                            {hours}h
+                          </Text>
+                        </Button>
+                      ))}
+                    </XStack>
+                  </YStack>
+
+                  <Separator />
+                  {/* Haptic Feedback */}
+                  <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
+                    <XStack gap="$3" alignItems="center" flex={1}>
+                      <Vibrate size={18} color="$gray11" />
+                      <Text>Haptic feedback</Text>
+                    </XStack>
+                    <Switch
+                      size="$3"
+                      checked={settings.preferences.hapticFeedback}
+                      onCheckedChange={(checked) => setPreference('hapticFeedback', checked)}
+                      bg={settings.preferences.hapticFeedback ? '$green10' : '$gray6'}
+                    >
+                      <Switch.Thumb animation="quick" bg="white" />
+                    </Switch>
+                  </XStack>
+                </YStack>
+              )}
             </Card>
 
             {/* Sign Out */}

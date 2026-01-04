@@ -3,14 +3,42 @@ import * as Device from 'expo-device'
 import { Platform } from 'react-native'
 import { router } from 'expo-router'
 import { supabase } from './supabase'
+import { getSettingsSync } from './settings-context'
 
 // Configure how notifications appear when app is in foreground
 Notifications.setNotificationHandler({
-  handleNotification: async () => {
+  handleNotification: async (notification) => {
+    const settings = getSettingsSync()
+
+    // Check if notifications are globally enabled
+    if (!settings.notifications.enabled) {
+      return {
+        shouldShowAlert: false,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      } as Notifications.NotificationBehavior
+    }
+
+    // Check notification type from data
+    const data = notification.request.content.data
+    const type = data?.type as string | undefined
+
+    // Filter by notification type preference
+    let shouldShow = true
+    if (type === 'tag_received' || type === 'tag_reminder') {
+      shouldShow = settings.notifications.tagReceived
+    } else if (type === 'group_invite' || type === 'group_update') {
+      shouldShow = settings.notifications.groupInvites
+    } else if (type === 'challenge_reminder') {
+      shouldShow = settings.notifications.challengeReminders
+    } else if (type === 'streak_alert') {
+      shouldShow = settings.notifications.streakAlerts
+    }
+
     return {
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: true,
+      shouldShowAlert: shouldShow,
+      shouldPlaySound: shouldShow,
+      shouldSetBadge: shouldShow,
     } as Notifications.NotificationBehavior
   },
 })
