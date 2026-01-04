@@ -6,11 +6,11 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
   Button,
   Card,
   ScrollView,
   Avatar,
+  View,
 } from 'tamagui'
 import {
   ArrowLeft,
@@ -137,33 +137,48 @@ function TagDetailScreen() {
   return (
     <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
-        {/* Header */}
+        {/* Header - Athletic Broadcast Style */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <Button
-            size="$3"
+            size="$4"
             circular
-            unstyled
-            icon={<ArrowLeft size={24} />}
+            bg="$gray3"
+            icon={<ArrowLeft size={20} color="$gray11" />}
             onPress={() => router.back()}
           />
-          <H1 fontSize="$6">Tag Details</H1>
+          <Text fontFamily="$display" fontSize={24} letterSpacing={0.5}>
+            TAG DETAILS
+          </Text>
           <YStack width={40} />
         </XStack>
 
         <ScrollView flex={1} showsVerticalScrollIndicator={false}>
           <YStack px="$4" py="$4" gap="$4">
-            {/* Main Tag Card */}
+            {/* Main Tag Card - Athletic Style */}
             <Card
               bg={isExpired ? '$gray2' : '$green2'}
               p="$5"
-              br="$6"
-              borderWidth={2}
-              borderColor={isExpired ? '$gray6' : '$green7'}
+              br="$4"
+              borderWidth={1}
+              borderColor={isExpired ? '$gray5' : '$green6'}
+              position="relative"
+              overflow="hidden"
             >
+              {/* Decorative element */}
+              <View
+                position="absolute"
+                top={-40}
+                right={-40}
+                width={120}
+                height={120}
+                bg={isExpired ? '$gray4' : '$green4'}
+                opacity={0.3}
+                br={120}
+              />
               <YStack gap="$4">
                 {/* Sender Info */}
                 <XStack gap="$3" alignItems="center">
-                  <Avatar circular size="$5" bg="$green10">
+                  <Avatar circular size="$5" bg={isExpired ? '$gray8' : '$green9'}>
                     {tag.sender?.avatar_url ? (
                       <Avatar.Image src={tag.sender.avatar_url} />
                     ) : (
@@ -175,80 +190,79 @@ function TagDetailScreen() {
                     )}
                   </Avatar>
                   <YStack flex={1}>
-                    <Text fontWeight="700" fontSize="$5">
+                    <Text fontFamily="$body" fontWeight="700" fontSize="$5">
                       {senderName}
                     </Text>
-                    <Text color={isExpired ? '$gray10' : '$green11'} fontSize="$3">
+                    <Text color={isExpired ? '$gray10' : '$green11'} fontSize="$2" fontFamily="$body">
                       sent this tag
                     </Text>
                   </YStack>
-                  {/* WCAG AA: white on $green9/$gray6 provides 4.5:1+ contrast */}
-                  <XStack
-                    gap="$1"
-                    alignItems="center"
+                  {/* Time Badge */}
+                  <View
                     bg={isExpired ? '$gray6' : '$green9'}
                     px="$3"
                     py="$1.5"
-                    br="$10"
+                    br="$2"
                   >
-                    <Clock size={14} color="white" />
-                    <Text
-                      color="white"
-                      fontWeight="600"
-                      fontSize="$3"
-                    >
-                      {isExpired ? 'Ended' : `${hoursLeft}h left`}
-                    </Text>
-                  </XStack>
+                    <XStack gap="$1" alignItems="center">
+                      <Clock size={14} color="white" />
+                      <Text fontFamily="$mono" fontWeight="700" color="white" fontSize="$2">
+                        {isExpired ? 'ENDED' : `${hoursLeft}H`}
+                      </Text>
+                    </XStack>
+                  </View>
                 </XStack>
 
-                {/* Exercise Details - WHITE CARD needs explicit dark colors */}
-                <Card bg="white" p="$4" br="$4">
+                {/* Exercise Details - Scoreboard Style */}
+                <Card bg="white" p="$4" br="$3">
                   <XStack gap="$4" alignItems="center">
-                    <YStack
+                    <View
                       width={64}
                       height={64}
-                      br="$4"
-                      bg={isExpired ? '#E7E5E4' : '#DCFCE7'}
+                      br="$3"
+                      bg={isExpired ? '$gray3' : '$green3'}
                       justifyContent="center"
                       alignItems="center"
                     >
                       <Text fontSize={32}>{tag.exercise?.icon || '💪'}</Text>
-                    </YStack>
+                    </View>
                     <YStack flex={1}>
-                      {/* WCAG AA: #57534E = 7.0:1 on white */}
                       <Text
-                        color="#57534E"
-                        fontSize="$3"
+                        color="$gray10"
+                        fontSize="$1"
+                        fontFamily="$body"
                         fontWeight="600"
                         textTransform="uppercase"
+                        letterSpacing={1}
                       >
                         Target
                       </Text>
-                      {/* WCAG AA: #78716C = 4.62:1, #16A34A = 4.52:1 on white */}
-                      <Text fontWeight="700" fontSize="$8" color={isExpired ? '#78716C' : '#16A34A'}>
+                      <Text fontFamily="$mono" fontWeight="700" fontSize={48} color={isExpired ? '$gray10' : '$green10'} lineHeight={48}>
                         {tag.value}
                       </Text>
-                      {/* WCAG AA: #57534E = 7.0:1 on white */}
-                      <Text color="#57534E" fontSize="$4">
+                      <Text color="$gray11" fontSize="$3" fontFamily="$body">
                         {isTimeBased ? 'seconds' : tag.exercise?.unit || 'reps'} of {tag.exercise?.name}
                       </Text>
                     </YStack>
                   </XStack>
                 </Card>
 
-                {/* Completion Stats */}
-                <XStack justifyContent="center" gap="$2">
-                  <Text color={isExpired ? '$gray10' : '$green11'} fontSize="$3">
-                    {completedCount} of {totalRecipients} completed
-                  </Text>
+                {/* Completion Stats - Athletic Badge */}
+                <XStack justifyContent="center">
+                  <View bg={isExpired ? '$gray4' : '$green4'} px="$4" py="$2" br="$2">
+                    <Text fontFamily="$mono" fontWeight="700" color={isExpired ? '$gray11' : '$green11'} fontSize="$3">
+                      {completedCount}/{totalRecipients} COMPLETED
+                    </Text>
+                  </View>
                 </XStack>
               </YStack>
             </Card>
 
             {/* Recipients List */}
             <YStack gap="$3">
-              <Text fontWeight="700" fontSize="$5">Recipients</Text>
+              <Text fontFamily="$display" fontSize={20} letterSpacing={0.5}>
+                RECIPIENTS
+              </Text>
 
               {tag.recipients?.map((recipient: any) => {
                 const recipientName =
@@ -262,12 +276,31 @@ function TagDetailScreen() {
                 return (
                   <Card
                     key={recipient.id}
-                    bg="$backgroundHover"
+                    bg="$gray2"
                     p="$3"
-                    br="$4"
+                    br="$3"
+                    borderWidth={1}
+                    borderColor="$gray4"
+                    position="relative"
+                    overflow="hidden"
                   >
+                    {/* Status bar on left */}
+                    <View
+                      position="absolute"
+                      left={0}
+                      top={0}
+                      bottom={0}
+                      width={3}
+                      bg={
+                        isCompleted
+                          ? didBeat ? '$green10' : '$coral9'
+                          : recipient.status === 'expired'
+                          ? '$red8'
+                          : '$gray5'
+                      }
+                    />
                     <XStack gap="$3" alignItems="center">
-                      <Avatar circular size="$4" bg="$orange10">
+                      <Avatar circular size="$4" bg="$coral6">
                         {recipient.profile?.avatar_url ? (
                           <Avatar.Image src={recipient.profile.avatar_url} />
                         ) : (
@@ -279,52 +312,54 @@ function TagDetailScreen() {
 
                       <YStack flex={1}>
                         <XStack gap="$2" alignItems="center">
-                          <Text fontWeight="600" fontSize="$4">
+                          <Text fontFamily="$body" fontWeight="600" fontSize="$4">
                             {recipientName}
                           </Text>
                           {isSender && (
-                            <Text fontSize="$3" color="$gray10">
-                              (sender)
-                            </Text>
+                            <View bg="$gray4" px="$1.5" py="$0.5" br="$1">
+                              <Text fontSize="$1" fontWeight="600" color="$gray10">
+                                SENDER
+                              </Text>
+                            </View>
                           )}
                           {recipient.recipient_id === session?.user?.id && !isSender && (
-                            <Text fontSize="$3" color="$orange10" fontWeight="600">
-                              (you)
-                            </Text>
+                            <View bg="$coral5" px="$1.5" py="$0.5" br="$1">
+                              <Text color="$coral12" fontSize="$1" fontWeight="700">
+                                YOU
+                              </Text>
+                            </View>
                           )}
                         </XStack>
                         {isCompleted && recipient.completed_value && (
-                          <Text color="$gray10" fontSize="$3">
-                            Did {recipient.completed_value} {isTimeBased ? 'seconds' : tag.exercise?.unit || 'reps'}
+                          <Text fontFamily="$mono" fontWeight="600" color={didBeat ? '$green10' : '$coral10'} fontSize="$3">
+                            {recipient.completed_value} {isTimeBased ? 'sec' : tag.exercise?.unit || 'reps'}
                           </Text>
                         )}
                       </YStack>
 
                       {/* Status Indicator */}
-                      <YStack
+                      <View
                         width={32}
                         height={32}
-                        br="$10"
+                        br="$2"
                         bg={
                           isCompleted
-                            ? didBeat
-                              ? '$green10'
-                              : '$orange10'
+                            ? didBeat ? '$green4' : '$coral3'
                             : recipient.status === 'expired'
-                            ? '$red4'
+                            ? '$red3'
                             : '$gray4'
                         }
                         justifyContent="center"
                         alignItems="center"
                       >
                         {isCompleted ? (
-                          <Check size={16} color="white" />
+                          <Check size={16} color={didBeat ? '$green11' : '$coral11'} />
                         ) : recipient.status === 'expired' ? (
                           <XIcon size={16} color="$red10" />
                         ) : (
                           <Clock size={16} color="$gray10" />
                         )}
-                      </YStack>
+                      </View>
                     </XStack>
                   </Card>
                 )
@@ -335,14 +370,17 @@ function TagDetailScreen() {
 
         {/* Action Button */}
         {canRespond && (
-          <YStack px="$4" py="$4" borderTopWidth={1} borderTopColor="$gray4">
+          <YStack px="$4" py="$4" borderTopWidth={1} borderTopColor="$gray4" bg="$background">
             <Button
               size="$5"
-              bg="$orange10"
+              bg="$coral6"
+              br="$3"
               icon={<Zap size={20} color="white" />}
               onPress={() => router.push(`/(auth)/tag/${tagId}/respond` as any)}
+              animation="bouncy"
+              pressStyle={{ scale: 0.97 }}
             >
-              <Text color="white" fontWeight="700">
+              <Text color="white" fontFamily="$body" fontWeight="700">
                 Respond to Tag
               </Text>
             </Button>

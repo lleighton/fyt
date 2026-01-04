@@ -30,11 +30,11 @@ const prepareHeaderBarButtonItems = (barButtonItems, side) => {
     if (item.type === 'spacing') {
       return item;
     }
-    let imageSource;
+    let imageSource, templateSource;
     if (item.icon?.type === 'imageSource') {
       imageSource = _reactNative.Image.resolveAssetSource(item.icon.imageSource);
     } else if (item.icon?.type === 'templateSource') {
-      imageSource = _reactNative.Image.resolveAssetSource(item.icon.templateSource);
+      templateSource = _reactNative.Image.resolveAssetSource(item.icon.templateSource);
     }
     const titleStyle = item.titleStyle ? {
       ...item.titleStyle,
@@ -52,6 +52,7 @@ const prepareHeaderBarButtonItems = (barButtonItems, side) => {
     const processedItem = {
       ...item,
       imageSource,
+      templateSource,
       sfSymbolName: item.icon?.type === 'sfSymbol' ? item.icon.name : undefined,
       titleStyle,
       tintColor,

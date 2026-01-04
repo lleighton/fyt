@@ -40,6 +40,8 @@ function BottomTabsScreen(props) {
     standardAppearance,
     scrollEdgeAppearance,
     scrollEdgeEffects,
+    // eslint-disable-next-line camelcase -- we use sneak case experimental prefix
+    experimental_userInterfaceStyle,
     ...rest
   } = props;
   const shouldFreeze = shouldFreezeScreen(nativeViewIsVisible, isFocused, freezeContents);
@@ -80,7 +82,11 @@ function BottomTabsScreen(props) {
     bottomScrollEdgeEffect: scrollEdgeEffects?.bottom,
     leftScrollEdgeEffect: scrollEdgeEffects?.left,
     rightScrollEdgeEffect: scrollEdgeEffects?.right,
-    topScrollEdgeEffect: scrollEdgeEffects?.top
+    topScrollEdgeEffect: scrollEdgeEffects?.top,
+    isTitleUndefined: rest.title === null || rest.title === undefined
+    // eslint-disable-next-line camelcase -- we use sneak case experimental prefix
+    ,
+    userInterfaceStyle: experimental_userInterfaceStyle
   }, rest), /*#__PURE__*/_react.default.createElement(_reactFreeze.Freeze, {
     freeze: shouldFreeze,
     placeholder: rest.placeholder

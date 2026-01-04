@@ -7,6 +7,7 @@ exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
 var _reactNative = require("react-native");
 var _SplitViewHostNativeComponent = _interopRequireDefault(require("../../../fabric/gamma/SplitViewHostNativeComponent"));
+var _SplitViewScreen = _interopRequireDefault(require("./SplitViewScreen"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 // According to the UIKit documentation: https://developer.apple.com/documentation/uikit/uisplitviewcontroller/displaymode-swift.enum
@@ -44,7 +45,20 @@ function SplitViewHost(props) {
       }
     }
   }, [preferredDisplayMode, preferredSplitBehavior]);
-  return /*#__PURE__*/_react.default.createElement(_SplitViewHostNativeComponent.default, _extends({}, props, {
+  const children = _react.default.Children.toArray(props.children);
+  const columns = children.filter(
+  // @ts-ignore - type is valid attribute for child
+  child => child.type === _SplitViewScreen.default.Column);
+  const inspectors = children.filter(
+  // @ts-ignore - type is valid attribute for child
+  child => child.type === _SplitViewScreen.default.Inspector);
+  return /*#__PURE__*/_react.default.createElement(_SplitViewHostNativeComponent.default
+  // UISplitViewController requires the number of columns to be specified at initialization and it cannot be changed dynamically later.
+  // By using a specific key in this form, we can detect changes in the number of React children.
+  // This enables us to fully recreate the SplitView when necessary, ensuring the correct column configuration is always applied.
+  , _extends({
+    key: `columns-${columns.length}-inspectors-${inspectors.length}`
+  }, props, {
     style: styles.container
   }), props.children);
 }

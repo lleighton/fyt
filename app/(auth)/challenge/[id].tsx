@@ -5,14 +5,12 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
-  H2,
   Button,
   Card,
   ScrollView,
   Avatar,
   Input,
-  Separator,
+  View,
 } from 'tamagui'
 import {
   ArrowLeft,
@@ -399,27 +397,33 @@ function ChallengeDetailScreen() {
   return (
     <KeyboardSafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
-        {/* Header */}
+        {/* Header - Athletic Broadcast Style */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <Button
-            size="$3"
+            size="$4"
             circular
-            unstyled
-            icon={<ArrowLeft />}
+            bg="$gray3"
+            icon={<ArrowLeft size={20} color="$gray11" />}
             onPress={() => router.back()}
           />
-          <Text fontWeight="600">{challenge.challenge_type.toUpperCase()}</Text>
+          <View bg="$coral5" px="$3" py="$1.5" br="$2">
+            <Text fontFamily="$mono" fontWeight="700" fontSize="$2" color="$coral12" textTransform="uppercase">
+              {challenge.challenge_type.replace('_', ' ')}
+            </Text>
+          </View>
           <YStack width={40} />
         </XStack>
 
         <ScrollView flex={1}>
           <YStack p="$4" gap="$4">
-            {/* Challenge Info */}
+            {/* Challenge Info - Athletic Style */}
             <YStack gap="$2">
               <XStack justifyContent="space-between" alignItems="flex-start">
-                <YStack flex={1} gap="$2">
-                  <H1 fontSize="$8">{challenge.title}</H1>
-                  <Text fontSize="$5" color="$orange10">
+                <YStack flex={1} gap="$1">
+                  <Text fontFamily="$display" fontSize={32} letterSpacing={0.5} lineHeight={32}>
+                    {challenge.title.toUpperCase()}
+                  </Text>
+                  <Text fontSize="$4" fontFamily="$body" fontWeight="600" color="$coral10">
                     {challenge.exercise}
                   </Text>
                 </YStack>
@@ -449,38 +453,38 @@ function ChallengeDetailScreen() {
                 </Text>
               )}
 
-              {/* Steps List for Multi-Step Challenges */}
+              {/* Steps List for Multi-Step Challenges - Athletic Style */}
               {challenge.challenge_type === 'workout' && challenge.steps && (
                 <YStack gap="$2" mt="$2">
-                  <Text fontSize="$3" fontWeight="600">
-                    Workout Steps:
+                  <Text fontSize="$2" fontFamily="$body" fontWeight="600" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>
+                    Workout Steps
                   </Text>
                   {challenge.steps.map((step: ChallengeStep, index: number) => (
-                    <Card key={index} bg="$orange2" p="$2" px="$3" br="$3">
-                      <XStack gap="$2" alignItems="center">
-                        <YStack
-                          width={24}
-                          height={24}
+                    <Card key={index} bg="$coral2" p="$3" br="$3" borderWidth={1} borderColor="$coral4">
+                      <XStack gap="$3" alignItems="center">
+                        <View
+                          width={28}
+                          height={28}
                           alignItems="center"
                           justifyContent="center"
-                          br="$10"
-                          bg="$orange10"
+                          br="$2"
+                          bg="$coral6"
                         >
-                          <Text fontSize="$2" fontWeight="700" color="white">
+                          <Text fontFamily="$mono" fontWeight="700" fontSize="$3" color="white">
                             {index + 1}
                           </Text>
-                        </YStack>
+                        </View>
                         <YStack flex={1}>
-                          <Text fontSize="$3" fontWeight="600">
+                          <Text fontSize="$3" fontFamily="$body" fontWeight="600">
                             {step.exercise}
                           </Text>
                           {step.type === 'strength' ? (
-                            <Text fontSize="$2" color="$gray10">
-                              {step.target_sets} sets × {step.target_reps} reps
-                              {step.target_weight && ` @ ${step.target_weight} ${step.weight_unit}`}
+                            <Text fontSize="$2" fontFamily="$mono" color="$coral11">
+                              {step.target_sets} × {step.target_reps}
+                              {step.target_weight && ` @ ${step.target_weight}${step.weight_unit}`}
                             </Text>
                           ) : (
-                            <Text fontSize="$2" color="$gray10" textTransform="capitalize">
+                            <Text fontSize="$2" fontFamily="$body" color="$coral11" textTransform="capitalize">
                               {step.type.replace('_', ' ')}
                             </Text>
                           )}
@@ -514,24 +518,28 @@ function ChallengeDetailScreen() {
               </XStack>
             </YStack>
 
-            {/* Stats */}
+            {/* Stats - Scoreboard Style */}
             <XStack gap="$3">
-              <Card flex={1} bg="$backgroundHover" p="$3" br="$4" alignItems="center">
-                <Users size={24} color="$orange10" />
-                <Text fontWeight="700" fontSize="$6" mt="$2">
+              <Card flex={1} bg="$gray2" p="$4" br="$3" alignItems="center" borderWidth={1} borderColor="$gray4">
+                <View bg="$coral4" p="$2" br="$2">
+                  <Users size={20} color="$coral11" />
+                </View>
+                <Text fontFamily="$mono" fontWeight="700" fontSize={32} mt="$2" lineHeight={32}>
                   {challengeParticipants.length}
                 </Text>
-                <Text color="$gray10" fontSize="$2">
+                <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
                   Participants
                 </Text>
               </Card>
 
-              <Card flex={1} bg="$backgroundHover" p="$3" br="$4" alignItems="center">
-                <Trophy size={24} color="$orange10" />
-                <Text fontWeight="700" fontSize="$6" mt="$2">
+              <Card flex={1} bg="$gray2" p="$4" br="$3" alignItems="center" borderWidth={1} borderColor="$gray4">
+                <View bg="$amber4" p="$2" br="$2">
+                  <Trophy size={20} color="$amber11" />
+                </View>
+                <Text fontFamily="$mono" fontWeight="700" fontSize={32} mt="$2" lineHeight={32}>
                   {challengeCompletions.length}
                 </Text>
-                <Text color="$gray10" fontSize="$2">
+                <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
                   Completions
                 </Text>
               </Card>
@@ -539,43 +547,50 @@ function ChallengeDetailScreen() {
 
             {/* Log Completion Button */}
             {isChallengeExpired ? (
-              <Card bg="$gray2" p="$4" br="$4" borderWidth={1} borderColor="$gray6">
-                <YStack alignItems="center" gap="$2">
-                  <Clock size={32} color="$gray10" />
-                  <Text fontWeight="600" fontSize="$4" color="$gray11">
-                    Challenge Ended
+              <Card bg="$gray2" p="$5" br="$3" borderWidth={1} borderColor="$gray5">
+                <YStack alignItems="center" gap="$3">
+                  <View bg="$gray4" p="$3" br="$3">
+                    <Clock size={28} color="$gray10" />
+                  </View>
+                  <Text fontFamily="$display" fontSize={22} letterSpacing={0.5}>
+                    CHALLENGE ENDED
                   </Text>
-                  <Text color="$gray10" fontSize="$3" textAlign="center">
-                    This challenge has finished. Check out the final leaderboard below!
+                  <Text color="$gray10" fontSize="$3" fontFamily="$body" textAlign="center">
+                    Check out the final leaderboard below!
                   </Text>
                 </YStack>
               </Card>
             ) : isUserCompleted ? (
-              <Card bg="$gray2" p="$4" br="$4" borderWidth={1} borderColor="$gray6">
-                <YStack alignItems="center" gap="$2">
-                  <CheckCircle size={32} color="$green10" />
-                  <Text fontWeight="600" fontSize="$4">
-                    Challenge Completed!
+              <Card bg="$green2" p="$5" br="$3" borderWidth={1} borderColor="$green5">
+                <YStack alignItems="center" gap="$3">
+                  <View bg="$green4" p="$3" br="$3">
+                    <CheckCircle size={28} color="$green11" />
+                  </View>
+                  <Text fontFamily="$display" fontSize={22} letterSpacing={0.5}>
+                    COMPLETED
                   </Text>
-                  <Text color="$gray10" fontSize="$3" textAlign="center">
-                    You've completed this one-time challenge. Your result is shown in the leaderboard below.
+                  <Text color="$green11" fontSize="$3" fontFamily="$body" textAlign="center">
+                    Your result is shown in the leaderboard below.
                   </Text>
                 </YStack>
               </Card>
             ) : !showLogCompletion ? (
               <Button
                 size="$5"
-                bg="$orange10"
-                icon={<Plus size={20} />}
+                bg="$coral6"
+                br="$3"
+                icon={<Plus size={20} color="white" />}
                 onPress={() => setShowLogCompletion(true)}
+                animation="bouncy"
+                pressStyle={{ scale: 0.97 }}
               >
-                Log Completion
+                <Text color="white" fontFamily="$body" fontWeight="700">Log Completion</Text>
               </Button>
             ) : (
-              <Card bg="$green2" p="$4" br="$4" borderWidth={2} borderColor="$green10">
+              <Card bg="$green2" p="$4" br="$3" borderWidth={2} borderColor="$green7">
                 <YStack gap="$3">
-                  <Text fontWeight="600" fontSize="$5">
-                    Log Your Result
+                  <Text fontFamily="$display" fontSize={22} letterSpacing={0.5}>
+                    LOG YOUR RESULT
                   </Text>
 
                   {/* Multi-Step: Show input for each step */}
@@ -704,20 +719,24 @@ function ChallengeDetailScreen() {
                             <Button
                               size="$5"
                               minWidth={60}
-                              variant={weightUnit === 'lbs' ? undefined : 'outlined'}
-                              bg={weightUnit === 'lbs' ? '$orange10' : undefined}
+                              br="$2"
+                              bg={weightUnit === 'lbs' ? '$coral6' : '$gray3'}
                               onPress={() => setWeightUnit('lbs')}
                             >
-                              lbs
+                              <Text fontFamily="$body" fontWeight="600" color={weightUnit === 'lbs' ? 'white' : '$gray11'}>
+                                lbs
+                              </Text>
                             </Button>
                             <Button
                               size="$5"
                               minWidth={60}
-                              variant={weightUnit === 'kg' ? undefined : 'outlined'}
-                              bg={weightUnit === 'kg' ? '$orange10' : undefined}
+                              br="$2"
+                              bg={weightUnit === 'kg' ? '$coral6' : '$gray3'}
                               onPress={() => setWeightUnit('kg')}
                             >
-                              kg
+                              <Text fontFamily="$body" fontWeight="600" color={weightUnit === 'kg' ? 'white' : '$gray11'}>
+                                kg
+                              </Text>
                             </Button>
                           </XStack>
                         </XStack>
@@ -774,8 +793,9 @@ function ChallengeDetailScreen() {
                     </Button>
                     <Button
                       flex={2}
-                      bg="$orange10"
-                      icon={<Check size={20} />}
+                      bg="$coral6"
+                      br="$3"
+                      icon={<Check size={20} color="white" />}
                       disabled={
                         loading ||
                         (challenge.challenge_type === 'workout'
@@ -811,13 +831,20 @@ function ChallengeDetailScreen() {
 
             {/* Leaderboard */}
             <YStack gap="$3">
-              <H2 fontSize="$5">Leaderboard</H2>
+              <Text fontFamily="$display" fontSize={24} letterSpacing={0.5}>
+                LEADERBOARD
+              </Text>
 
               {leaderboard.length === 0 ? (
-                <Card bg="$backgroundHover" p="$4" br="$4" alignItems="center">
-                  <Target size={32} color="$gray10" />
-                  <Text color="$gray10" textAlign="center" mt="$2">
-                    No completions yet. Be the first!
+                <Card bg="$gray2" p="$5" br="$3" alignItems="center" borderWidth={1} borderColor="$gray4">
+                  <View bg="$gray4" p="$3" br="$3">
+                    <Target size={28} color="$gray9" />
+                  </View>
+                  <Text fontFamily="$display" fontSize={18} letterSpacing={0.5} mt="$3">
+                    NO COMPLETIONS YET
+                  </Text>
+                  <Text color="$gray10" fontFamily="$body" textAlign="center" mt="$2">
+                    Be the first to complete this challenge!
                   </Text>
                 </Card>
               ) : (
@@ -868,66 +895,91 @@ function LeaderboardRow({
   isCurrentUser: boolean
 }) {
   const getRankColor = (rank: number) => {
-    if (rank === 1) return '$yellow10'
-    if (rank === 2) return '$gray9'
-    if (rank === 3) return '$orange9'
+    if (rank === 1) return '$amber10'
+    if (rank === 2) return '$gray8'
+    if (rank === 3) return '$coral9'
     return '$gray10'
+  }
+
+  const getRankBg = (rank: number) => {
+    if (rank === 1) return '$amber4'
+    if (rank === 2) return '$gray4'
+    if (rank === 3) return '$coral3'
+    return '$gray3'
   }
 
   return (
     <Card
-      bg={isCurrentUser ? '$orange2' : '$backgroundHover'}
+      bg={isCurrentUser ? '$coral2' : '$gray2'}
       p="$3"
-      br="$4"
-      borderWidth={isCurrentUser ? 2 : 0}
-      borderColor={isCurrentUser ? '$orange10' : 'transparent'}
+      br="$3"
+      borderWidth={isCurrentUser ? 2 : 1}
+      borderColor={isCurrentUser ? '$coral7' : '$gray4'}
+      position="relative"
+      overflow="hidden"
     >
+      {/* Highlight bar for top 3 */}
+      {rank <= 3 && (
+        <View
+          position="absolute"
+          left={0}
+          top={0}
+          bottom={0}
+          width={3}
+          bg={getRankColor(rank)}
+        />
+      )}
       <XStack alignItems="center" gap="$3">
         {/* Rank */}
-        <YStack
-          width={32}
-          height={32}
+        <View
+          width={36}
+          height={36}
           alignItems="center"
           justifyContent="center"
-          br="$10"
-          bg={rank <= 3 ? getRankColor(rank) : '$gray5'}
+          br="$2"
+          bg={getRankBg(rank)}
         >
-          <Text fontWeight="700" color={rank <= 3 ? 'white' : '$color'}>
+          <Text fontFamily="$mono" fontWeight="700" fontSize="$4" color={rank <= 3 ? getRankColor(rank) : '$gray10'}>
             {rank}
           </Text>
-        </YStack>
+        </View>
 
         {/* Name */}
         <YStack flex={1}>
-          <Text fontWeight="600">
-            {participant.profile?.display_name || `User #${participant.user_id.slice(0, 8)}`}
-            {isCurrentUser && ' (You)'}
-          </Text>
-          <Text fontSize="$2" color="$gray10">
-            {completions} {completions === 1 ? 'completion' : 'completions'}
+          <XStack alignItems="center" gap="$2">
+            <Text fontFamily="$body" fontWeight="600">
+              {participant.profile?.display_name || `User #${participant.user_id.slice(0, 8)}`}
+            </Text>
+            {isCurrentUser && (
+              <View bg="$coral5" px="$1.5" py="$0.5" br="$1">
+                <Text color="$coral12" fontSize="$1" fontWeight="700">
+                  YOU
+                </Text>
+              </View>
+            )}
+          </XStack>
+          <Text fontSize="$2" fontFamily="$body" color="$gray10">
+            {completions} {completions === 1 ? 'time' : 'times'}
           </Text>
         </YStack>
 
-        {/* Value */}
+        {/* Value - Scoreboard Style */}
         <YStack alignItems="flex-end">
           {challengeType === 'max_effort' && completion ? (
             <>
-              <Text fontWeight="700" fontSize="$6" color={rank <= 3 ? getRankColor(rank) : '$color'}>
-                {completion.weight} {completion.weight_unit}
+              <Text fontFamily="$mono" fontWeight="700" fontSize={24} color={rank <= 3 ? getRankColor(rank) : '$color'} lineHeight={24}>
+                {completion.weight}
               </Text>
-              <Text fontSize="$2" color="$gray10">
-                {completion.value} {completion.value === 1 ? 'rep' : 'reps'}
-              </Text>
-              <Text fontSize="$1" color="$gray9">
-                Est. 1RM: {Math.round(value)} {completion.weight_unit}
+              <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase">
+                {completion.weight_unit} × {completion.value}
               </Text>
             </>
           ) : (
             <>
-              <Text fontWeight="700" fontSize="$6" color={rank <= 3 ? getRankColor(rank) : '$color'}>
+              <Text fontFamily="$mono" fontWeight="700" fontSize={28} color={rank <= 3 ? getRankColor(rank) : '$color'} lineHeight={28}>
                 {Math.round(value)}
               </Text>
-              <Text fontSize="$2" color="$gray10">
+              <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>
                 {unit}
               </Text>
             </>

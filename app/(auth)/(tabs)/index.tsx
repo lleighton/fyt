@@ -7,10 +7,11 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
   Card,
   ScrollView,
+  View,
 } from 'tamagui'
+import { LinearGradient } from '@tamagui/linear-gradient'
 import { Flame, UserPlus, Send, Clock, ChevronRight, Zap } from '@tamagui/lucide-icons'
 import { SafeArea } from '@/components/ui'
 
@@ -127,60 +128,105 @@ function HomeScreen() {
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
-        <YStack px="$4" py="$4" gap="$4">
-          {/* Header */}
-          <XStack justifyContent="space-between" alignItems="center">
-            <YStack>
-              <Text color="$gray10" fontSize="$3">
-                Welcome back
-              </Text>
-              <H1 fontSize="$8">
-                {profile?.display_name || 'Athlete'}
-              </H1>
-            </YStack>
-          </XStack>
+        <YStack px="$4" py="$5" gap="$5">
+          {/* Header - Athletic Broadcast Style */}
+          <YStack gap="$1">
+            <Text
+              color="$gray10"
+              fontSize="$2"
+              fontFamily="$body"
+              textTransform="uppercase"
+              letterSpacing={1.5}
+            >
+              Welcome back
+            </Text>
+            <Text
+              fontFamily="$display"
+              fontSize={36}
+              color="$color"
+              letterSpacing={1}
+            >
+              {(profile?.display_name || 'Athlete').toUpperCase()}
+            </Text>
+          </YStack>
 
-          {/* Streak Cards */}
+          {/* Streak Cards - Scoreboard Style */}
           <XStack gap="$3">
             {/* Activity Streak */}
             <Card
               flex={1}
-              bg="$gray4"
-              p="$4"
-              br="$6"
+              br="$5"
               borderWidth={0}
-              shadowColor="$shadowColor"
-              shadowOffset={{ width: 0, height: 2 }}
-              shadowOpacity={0.1}
-              shadowRadius={8}
-              elevation={2}
+              overflow="hidden"
+              position="relative"
             >
-              <YStack gap="$2">
+              <LinearGradient
+                colors={['$gray3', '$gray4']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+              />
+              {/* Radial glow effect in corner */}
+              <LinearGradient
+                colors={['$amber5', '$amber4', 'transparent']}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                locations={[0, 0.4, 1]}
+                position="absolute"
+                top={0}
+                right={0}
+                width={120}
+                height={120}
+                opacity={0.4}
+              />
+              <YStack gap="$3" p="$4">
                 <XStack justifyContent="space-between" alignItems="center">
                   <Text
                     color="$gray11"
                     fontSize="$2"
+                    fontFamily="$body"
                     fontWeight="600"
                     textTransform="uppercase"
-                    letterSpacing={0.5}
+                    letterSpacing={1}
                   >
                     Activity
                   </Text>
-                  <Flame color="$amber10" size={24} />
+                  <View
+                    bg="$amber5"
+                    p="$2"
+                    br="$3"
+                  >
+                    <Flame color="$amber11" size={20} />
+                  </View>
                 </XStack>
-                <XStack alignItems="baseline" gap="$2">
-                  <Text fontSize={48} fontWeight="700" color="$gray12">
+                <YStack>
+                  <Text
+                    fontFamily="$mono"
+                    fontSize={48}
+                    fontWeight="700"
+                    color="$gray12"
+                    lineHeight={58}
+                  >
                     {currentStreak}
                   </Text>
-                  <Text fontSize="$5" fontWeight="600" color="$gray11">
-                    {currentStreak === 1 ? 'day' : 'days'}
+                  <Text
+                    fontSize="$3"
+                    fontFamily="$body"
+                    fontWeight="500"
+                    color="$gray10"
+                  >
+                    day streak
                   </Text>
-                </XStack>
+                </YStack>
                 <XStack
                   bg="$amber9"
                   px="$2.5"
                   py="$1.5"
-                  br="$10"
+                  br="$2"
                   alignSelf="flex-start"
                   accessible={true}
                   accessibilityRole="text"
@@ -189,10 +235,12 @@ function HomeScreen() {
                   <Text
                     color="white"
                     fontSize="$2"
+                    fontFamily="$body"
                     fontWeight="700"
                     textTransform="uppercase"
+                    letterSpacing={0.5}
                   >
-                    {currentStreak >= 7 ? 'On Fire!' : currentStreak > 0 ? 'Keep It Up!' : 'Start Today'}
+                    {currentStreak >= 7 ? 'On Fire' : currentStreak > 0 ? 'Active' : 'Start'}
                   </Text>
                 </XStack>
               </YStack>
@@ -201,90 +249,135 @@ function HomeScreen() {
             {/* Tag Streak */}
             <Card
               flex={1}
-              bg="$green3"
-              p="$4"
-              br="$6"
+              br="$5"
               borderWidth={0}
-              shadowColor="$shadowColor"
-              shadowOffset={{ width: 0, height: 2 }}
-              shadowOpacity={0.1}
-              shadowRadius={8}
-              elevation={2}
+              overflow="hidden"
+              position="relative"
             >
-              <YStack gap="$2">
+              <LinearGradient
+                colors={['$green3', '$green4']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+              />
+              {/* Radial glow effect in corner */}
+              <LinearGradient
+                colors={['$green6', '$green5', 'transparent']}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                locations={[0, 0.4, 1]}
+                position="absolute"
+                top={0}
+                right={0}
+                width={120}
+                height={120}
+                opacity={0.5}
+              />
+              <YStack gap="$3" p="$4">
                 <XStack justifyContent="space-between" alignItems="center">
-                  {/* WCAG: $green12 provides 5.07:1 contrast on $green3 */}
                   <Text
                     color="$green12"
                     fontSize="$2"
+                    fontFamily="$body"
                     fontWeight="600"
                     textTransform="uppercase"
-                    letterSpacing={0.5}
+                    letterSpacing={1}
                   >
                     Tag Streak
                   </Text>
-                  <Zap color="$green11" size={24} />
+                  <View
+                    bg="$green5"
+                    p="$2"
+                    br="$3"
+                  >
+                    <Zap color="$green11" size={20} />
+                  </View>
                 </XStack>
-                <XStack alignItems="baseline" gap="$2">
-                  <Text fontSize={48} fontWeight="700" color="$green12">
+                <YStack>
+                  <Text
+                    fontFamily="$mono"
+                    fontSize={48}
+                    fontWeight="700"
+                    color="$green12"
+                    lineHeight={58}
+                  >
                     {tagStreak}
                   </Text>
-                  <Text fontSize="$5" fontWeight="600" color="$green12">
-                    {tagStreak === 1 ? 'day' : 'days'}
+                  <Text
+                    fontSize="$3"
+                    fontFamily="$body"
+                    fontWeight="500"
+                    color="$green11"
+                  >
+                    day streak
                   </Text>
-                </XStack>
+                </YStack>
                 <XStack
                   bg={tagStreak >= 7 ? '$green10' : '$green9'}
                   px="$2.5"
                   py="$1.5"
-                  br="$10"
+                  br="$2"
                   alignSelf="flex-start"
                 >
                   <Text
                     color="white"
                     fontSize="$2"
+                    fontFamily="$body"
                     fontWeight="700"
                     textTransform="uppercase"
+                    letterSpacing={0.5}
                   >
-                    {tagStreak >= 7 ? 'Legend' : tagStreak > 0 ? 'Active' : 'Start Tagging'}
+                    {tagStreak >= 7 ? 'Legend' : tagStreak > 0 ? 'Active' : 'Start'}
                   </Text>
                 </XStack>
               </YStack>
             </Card>
           </XStack>
 
-          {/* Activity Grid */}
+          {/* Activity Grid - Heatmap Style */}
           <Card
             bg="$gray2"
             p="$5"
-            br="$6"
-            borderWidth={0}
-            shadowColor="$shadowColor"
-            shadowOffset={{ width: 0, height: 2 }}
-            shadowOpacity={0.1}
-            shadowRadius={8}
-            elevation={2}
+            br="$4"
+            borderWidth={1}
+            borderColor="$gray4"
             accessible={true}
             accessibilityLabel="Activity heatmap showing daily workout completions over the past year"
           >
             <YStack gap="$4">
-              <YStack gap="$1">
-                <Text
-                  color="$gray11"
-                  fontSize="$2"
-                  fontWeight="600"
-                  textTransform="uppercase"
-                  letterSpacing={0.5}
-                >
-                  Daily Completions
-                </Text>
+              <XStack justifyContent="space-between" alignItems="flex-end">
+                <YStack gap="$0.5">
+                  <Text
+                    color="$gray11"
+                    fontSize="$1"
+                    fontFamily="$body"
+                    fontWeight="600"
+                    textTransform="uppercase"
+                    letterSpacing={1.2}
+                  >
+                    Activity
+                  </Text>
+                  <Text
+                    fontFamily="$display"
+                    fontSize={24}
+                    color="$gray12"
+                    letterSpacing={0.5}
+                  >
+                    365 DAYS
+                  </Text>
+                </YStack>
                 <Text
                   color="$gray10"
                   fontSize="$2"
+                  fontFamily="$body"
                 >
-                  Your workout activity over the past year
+                  Your workout history
                 </Text>
-              </YStack>
+              </XStack>
               <ActivityGrid activityData={activityGrid} />
             </YStack>
           </Card>
@@ -371,90 +464,153 @@ function HomeScreen() {
             </YStack>
           )}
 
-          {/* Tag Someone - Primary CTA */}
+          {/* Tag Someone - Primary CTA - Bold & Distinctive */}
           <Card
-            bg="$coral6"
-            p="$5"
-            br="$6"
+            br="$4"
             borderWidth={0}
-            shadowColor="$shadowColor"
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowOpacity={0.15}
-            shadowRadius={12}
-            elevation={4}
-            pressStyle={{ scale: 0.98, opacity: 0.9 }}
-            animation="quick"
+            overflow="hidden"
+            position="relative"
+            shadowColor="$coral8"
+            shadowOffset={{ width: 0, height: 8 }}
+            shadowOpacity={0.3}
+            shadowRadius={16}
+            elevation={8}
+            pressStyle={{ scale: 0.97, opacity: 0.95 }}
+            animation="bouncy"
             onPress={() => router.push('/(auth)/tag/create')}
           >
-            <XStack gap="$4" alignItems="center">
+            {/* Main gradient background */}
+            <LinearGradient
+              colors={['$coral5', '$coral6', '$coral7']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+            />
+            {/* Corner highlight gradient */}
+            <LinearGradient
+              colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.05)', 'transparent']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              locations={[0, 0.3, 0.7]}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+            />
+            <XStack gap="$4" alignItems="center" p="$5">
               <YStack
-                width={56}
-                height={56}
-                br="$4"
-                bg="rgba(255,255,255,0.2)"
+                width={60}
+                height={60}
+                br="$3"
+                bg="rgba(255,255,255,0.15)"
+                borderWidth={2}
+                borderColor="rgba(255,255,255,0.2)"
                 justifyContent="center"
                 alignItems="center"
               >
                 <Send size={28} color="white" />
               </YStack>
               <YStack flex={1} gap="$1">
-                <Text color="white" fontSize="$6" fontWeight="700">
-                  Tag Someone
+                <Text
+                  color="white"
+                  fontFamily="$display"
+                  fontSize={26}
+                  letterSpacing={1}
+                >
+                  TAG SOMEONE
                 </Text>
-                <Text color="rgba(255,255,255,0.8)" fontSize="$3">
+                <Text
+                  color="rgba(255,255,255,0.85)"
+                  fontSize="$3"
+                  fontFamily="$body"
+                >
                   Challenge a friend to beat your workout
                 </Text>
               </YStack>
+              <ChevronRight size={24} color="rgba(255,255,255,0.6)" />
             </XStack>
           </Card>
 
-          {/* Groups Section */}
-          <XStack gap="$3">
-            <Card
-              flex={1}
-              bg="$gray3"
-              p="$4"
-              br="$5"
-              borderWidth={0}
-              pressStyle={{ scale: 0.97, bg: '$gray4' }}
-              animation="quick"
-              onPress={() => router.push('/(auth)/group/create')}
+          {/* Groups Section - Minimal Action Cards */}
+          <YStack gap="$3">
+            <Text
+              color="$gray11"
+              fontSize="$1"
+              fontFamily="$body"
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing={1.2}
             >
-              <YStack gap="$2" alignItems="center">
-                <UserPlus size={24} color="$gray12" />
-                <Text
-                  color="$gray12"
-                  fontSize="$4"
-                  fontWeight="600"
-                  textAlign="center"
-                >
-                  Create Group
-                </Text>
-              </YStack>
-            </Card>
-            <Card
-              flex={1}
-              bg="$gray3"
-              p="$4"
-              br="$5"
-              borderWidth={0}
-              pressStyle={{ scale: 0.97, bg: '$gray4' }}
-              animation="quick"
-              onPress={() => router.push('/(auth)/group/join')}
-            >
-              <YStack gap="$2" alignItems="center">
-                <Users size={24} color="$gray12" />
-                <Text
-                  color="$gray12"
-                  fontSize="$4"
-                  fontWeight="600"
-                  textAlign="center"
-                >
-                  Join Group
-                </Text>
-              </YStack>
-            </Card>
-          </XStack>
+              Groups
+            </Text>
+            <XStack gap="$3">
+              <Card
+                flex={1}
+                bg="$gray2"
+                p="$4"
+                br="$3"
+                borderWidth={1}
+                borderColor="$gray4"
+                pressStyle={{ scale: 0.97, borderColor: '$coral6' }}
+                animation="quick"
+                onPress={() => router.push('/(auth)/group/create')}
+              >
+                <YStack gap="$2" alignItems="center">
+                  <View
+                    bg="$gray4"
+                    p="$2"
+                    br="$2"
+                  >
+                    <UserPlus size={20} color="$gray11" />
+                  </View>
+                  <Text
+                    color="$gray12"
+                    fontSize="$3"
+                    fontFamily="$body"
+                    fontWeight="600"
+                    textAlign="center"
+                  >
+                    Create
+                  </Text>
+                </YStack>
+              </Card>
+              <Card
+                flex={1}
+                bg="$gray2"
+                p="$4"
+                br="$3"
+                borderWidth={1}
+                borderColor="$gray4"
+                pressStyle={{ scale: 0.97, borderColor: '$coral6' }}
+                animation="quick"
+                onPress={() => router.push('/(auth)/group/join')}
+              >
+                <YStack gap="$2" alignItems="center">
+                  <View
+                    bg="$gray4"
+                    p="$2"
+                    br="$2"
+                  >
+                    <Users size={20} color="$gray11" />
+                  </View>
+                  <Text
+                    color="$gray12"
+                    fontSize="$3"
+                    fontFamily="$body"
+                    fontWeight="600"
+                    textAlign="center"
+                  >
+                    Join
+                  </Text>
+                </YStack>
+              </Card>
+            </XStack>
+          </YStack>
 
         </YStack>
       </ScrollView>

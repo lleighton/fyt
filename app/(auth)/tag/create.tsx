@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Alert, ActivityIndicator } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
-import { YStack, XStack, Text, H1, Button, ScrollView } from 'tamagui'
+import { YStack, XStack, Text, Button, ScrollView, View } from 'tamagui'
 import { X, ChevronLeft, ChevronRight, Send } from '@tamagui/lucide-icons'
 import { SafeArea } from '@/components/ui'
 
@@ -272,35 +272,83 @@ function CreateTagScreen() {
   return (
     <SafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background" width="100%">
-        {/* Header */}
-        <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-          <H1 fontSize="$7">Tag Someone</H1>
+        {/* Header - Athletic Broadcast Style */}
+        <XStack px="$4" py="$4" justifyContent="space-between" alignItems="center">
+          <YStack gap="$0.5">
+            <Text
+              color="$gray10"
+              fontSize="$1"
+              fontFamily="$body"
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing={1.2}
+            >
+              New Challenge
+            </Text>
+            <Text
+              fontFamily="$display"
+              fontSize={32}
+              color="$color"
+              letterSpacing={1}
+            >
+              TAG SOMEONE
+            </Text>
+          </YStack>
           <Button
-            size="$3"
+            size="$4"
             circular
-            unstyled
-            icon={<X size={24} />}
+            bg="$gray3"
+            icon={<X size={20} color="$gray11" />}
             onPress={() => router.back()}
           />
         </XStack>
 
-        {/* Progress Indicator */}
-        <XStack px="$4" py="$2" gap="$2">
+        {/* Progress Indicator - Scoreboard Style */}
+        <XStack px="$4" py="$2" gap="$2" alignItems="center">
           {[1, 2, 3].map((i) => (
-            <YStack
-              key={i}
-              flex={1}
-              height={4}
-              br="$2"
-              bg={i <= step ? '$orange10' : '$gray4'}
-            />
+            <View key={i} flex={1} position="relative">
+              <View
+                height={3}
+                br="$1"
+                bg={i <= step ? '$coral6' : '$gray4'}
+              />
+              {i === step && (
+                <View
+                  position="absolute"
+                  top={-4}
+                  left="50%"
+                  transform={[{ translateX: -5 }]}
+                  width={10}
+                  height={10}
+                  br={10}
+                  bg="$coral6"
+                  borderWidth={2}
+                  borderColor="$background"
+                />
+              )}
+            </View>
           ))}
         </XStack>
 
         {/* Step Title */}
-        <XStack px="$4" py="$2">
-          <Text color="$gray10" fontSize="$3">
-            Step {step} of 3: {STEP_TITLES[step - 1]}
+        <XStack px="$4" py="$3" gap="$2" alignItems="center">
+          <View bg="$coral5" px="$2" py="$1" br="$2">
+            <Text
+              fontFamily="$mono"
+              fontWeight="700"
+              fontSize="$2"
+              color="$coral12"
+            >
+              {step}/3
+            </Text>
+          </View>
+          <Text
+            color="$gray11"
+            fontSize="$3"
+            fontFamily="$body"
+            fontWeight="500"
+          >
+            {STEP_TITLES[step - 1]}
           </Text>
         </XStack>
 
@@ -359,25 +407,46 @@ function CreateTagScreen() {
         </YStack>
 
         {/* Navigation Footer */}
-        <YStack px="$4" py="$4" gap="$2" borderTopWidth={1} borderTopColor="$gray4" bg="$background">
+        <YStack px="$4" py="$4" gap="$3" borderTopWidth={1} borderTopColor="$gray4" bg="$background">
+          {/* Preview summary on step 3 */}
+          {step === 3 && form.exercise && form.value && (
+            <View bg="$gray2" p="$3" br="$3" borderWidth={1} borderColor="$gray4">
+              <XStack alignItems="center" gap="$2">
+                <Text fontSize={24}>{form.exercise.icon}</Text>
+                <YStack flex={1}>
+                  <Text fontFamily="$body" fontWeight="600" color="$color">
+                    {form.exercise.name}
+                  </Text>
+                  <Text fontFamily="$mono" fontWeight="700" color="$coral10">
+                    {form.value} {form.exercise.type === 'time' ? 'seconds' : 'reps'}
+                  </Text>
+                </YStack>
+              </XStack>
+            </View>
+          )}
+
           <XStack gap="$3" alignItems="center">
             {step > 1 && (
               <Button
                 flex={1}
                 size="$5"
                 bg="$gray3"
-                icon={<ChevronLeft size={20} />}
+                br="$3"
+                borderWidth={1}
+                borderColor="$gray5"
+                icon={<ChevronLeft size={20} color="$gray11" />}
                 onPress={handleBack}
                 disabled={loading}
               >
-                <Text>Back</Text>
+                <Text fontFamily="$body" fontWeight="600">Back</Text>
               </Button>
             )}
 
             <Button
-              flex={1}
+              flex={step > 1 ? 2 : 1}
               size="$5"
-              bg="$orange10"
+              bg="$coral6"
+              br="$3"
               iconAfter={step < 3 ? <ChevronRight size={20} color="white" /> : undefined}
               icon={
                 step === 3 ? (
@@ -391,21 +460,14 @@ function CreateTagScreen() {
               onPress={step < 3 ? handleNext : handleCreateTag}
               disabled={!canProceed() || (step === 3 && loading)}
               opacity={canProceed() && !(step === 3 && loading) ? 1 : 0.5}
+              animation="bouncy"
+              pressStyle={{ scale: 0.97 }}
             >
-              <Text color="white" fontWeight="700">
+              <Text color="white" fontFamily="$body" fontWeight="700">
                 {step < 3 ? 'Next' : loading ? 'Sending...' : 'Send Tag'}
               </Text>
             </Button>
           </XStack>
-
-          {/* Preview summary on step 3 */}
-          {step === 3 && form.exercise && form.value && (
-            <Text color="$gray10" textAlign="center" fontSize="$2">
-              {form.exercise.icon} {form.value}{' '}
-              {form.exercise.type === 'time' ? 'seconds' : 'reps'} of{' '}
-              {form.exercise.name}
-            </Text>
-          )}
         </YStack>
       </YStack>
     </SafeArea>

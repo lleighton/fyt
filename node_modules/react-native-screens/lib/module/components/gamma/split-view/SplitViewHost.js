@@ -2,6 +2,8 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import SplitViewHostNativeComponent from '../../../fabric/gamma/SplitViewHostNativeComponent';
+import SplitViewScreen from './SplitViewScreen';
+
 // According to the UIKit documentation: https://developer.apple.com/documentation/uikit/uisplitviewcontroller/displaymode-swift.enum
 // Only specific pairs for displayMode - splitBehavior are valid and others may lead to unexpected results.
 // Therefore, we're adding check on the JS side to return a feedback to the client when that pairing isn't valid.
@@ -37,7 +39,20 @@ function SplitViewHost(props) {
       }
     }
   }, [preferredDisplayMode, preferredSplitBehavior]);
-  return /*#__PURE__*/React.createElement(SplitViewHostNativeComponent, _extends({}, props, {
+  const children = React.Children.toArray(props.children);
+  const columns = children.filter(
+  // @ts-ignore - type is valid attribute for child
+  child => child.type === SplitViewScreen.Column);
+  const inspectors = children.filter(
+  // @ts-ignore - type is valid attribute for child
+  child => child.type === SplitViewScreen.Inspector);
+  return /*#__PURE__*/React.createElement(SplitViewHostNativeComponent
+  // UISplitViewController requires the number of columns to be specified at initialization and it cannot be changed dynamically later.
+  // By using a specific key in this form, we can detect changes in the number of React children.
+  // This enables us to fully recreate the SplitView when necessary, ensuring the correct column configuration is always applied.
+  , _extends({
+    key: `columns-${columns.length}-inspectors-${inspectors.length}`
+  }, props, {
     style: styles.container
   }), props.children);
 }

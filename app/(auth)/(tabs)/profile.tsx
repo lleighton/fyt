@@ -6,8 +6,6 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
-  H2,
   Button,
   Card,
   ScrollView,
@@ -15,6 +13,7 @@ import {
   Input,
   Separator,
   Switch,
+  View,
 } from 'tamagui'
 import {
   User,
@@ -35,6 +34,8 @@ import {
   Zap,
   Users,
   Target,
+  Flame,
+  Trophy,
 } from '@tamagui/lucide-icons'
 import { KeyboardSafeArea } from '@/components/ui'
 
@@ -347,78 +348,145 @@ function ProfileScreen() {
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
       >
-        <YStack p="$4" gap="$4">
-          {/* Header */}
-          <H1 fontSize="$8">Profile</H1>
+        <YStack p="$4" gap="$5">
+          {/* Header - Athletic Broadcast Style */}
+          <YStack gap="$1">
+            <Text
+              color="$gray10"
+              fontSize="$1"
+              fontFamily="$body"
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing={1.2}
+            >
+              Your Stats
+            </Text>
+            <Text
+              fontFamily="$display"
+              fontSize={40}
+              color="$color"
+              letterSpacing={1}
+            >
+              PROFILE
+            </Text>
+          </YStack>
 
-          {/* Profile Header - Instagram Style */}
-          <XStack gap="$4" alignItems="center">
-            {/* Avatar */}
-            <YStack position="relative">
-              <Avatar circular size="$9">
-                {profile?.avatar_url ? (
-                  <Avatar.Image src={profile.avatar_url} />
+          {/* Profile Header - Athletic Card Style */}
+          <Card
+            bg="$gray2"
+            p="$4"
+            br="$4"
+            borderWidth={1}
+            borderColor="$gray4"
+            overflow="hidden"
+            position="relative"
+          >
+            {/* Decorative element */}
+            <View
+              position="absolute"
+              top={-30}
+              right={-30}
+              width={100}
+              height={100}
+              bg="$coral5"
+              opacity={0.15}
+              br={100}
+            />
+            <XStack gap="$4" alignItems="center">
+              {/* Avatar */}
+              <YStack position="relative">
+                <Avatar circular size="$9" borderWidth={3} borderColor="$coral6">
+                  {profile?.avatar_url ? (
+                    <Avatar.Image src={profile.avatar_url} />
+                  ) : (
+                    <Avatar.Fallback bg="$coral6" justifyContent="center" alignItems="center">
+                      <User size={40} color="white" />
+                    </Avatar.Fallback>
+                  )}
+                </Avatar>
+                {uploadingAvatar ? (
+                  <YStack
+                    position="absolute"
+                    bottom={0}
+                    right={0}
+                    bg="$coral6"
+                    p="$2"
+                    br="$10"
+                  >
+                    <ActivityIndicator size="small" color="white" />
+                  </YStack>
                 ) : (
-                  <Avatar.Fallback bg="$orange10" justifyContent="center" alignItems="center">
-                    <User size={40} color="white" />
-                  </Avatar.Fallback>
+                  <Button
+                    position="absolute"
+                    bottom={0}
+                    right={0}
+                    size="$3"
+                    circular
+                    bg="$coral6"
+                    icon={<Camera size={16} color="white" />}
+                    onPress={handlePickAvatar}
+                  />
                 )}
-              </Avatar>
-              {uploadingAvatar ? (
-                <YStack
-                  position="absolute"
-                  bottom={0}
-                  right={0}
-                  bg="$orange10"
-                  p="$2"
-                  br="$10"
-                >
-                  <ActivityIndicator size="small" color="white" />
+              </YStack>
+
+              {/* Stats Row - Scoreboard Style */}
+              <XStack flex={1} justifyContent="space-around">
+                <YStack alignItems="center" gap="$0.5">
+                  <View bg="$green3" p="$1.5" br="$2" mb="$1">
+                    <Trophy size={14} color="$green11" />
+                  </View>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={24} lineHeight={24}>
+                    {totalCompletions}
+                  </Text>
+                  <Text
+                    color="$gray10"
+                    fontSize="$1"
+                    fontFamily="$body"
+                    textTransform="uppercase"
+                    letterSpacing={0.5}
+                  >
+                    Done
+                  </Text>
                 </YStack>
-              ) : (
-                <Button
-                  position="absolute"
-                  bottom={0}
-                  right={0}
-                  size="$3"
-                  circular
-                  bg="$orange10"
-                  icon={<Camera size={16} color="white" />}
-                  onPress={handlePickAvatar}
-                />
-              )}
-            </YStack>
 
-            {/* Stats Row */}
-            <XStack flex={1} justifyContent="space-around">
-              <YStack alignItems="center">
-                <Text fontWeight="700" fontSize="$6">
-                  {totalCompletions}
-                </Text>
-                <Text color="$gray10" fontSize="$2">
-                  Completions
-                </Text>
-              </YStack>
+                <YStack alignItems="center" gap="$0.5">
+                  <View bg="$amber3" p="$1.5" br="$2" mb="$1">
+                    <Flame size={14} color="$amber11" />
+                  </View>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={24} lineHeight={24}>
+                    {currentStreak}
+                  </Text>
+                  <Text
+                    color="$gray10"
+                    fontSize="$1"
+                    fontFamily="$body"
+                    textTransform="uppercase"
+                    letterSpacing={0.5}
+                  >
+                    Streak
+                  </Text>
+                </YStack>
 
-              <YStack alignItems="center">
-                <Text fontWeight="700" fontSize="$6">
-                  {currentStreak}
-                </Text>
-                <Text color="$gray10" fontSize="$2">
-                  Day Streak
-                </Text>
-              </YStack>
-
-              <YStack alignItems="center">
-                <Text fontWeight="700" fontSize="$6">
-                  {longestStreak}
-                </Text>
-                <Text color="$gray10" fontSize="$2">
-                  Best Streak
-                </Text>
-              </YStack>
+                <YStack alignItems="center" gap="$0.5">
+                  <View bg="$coral3" p="$1.5" br="$2" mb="$1">
+                    <Zap size={14} color="$coral11" />
+                  </View>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={24} lineHeight={24}>
+                    {longestStreak}
+                  </Text>
+                  <Text
+                    color="$gray10"
+                    fontSize="$1"
+                    fontFamily="$body"
+                    textTransform="uppercase"
+                    letterSpacing={0.5}
+                  >
+                    Best
+                  </Text>
+                </YStack>
+              </XStack>
             </XStack>
-          </XStack>
+          </Card>
 
           {/* Name and Bio Section */}
           <YStack gap="$2">
@@ -444,11 +512,12 @@ function ProfileScreen() {
                   <Button
                     flex={1}
                     size="$4"
-                    bg="$orange10"
+                    bg="$coral6"
+                    br="$3"
                     onPress={handleSaveProfile}
                     disabled={loading}
                   >
-                    <Text color="white" fontWeight="600">
+                    <Text color="white" fontFamily="$body" fontWeight="600">
                       {loading ? 'Saving...' : 'Save'}
                     </Text>
                   </Button>
@@ -456,6 +525,7 @@ function ProfileScreen() {
                     flex={1}
                     size="$4"
                     bg="$gray4"
+                    br="$3"
                     disabled={loading}
                     onPress={() => {
                       const currentProfile = store$.profile.get()
@@ -464,7 +534,7 @@ function ProfileScreen() {
                       setIsEditing(false)
                     }}
                   >
-                    <Text>Cancel</Text>
+                    <Text fontFamily="$body">Cancel</Text>
                   </Button>
                 </XStack>
               </YStack>
@@ -501,18 +571,25 @@ function ProfileScreen() {
 
           {/* Settings */}
           <YStack gap="$3">
-            <H2 fontSize="$5">Settings</H2>
+            <Text
+              fontFamily="$display"
+              fontSize={24}
+              color="$color"
+              letterSpacing={0.5}
+            >
+              SETTINGS
+            </Text>
 
             {/* Notifications Section */}
-            <Card bg="$backgroundHover" overflow="hidden" br="$4">
+            <Card bg="$gray2" overflow="hidden" br="$3" borderWidth={1} borderColor="$gray4">
               <Button
                 bg="transparent"
                 justifyContent="flex-start"
-                icon={<Bell size={20} color="$orange10" />}
+                icon={<Bell size={20} color="$coral10" />}
                 iconAfter={notificationsExpanded ? <ChevronUp size={20} color="$gray10" /> : <ChevronDown size={20} color="$gray10" />}
                 onPress={() => setNotificationsExpanded(!notificationsExpanded)}
               >
-                <Text flex={1}>Notifications</Text>
+                <Text flex={1} fontFamily="$body" fontWeight="600">Notifications</Text>
               </Button>
 
               {notificationsExpanded && (
@@ -609,15 +686,15 @@ function ProfileScreen() {
             </Card>
 
             {/* Preferences Section */}
-            <Card bg="$backgroundHover" overflow="hidden" br="$4">
+            <Card bg="$gray2" overflow="hidden" br="$3" borderWidth={1} borderColor="$gray4">
               <Button
                 bg="transparent"
                 justifyContent="flex-start"
-                icon={<Sun size={20} color="$orange10" />}
+                icon={<Sun size={20} color="$coral10" />}
                 iconAfter={preferencesExpanded ? <ChevronUp size={20} color="$gray10" /> : <ChevronDown size={20} color="$gray10" />}
                 onPress={() => setPreferencesExpanded(!preferencesExpanded)}
               >
-                <Text flex={1}>Preferences</Text>
+                <Text flex={1} fontFamily="$body" fontWeight="600">Preferences</Text>
               </Button>
 
               {preferencesExpanded && (
@@ -625,14 +702,15 @@ function ProfileScreen() {
                   <Separator />
                   {/* Theme */}
                   <YStack px="$4" py="$3" gap="$2">
-                    <Text fontWeight="600">Theme</Text>
+                    <Text fontWeight="600" fontFamily="$body">Theme</Text>
                     <XStack gap="$2">
                       {(['light', 'dark', 'system'] as const).map((theme) => (
                         <Button
                           key={theme}
                           flex={1}
                           size="$3"
-                          bg={settings.preferences.theme === theme ? '$orange10' : '$gray4'}
+                          bg={settings.preferences.theme === theme ? '$coral6' : '$gray4'}
+                          br="$2"
                           onPress={() => setPreference('theme', theme)}
                         >
                           <XStack gap="$1" alignItems="center">
@@ -641,6 +719,7 @@ function ProfileScreen() {
                             {theme === 'system' && <Smartphone size={14} color={settings.preferences.theme === theme ? 'white' : '$gray11'} />}
                             <Text
                               fontSize="$2"
+                              fontFamily="$body"
                               fontWeight="600"
                               color={settings.preferences.theme === theme ? 'white' : '$gray11'}
                               textTransform="capitalize"
@@ -651,7 +730,7 @@ function ProfileScreen() {
                         </Button>
                       ))}
                     </XStack>
-                    <Text fontSize="$2" color="$gray10">
+                    <Text fontSize="$2" fontFamily="$body" color="$gray10">
                       Current: {settings.preferences.theme === 'system' ? `System (${systemColorScheme})` : settings.preferences.theme}
                     </Text>
                   </YStack>
@@ -659,17 +738,19 @@ function ProfileScreen() {
                   <Separator />
                   {/* Units */}
                   <YStack px="$4" py="$3" gap="$2">
-                    <Text fontWeight="600">Units</Text>
+                    <Text fontWeight="600" fontFamily="$body">Units</Text>
                     <XStack gap="$2">
                       {(['metric', 'imperial'] as const).map((unit) => (
                         <Button
                           key={unit}
                           flex={1}
                           size="$3"
-                          bg={settings.preferences.units === unit ? '$orange10' : '$gray4'}
+                          bg={settings.preferences.units === unit ? '$coral6' : '$gray4'}
+                          br="$2"
                           onPress={() => setPreference('units', unit)}
                         >
                           <Text
+                            fontFamily="$body"
                             fontWeight="600"
                             color={settings.preferences.units === unit ? 'white' : '$gray11'}
                             textTransform="capitalize"
@@ -686,7 +767,7 @@ function ProfileScreen() {
                   <YStack px="$4" py="$3" gap="$2">
                     <XStack gap="$2" alignItems="center">
                       <Clock size={18} color="$gray11" />
-                      <Text fontWeight="600">Default Tag Duration</Text>
+                      <Text fontWeight="600" fontFamily="$body">Default Tag Duration</Text>
                     </XStack>
                     <XStack gap="$2">
                       {([12, 24, 48] as const).map((hours) => (
@@ -694,11 +775,13 @@ function ProfileScreen() {
                           key={hours}
                           flex={1}
                           size="$3"
-                          bg={settings.preferences.defaultTagDuration === hours ? '$orange10' : '$gray4'}
+                          bg={settings.preferences.defaultTagDuration === hours ? '$coral6' : '$gray4'}
+                          br="$2"
                           onPress={() => setPreference('defaultTagDuration', hours)}
                         >
                           <Text
-                            fontWeight="600"
+                            fontFamily="$mono"
+                            fontWeight="700"
                             color={settings.preferences.defaultTagDuration === hours ? 'white' : '$gray11'}
                           >
                             {hours}h
@@ -731,45 +814,54 @@ function ProfileScreen() {
             {/* Sign Out */}
             <Button
               size="$5"
-              bg="$gray4"
+              bg="$gray3"
+              br="$3"
+              borderWidth={1}
+              borderColor="$gray5"
               icon={<LogOut size={20} color="$gray12" />}
               onPress={handleSignOut}
               accessibilityLabel="Sign out of your account"
             >
-              <Text color="$gray12" fontWeight="600">Sign Out</Text>
+              <Text color="$gray12" fontFamily="$body" fontWeight="600">Sign Out</Text>
             </Button>
 
             {/* Danger Zone */}
             <YStack gap="$2" mt="$4">
               <XStack gap="$2" alignItems="center">
                 <AlertTriangle size={16} color="$red10" />
-                <Text fontWeight="600" color="$red10">Danger Zone</Text>
+                <Text fontWeight="600" fontFamily="$body" color="$red10">Danger Zone</Text>
               </XStack>
               <Button
                 size="$5"
                 bg="$red10"
+                br="$3"
                 icon={deletingAccount ? undefined : <Trash2 size={20} color="white" />}
                 onPress={handleDeleteAccount}
                 disabled={deletingAccount}
                 accessibilityLabel="Delete your account permanently"
               >
-                <Text color="white" fontWeight="600">
+                <Text color="white" fontFamily="$body" fontWeight="600">
                   {deletingAccount ? 'Deleting...' : 'Delete Account'}
                 </Text>
               </Button>
-              <Text color="$gray10" fontSize="$2" textAlign="center">
+              <Text color="$gray10" fontSize="$2" fontFamily="$body" textAlign="center">
                 This will permanently delete all your data
               </Text>
             </YStack>
           </YStack>
 
           {/* Footer */}
-          <YStack alignItems="center" py="$4" gap="$2">
-            <Text color="$gray10" fontSize="$2">
-              fyt v1.0.0
+          <YStack alignItems="center" py="$6" gap="$1">
+            <Text
+              fontFamily="$display"
+              fontSize={20}
+              color="$gray8"
+              letterSpacing={1}
+            >
+              FYT
             </Text>
-            <Text color="$gray10" fontSize="$2">
-              Built with ❤️ for fitness enthusiasts
+            <Text color="$gray10" fontSize="$2" fontFamily="$body">
+              v1.0.0
             </Text>
           </YStack>
         </YStack>

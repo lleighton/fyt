@@ -1,8 +1,7 @@
 import { createAnimations } from '@tamagui/animations-react-native'
-import { createInterFont } from '@tamagui/font-inter'
 import { createMedia } from '@tamagui/react-native-media-driver'
 import { shorthands } from '@tamagui/shorthands'
-import { createTamagui, createTokens, createTheme } from 'tamagui'
+import { createTamagui, createTokens, createTheme, createFont } from 'tamagui'
 
 // ============================================================================
 // FYT.IT TAMAGUI CONFIGURATION
@@ -69,8 +68,71 @@ const animations = createAnimations({
 // ----------------------------------------------------------------------------
 // FONTS
 // ----------------------------------------------------------------------------
+// Typography System: "Athletic Broadcast"
+// - Display (BebasNeue): Bold, condensed headlines. Scoreboard energy.
+// - Body (DMSans): Friendly, readable. More character than Inter.
+// - Mono (SpaceMono): Numbers, stats, timers. Digital scoreboard feel.
+// ----------------------------------------------------------------------------
 
-const headingFont = createInterFont({
+// Display font - for big headlines, hero numbers
+const displayFont = createFont({
+  family: 'BebasNeue',
+  size: {
+    1: 14,
+    2: 16,
+    3: 18,
+    4: 20,
+    5: 24,
+    6: 28,
+    7: 32,
+    8: 40,
+    9: 48,
+    10: 56,
+    11: 64,
+    12: 72,
+    13: 80,
+    14: 96,
+    15: 120,
+    16: 144,
+  },
+  lineHeight: {
+    1: 16,
+    2: 18,
+    3: 20,
+    4: 22,
+    5: 26,
+    6: 30,
+    7: 34,
+    8: 42,
+    9: 50,
+    10: 58,
+    11: 66,
+    12: 74,
+    13: 82,
+    14: 98,
+    15: 122,
+    16: 146,
+  },
+  weight: {
+    4: '400',
+  },
+  letterSpacing: {
+    4: 1,
+    5: 1.5,
+    6: 2,
+    7: 2,
+    8: 2.5,
+    9: 3,
+    10: 3,
+  },
+  face: {
+    400: { normal: 'BebasNeue' },
+  },
+})
+
+// Heading font - DM Sans for section headers
+const headingFont = createFont({
+  family: 'DMSans',
   size: {
     1: 11,
     2: 12,
@@ -89,37 +151,155 @@ const headingFont = createInterFont({
     15: 86,
     16: 100,
   },
+  lineHeight: {
+    1: 14,
+    2: 16,
+    3: 17,
+    4: 18,
+    5: 21,
+    6: 24,
+    7: 26,
+    8: 32,
+    9: 42,
+    10: 52,
+    11: 62,
+    12: 72,
+    13: 82,
+    14: 92,
+    15: 110,
+    16: 128,
+  },
   weight: {
     4: '400',
     5: '500',
     6: '600',
     7: '700',
   },
+  letterSpacing: {
+    4: 0,
+    5: -0.2,
+    6: -0.3,
+    7: -0.4,
+  },
   face: {
-    400: { normal: 'Inter' },
-    500: { normal: 'InterMedium' },
-    600: { normal: 'InterSemiBold' },
-    700: { normal: 'InterBold' },
+    400: { normal: 'DMSans' },
+    500: { normal: 'DMSansMedium' },
+    600: { normal: 'DMSansSemiBold' },
+    700: { normal: 'DMSansBold' },
   },
 })
 
-const bodyFont = createInterFont(
-  {
-    weight: {
-      4: '400',
-      5: '500',
-      6: '600',
-      7: '700',
-    },
-    face: {
-      400: { normal: 'Inter' },
-      500: { normal: 'InterMedium' },
-      600: { normal: 'InterSemiBold' },
-      700: { normal: 'InterBold' },
-    },
+// Body font - DM Sans for readable text
+const bodyFont = createFont({
+  family: 'DMSans',
+  size: {
+    1: 11,
+    2: 12,
+    3: 13,
+    4: 14,
+    5: 15,
+    6: 16,
+    7: 18,
+    8: 20,
+    9: 24,
+    10: 28,
+    11: 32,
+    12: 36,
+    13: 40,
+    14: 44,
+    15: 48,
+    16: 52,
   },
-  { sizeLineHeight: (size) => Math.round(size * 1.5) }
-)
+  lineHeight: {
+    1: 16,
+    2: 18,
+    3: 20,
+    4: 21,
+    5: 23,
+    6: 24,
+    7: 27,
+    8: 30,
+    9: 36,
+    10: 42,
+    11: 48,
+    12: 54,
+    13: 60,
+    14: 66,
+    15: 72,
+    16: 78,
+  },
+  weight: {
+    4: '400',
+    5: '500',
+    6: '600',
+    7: '700',
+  },
+  letterSpacing: {
+    4: 0,
+    5: 0,
+    6: -0.1,
+    7: -0.2,
+  },
+  face: {
+    400: { normal: 'DMSans' },
+    500: { normal: 'DMSansMedium' },
+    600: { normal: 'DMSansSemiBold' },
+    700: { normal: 'DMSansBold' },
+  },
+})
+
+// Mono font - for numbers, stats, timers
+const monoFont = createFont({
+  family: 'SpaceMono',
+  size: {
+    1: 10,
+    2: 11,
+    3: 12,
+    4: 14,
+    5: 16,
+    6: 18,
+    7: 20,
+    8: 24,
+    9: 32,
+    10: 40,
+    11: 48,
+    12: 56,
+    13: 64,
+    14: 72,
+    15: 86,
+    16: 100,
+  },
+  lineHeight: {
+    1: 14,
+    2: 15,
+    3: 16,
+    4: 18,
+    5: 21,
+    6: 23,
+    7: 26,
+    8: 32,
+    9: 42,
+    10: 52,
+    11: 62,
+    12: 72,
+    13: 82,
+    14: 92,
+    15: 110,
+    16: 128,
+  },
+  weight: {
+    4: '400',
+    7: '700',
+  },
+  letterSpacing: {
+    4: 0,
+    7: 0,
+  },
+  face: {
+    400: { normal: 'SpaceMono' },
+    700: { normal: 'SpaceMonoBold' },
+  },
+})
 
 // ----------------------------------------------------------------------------
 // COLOR PALETTE
@@ -629,6 +809,8 @@ export const config = createTamagui({
   fonts: {
     heading: headingFont,
     body: bodyFont,
+    display: displayFont, // Bebas Neue - scoreboard headlines
+    mono: monoFont, // Space Mono - stats and numbers
   },
   tokens,
   themes: {

@@ -4,6 +4,20 @@ import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { TamaguiProvider, Theme } from 'tamagui'
 import { observer } from '@legendapp/state/react'
+import { useFonts } from 'expo-font'
+import {
+  BebasNeue_400Regular,
+} from '@expo-google-fonts/bebas-neue'
+import {
+  SpaceMono_400Regular,
+  SpaceMono_700Bold,
+} from '@expo-google-fonts/space-mono'
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from '@expo-google-fonts/dm-sans'
 
 import config from '@/tamagui.config'
 import { auth$ } from '@/lib/legend-state/store'
@@ -29,16 +43,30 @@ function AppContent() {
   const { effectiveTheme } = useSettings()
   const isLoading = auth$.isLoading.get()
 
+  // Load custom fonts
+  const [fontsLoaded] = useFonts({
+    // Display font - bold, condensed, scoreboard-like
+    BebasNeue: BebasNeue_400Regular,
+    // Monospace for numbers/stats - digital feel
+    SpaceMono: SpaceMono_400Regular,
+    SpaceMonoBold: SpaceMono_700Bold,
+    // Body font - more character than Inter
+    DMSans: DMSans_400Regular,
+    DMSansMedium: DMSans_500Medium,
+    DMSansSemiBold: DMSans_600SemiBold,
+    DMSansBold: DMSans_700Bold,
+  })
+
   // Handle deep link authentication callbacks (magic links)
   useAuthLinking()
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && fontsLoaded) {
       SplashScreen.hideAsync()
     }
-  }, [isLoading])
+  }, [isLoading, fontsLoaded])
 
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) {
     return null
   }
 
