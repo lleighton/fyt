@@ -420,7 +420,7 @@ function ChallengeDetailScreen() {
             <YStack gap="$2">
               <XStack justifyContent="space-between" alignItems="flex-start">
                 <YStack flex={1} gap="$1">
-                  <Text fontFamily="$display" fontSize={32} letterSpacing={0.5} lineHeight={32}>
+                  <Text fontFamily="$display" fontSize={32} letterSpacing={0.5} lineHeight={40}>
                     {challenge.title.toUpperCase()}
                   </Text>
                   <Text fontSize="$4" fontFamily="$body" fontWeight="600" color="$coral10">
@@ -524,7 +524,7 @@ function ChallengeDetailScreen() {
                 <View bg="$coral4" p="$2" br="$2">
                   <Users size={20} color="$coral11" />
                 </View>
-                <Text fontFamily="$mono" fontWeight="700" fontSize={32} mt="$2" lineHeight={32}>
+                <Text fontFamily="$mono" fontWeight="700" fontSize={32} mt="$2" lineHeight={40}>
                   {challengeParticipants.length}
                 </Text>
                 <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
@@ -536,7 +536,7 @@ function ChallengeDetailScreen() {
                 <View bg="$amber4" p="$2" br="$2">
                   <Trophy size={20} color="$amber11" />
                 </View>
-                <Text fontFamily="$mono" fontWeight="700" fontSize={32} mt="$2" lineHeight={32}>
+                <Text fontFamily="$mono" fontWeight="700" fontSize={32} mt="$2" lineHeight={40}>
                   {challengeCompletions.length}
                 </Text>
                 <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
@@ -967,7 +967,7 @@ function LeaderboardRow({
         <YStack alignItems="flex-end">
           {challengeType === 'max_effort' && completion ? (
             <>
-              <Text fontFamily="$mono" fontWeight="700" fontSize={24} color={rank <= 3 ? getRankColor(rank) : '$color'} lineHeight={24}>
+              <Text fontFamily="$mono" fontWeight="700" fontSize={24} color={rank <= 3 ? getRankColor(rank) : '$color'} lineHeight={32}>
                 {completion.weight}
               </Text>
               <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase">
@@ -976,7 +976,7 @@ function LeaderboardRow({
             </>
           ) : (
             <>
-              <Text fontFamily="$mono" fontWeight="700" fontSize={28} color={rank <= 3 ? getRankColor(rank) : '$color'} lineHeight={28}>
+              <Text fontFamily="$mono" fontWeight="700" fontSize={28} color={rank <= 3 ? getRankColor(rank) : '$color'} lineHeight={36}>
                 {Math.round(value)}
               </Text>
               <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>

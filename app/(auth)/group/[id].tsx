@@ -523,7 +523,7 @@ function GroupDetailScreen() {
               {/* Stats Row - Scoreboard Style */}
               <XStack flex={1} justifyContent="space-around">
                 <YStack alignItems="center">
-                  <Text fontFamily="$mono" fontWeight="700" fontSize={32} lineHeight={32}>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={32} lineHeight={40}>
                     {group.member_count || 0}
                   </Text>
                   <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
@@ -532,7 +532,7 @@ function GroupDetailScreen() {
                 </YStack>
 
                 <YStack alignItems="center">
-                  <Text fontFamily="$mono" fontWeight="700" fontSize={32} lineHeight={32}>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={32} lineHeight={40}>
                     {groupTags.length}
                   </Text>
                   <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
@@ -957,7 +957,7 @@ function GroupDetailScreen() {
                                 <Text fontSize="$2" fontFamily="$body" fontWeight="600" numberOfLines={1}>
                                   {leaderboardData[1].display_name || 'User'}
                                 </Text>
-                                <Text fontFamily="$mono" fontSize={24} fontWeight="700" color="$gray10" lineHeight={24}>
+                                <Text fontFamily="$mono" fontSize={24} fontWeight="700" color="$gray10" lineHeight={30}>
                                   {leaderboardData[1].group_challenge_points}
                                 </Text>
                                 <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>
@@ -978,7 +978,7 @@ function GroupDetailScreen() {
                                 <Text fontSize="$3" fontFamily="$body" fontWeight="700" numberOfLines={1}>
                                   {leaderboardData[0].display_name || 'User'}
                                 </Text>
-                                <Text fontFamily="$mono" fontSize={32} fontWeight="700" color="$amber10" lineHeight={32}>
+                                <Text fontFamily="$mono" fontSize={32} fontWeight="700" color="$amber10" lineHeight={40}>
                                   {leaderboardData[0].group_challenge_points}
                                 </Text>
                                 <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>
@@ -999,7 +999,7 @@ function GroupDetailScreen() {
                                 <Text fontSize="$3" fontFamily="$body" fontWeight="600" numberOfLines={1}>
                                   {leaderboardData[2].display_name || 'User'}
                                 </Text>
-                                <Text fontFamily="$mono" fontSize={20} fontWeight="700" color="$coral10" lineHeight={20}>
+                                <Text fontFamily="$mono" fontSize={20} fontWeight="700" color="$coral10" lineHeight={26}>
                                   {leaderboardData[2].group_challenge_points}
                                 </Text>
                                 <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>
@@ -1093,7 +1093,7 @@ function GroupDetailScreen() {
 
                             {/* Points - Scoreboard Style */}
                             <YStack alignItems="flex-end">
-                              <Text fontFamily="$mono" fontWeight="700" fontSize={28} color={index < 3 ? (index === 0 ? '$amber10' : index === 1 ? '$gray10' : '$coral10') : '$color'} lineHeight={28}>
+                              <Text fontFamily="$mono" fontWeight="700" fontSize={28} color={index < 3 ? (index === 0 ? '$amber10' : index === 1 ? '$gray10' : '$coral10') : '$color'} lineHeight={36}>
                                 {member.group_challenge_points}
                               </Text>
                               <Text fontSize="$1" fontFamily="$body" color="$gray10" textTransform="uppercase" letterSpacing={0.5}>

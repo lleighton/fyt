@@ -237,7 +237,7 @@ function TagDetailScreen() {
                       >
                         Target
                       </Text>
-                      <Text fontFamily="$mono" fontWeight="700" fontSize={48} color={isExpired ? '$gray10' : '$green10'} lineHeight={48}>
+                      <Text fontFamily="$mono" fontWeight="700" fontSize={48} color={isExpired ? '$gray10' : '$green10'} lineHeight={58}>
                         {tag.value}
                       </Text>
                       <Text color="$gray11" fontSize="$3" fontFamily="$body">

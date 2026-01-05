@@ -277,7 +277,7 @@ function CreateTagScreen() {
           <YStack gap="$0.5">
             <Text
               color="$gray10"
-              fontSize="$1"
+              fontSize="$2"
               fontFamily="$body"
               fontWeight="600"
               textTransform="uppercase"

@@ -12,7 +12,7 @@ import {
   View,
 } from 'tamagui'
 import { LinearGradient } from '@tamagui/linear-gradient'
-import { Flame, UserPlus, Send, Clock, ChevronRight, Zap } from '@tamagui/lucide-icons'
+import { Flame, Send, Clock, ChevronRight, Zap } from '@tamagui/lucide-icons'
 import { SafeArea } from '@/components/ui'
 
 import { store$, auth$, profile$ } from '@/lib/legend-state/store'
@@ -161,28 +161,17 @@ function HomeScreen() {
               position="relative"
             >
               <LinearGradient
-                colors={['$gray3', '$gray4']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                colors={['$coral6', '$coral4', 'transparent']}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                locations={[0, 0.4, 1]}
                 position="absolute"
                 top={0}
                 left={0}
                 right={0}
                 bottom={0}
               />
-              {/* Radial glow effect in corner */}
-              <LinearGradient
-                colors={['$amber5', '$amber4', 'transparent']}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                locations={[0, 0.4, 1]}
-                position="absolute"
-                top={0}
-                right={0}
-                width={120}
-                height={120}
-                opacity={0.4}
-              />
+
               <YStack gap="$3" p="$4">
                 <XStack justifyContent="space-between" alignItems="center">
                   <Text
@@ -196,11 +185,11 @@ function HomeScreen() {
                     Activity
                   </Text>
                   <View
-                    bg="$amber5"
+                    bg="$coral2"
                     p="$2"
                     br="$3"
                   >
-                    <Flame color="$amber11" size={20} />
+                    <Flame color="$coral11" size={20} />
                   </View>
                 </XStack>
                 <YStack>
@@ -223,7 +212,7 @@ function HomeScreen() {
                   </Text>
                 </YStack>
                 <XStack
-                  bg="$amber9"
+                  bg="$coral2"
                   px="$2.5"
                   py="$1.5"
                   br="$2"
@@ -255,27 +244,15 @@ function HomeScreen() {
               position="relative"
             >
               <LinearGradient
-                colors={['$green3', '$green4']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                position="absolute"
-                top={0}
-                left={0}
-                right={0}
-                bottom={0}
-              />
-              {/* Radial glow effect in corner */}
-              <LinearGradient
-                colors={['$green6', '$green5', 'transparent']}
+                colors={['$green9', '$green5', 'transparent']}
                 start={{ x: 1, y: 0 }}
                 end={{ x: 0, y: 1 }}
                 locations={[0, 0.4, 1]}
                 position="absolute"
                 top={0}
+                left={0}
                 right={0}
-                width={120}
-                height={120}
-                opacity={0.5}
+                bottom={0}
               />
               <YStack gap="$3" p="$4">
                 <XStack justifyContent="space-between" alignItems="center">
@@ -290,7 +267,7 @@ function HomeScreen() {
                     Tag Streak
                   </Text>
                   <View
-                    bg="$green5"
+                    bg="$green2"
                     p="$2"
                     br="$3"
                   >
@@ -536,90 +513,11 @@ function HomeScreen() {
             </XStack>
           </Card>
 
-          {/* Groups Section - Minimal Action Cards */}
-          <YStack gap="$3">
-            <Text
-              color="$gray11"
-              fontSize="$1"
-              fontFamily="$body"
-              fontWeight="600"
-              textTransform="uppercase"
-              letterSpacing={1.2}
-            >
-              Groups
-            </Text>
-            <XStack gap="$3">
-              <Card
-                flex={1}
-                bg="$gray2"
-                p="$4"
-                br="$3"
-                borderWidth={1}
-                borderColor="$gray4"
-                pressStyle={{ scale: 0.97, borderColor: '$coral6' }}
-                animation="quick"
-                onPress={() => router.push('/(auth)/group/create')}
-              >
-                <YStack gap="$2" alignItems="center">
-                  <View
-                    bg="$gray4"
-                    p="$2"
-                    br="$2"
-                  >
-                    <UserPlus size={20} color="$gray11" />
-                  </View>
-                  <Text
-                    color="$gray12"
-                    fontSize="$3"
-                    fontFamily="$body"
-                    fontWeight="600"
-                    textAlign="center"
-                  >
-                    Create
-                  </Text>
-                </YStack>
-              </Card>
-              <Card
-                flex={1}
-                bg="$gray2"
-                p="$4"
-                br="$3"
-                borderWidth={1}
-                borderColor="$gray4"
-                pressStyle={{ scale: 0.97, borderColor: '$coral6' }}
-                animation="quick"
-                onPress={() => router.push('/(auth)/group/join')}
-              >
-                <YStack gap="$2" alignItems="center">
-                  <View
-                    bg="$gray4"
-                    p="$2"
-                    br="$2"
-                  >
-                    <Users size={20} color="$gray11" />
-                  </View>
-                  <Text
-                    color="$gray12"
-                    fontSize="$3"
-                    fontFamily="$body"
-                    fontWeight="600"
-                    textAlign="center"
-                  >
-                    Join
-                  </Text>
-                </YStack>
-              </Card>
-            </XStack>
-          </YStack>
-
         </YStack>
       </ScrollView>
     </SafeArea>
   )
 }
-
-// Import Users for group cards
-import { Users } from '@tamagui/lucide-icons'
 
 /**
  * Compute activity grid from completions array

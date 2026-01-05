@@ -353,7 +353,7 @@ function ProfileScreen() {
           <YStack gap="$1">
             <Text
               color="$gray10"
-              fontSize="$1"
+              fontSize="$2"
               fontFamily="$body"
               fontWeight="600"
               textTransform="uppercase"
@@ -435,12 +435,12 @@ function ProfileScreen() {
                   <View bg="$green3" p="$1.5" br="$2" mb="$1">
                     <Trophy size={14} color="$green11" />
                   </View>
-                  <Text fontFamily="$mono" fontWeight="700" fontSize={24} lineHeight={24}>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={28} lineHeight={36}>
                     {totalCompletions}
                   </Text>
                   <Text
                     color="$gray10"
-                    fontSize="$1"
+                    fontSize="$2"
                     fontFamily="$body"
                     textTransform="uppercase"
                     letterSpacing={0.5}
@@ -453,12 +453,12 @@ function ProfileScreen() {
                   <View bg="$amber3" p="$1.5" br="$2" mb="$1">
                     <Flame size={14} color="$amber11" />
                   </View>
-                  <Text fontFamily="$mono" fontWeight="700" fontSize={24} lineHeight={24}>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={28} lineHeight={36}>
                     {currentStreak}
                   </Text>
                   <Text
                     color="$gray10"
-                    fontSize="$1"
+                    fontSize="$2"
                     fontFamily="$body"
                     textTransform="uppercase"
                     letterSpacing={0.5}
@@ -471,12 +471,12 @@ function ProfileScreen() {
                   <View bg="$coral3" p="$1.5" br="$2" mb="$1">
                     <Zap size={14} color="$coral11" />
                   </View>
-                  <Text fontFamily="$mono" fontWeight="700" fontSize={24} lineHeight={24}>
+                  <Text fontFamily="$mono" fontWeight="700" fontSize={28} lineHeight={36}>
                     {longestStreak}
                   </Text>
                   <Text
                     color="$gray10"
-                    fontSize="$1"
+                    fontSize="$2"
                     fontFamily="$body"
                     textTransform="uppercase"
                     letterSpacing={0.5}

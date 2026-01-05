@@ -6,7 +6,6 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
   Button,
   Card,
   ScrollView,
@@ -144,17 +143,36 @@ function GroupsScreen() {
   return (
     <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
-        {/* Header */}
-        <XStack px="$4" py="$4" justifyContent="space-between" alignItems="center">
-          <H1 fontSize="$8">My Groups</H1>
-          <Button
-            size="$4"
-            circular
-            bg="$orange10"
-            icon={<Plus size={20} color="white" />}
-            onPress={() => router.push('/(auth)/group/create')}
-          />
-        </XStack>
+        {/* Header - Athletic Broadcast Style */}
+        <YStack px="$4" py="$4" gap="$1">
+          <Text
+            color="$gray10"
+            fontSize="$2"
+            fontFamily="$body"
+            fontWeight="600"
+            textTransform="uppercase"
+            letterSpacing={1.2}
+          >
+            Your Teams
+          </Text>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text
+              fontFamily="$display"
+              fontSize={40}
+              color="$color"
+              letterSpacing={1}
+            >
+              GROUPS
+            </Text>
+            <Button
+              size="$4"
+              circular
+              bg="$coral6"
+              icon={<Plus size={20} color="white" />}
+              onPress={() => router.push('/(auth)/group/create')}
+            />
+          </XStack>
+        </YStack>
 
         <ScrollView
           flex={1}

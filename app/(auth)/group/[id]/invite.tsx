@@ -45,18 +45,19 @@ function InviteMembersScreen() {
   const [excludedUserIds, setExcludedUserIds] = useState<string[]>([])
 
   // Get existing member IDs and pending invite IDs to exclude from search results
+  // Note: Users who left the group (accepted then removed) CAN be re-invited
   useEffect(() => {
     const loadExcludedUsers = async () => {
       if (!id) return
 
       const excluded: string[] = []
 
-      // Add existing members
+      // Add existing members (they can't be invited again)
       if (group?.members) {
         group.members.forEach((m: any) => excluded.push(m.user_id))
       }
 
-      // Add users with pending invitations
+      // Add users with pending invitations (they already have an active invite)
       const { data: pendingInvites } = await (supabase
         .from('group_invites') as any)
         .select('invitee_id')
@@ -66,6 +67,9 @@ function InviteMembersScreen() {
       if (pendingInvites) {
         pendingInvites.forEach((inv: any) => excluded.push(inv.invitee_id))
       }
+
+      // Note: Users with 'accepted' or 'declined' status are NOT excluded
+      // They can be re-invited via the upsert_group_invite RPC function
 
       setExcludedUserIds(excluded)
     }
@@ -107,30 +111,29 @@ function InviteMembersScreen() {
     setLoading(true)
 
     try {
-      // Create invitations for all selected users
-      const invitesToInsert = selectedUsers.map((user) => ({
-        group_id: id,
-        inviter_id: session.user.id,
-        invitee_id: user.id,
-        status: 'pending' as const,
-      }))
+      // Use batch_upsert_group_invites RPC to handle re-invites
+      // This function handles both new invites and re-inviting users who left
+      const inviteeIds = selectedUsers.map((user) => user.id)
 
-      const { data: insertedInvites, error } = await (supabase
-        .from('group_invites') as any)
-        .insert(invitesToInsert)
-        .select('id')
+      const { data: inviteIds, error } = await (supabase.rpc as any)(
+        'batch_upsert_group_invites',
+        {
+          p_group_id: id,
+          p_invitee_ids: inviteeIds,
+        }
+      )
 
       if (error) throw error
 
       // Send push notifications for each invite
-      if (insertedInvites) {
-        for (const invite of insertedInvites) {
+      if (inviteIds && inviteIds.length > 0) {
+        for (const inviteId of inviteIds) {
           try {
             await supabase.functions.invoke('send-group-invite-notification', {
-              body: { invite_id: invite.id },
+              body: { invite_id: inviteId },
             })
           } catch (notifError) {
-            console.warn('Failed to send notification for invite:', invite.id, notifError)
+            console.warn('Failed to send notification for invite:', inviteId, notifError)
             // Don't fail the whole operation for notification errors
           }
         }
@@ -143,8 +146,8 @@ function InviteMembersScreen() {
       )
     } catch (error: any) {
       console.error('Error sending invitations:', error)
-      if (error.code === '23505') {
-        Alert.alert('Error', 'One or more users already have pending invitations')
+      if (error.message?.includes('already a member')) {
+        Alert.alert('Error', 'One or more users are already members of this group')
       } else {
         Alert.alert('Error', error.message || 'Failed to send invitations')
       }

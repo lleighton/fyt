@@ -6,7 +6,6 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
   Button,
   Card,
   ScrollView,
@@ -151,17 +150,36 @@ function TagsScreen() {
     <SafeArea edges={['top']}>
       <ScrollView flex={1} bg="$background">
         <YStack px="$4" py="$4" gap="$4">
-          {/* Header */}
-          <XStack justifyContent="space-between" alignItems="center">
-            <H1 fontSize="$8">Tags</H1>
-            <Button
-              size="$4"
-              bg="$orange6"
-              icon={<Plus size={20} color="white" />}
-              circular
-              onPress={() => router.push('/(auth)/tag/create')}
-            />
-          </XStack>
+          {/* Header - Athletic Broadcast Style */}
+          <YStack gap="$1">
+            <Text
+              color="$gray10"
+              fontSize="$2"
+              fontFamily="$body"
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing={1.2}
+            >
+              Your Activity
+            </Text>
+            <XStack justifyContent="space-between" alignItems="center">
+              <Text
+                fontFamily="$display"
+                fontSize={40}
+                color="$color"
+                letterSpacing={1}
+              >
+                TAGS
+              </Text>
+              <Button
+                size="$4"
+                bg="$coral6"
+                icon={<Plus size={20} color="white" />}
+                circular
+                onPress={() => router.push('/(auth)/tag/create')}
+              />
+            </XStack>
+          </YStack>
 
           {/* Filter Cards - WCAG AA compliant with orange brand */}
           <XStack gap="$3">

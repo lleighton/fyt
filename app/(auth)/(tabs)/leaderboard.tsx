@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useRouter } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { ActivityIndicator } from 'react-native'
 import {
@@ -11,7 +12,8 @@ import {
   Tabs as TamaguiTabs,
   View,
 } from 'tamagui'
-import { Zap, Medal, Target, Percent, User, Trophy, Crown } from '@tamagui/lucide-icons'
+import { LinearGradient } from '@tamagui/linear-gradient'
+import { Zap, Medal, Target, Percent, User, Trophy, Crown, ChevronRight, Users } from '@tamagui/lucide-icons'
 import { SafeArea } from '@/components/ui'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
@@ -38,6 +40,7 @@ interface TagStats {
  * - Win Rate (% of received tags beaten)
  */
 function LeaderboardScreen() {
+  const router = useRouter()
   const session = auth$.session.get()
   const [leaderboardData, setLeaderboardData] = useState<TagStats[]>([])
   const [loading, setLoading] = useState(true)
@@ -104,7 +107,7 @@ function LeaderboardScreen() {
         <YStack px="$4" py="$5" gap="$1">
           <Text
             color="$gray10"
-            fontSize="$1"
+            fontSize="$2"
             fontFamily="$body"
             fontWeight="600"
             textTransform="uppercase"
@@ -151,46 +154,74 @@ function LeaderboardScreen() {
 
               {/* Invite more friends prompt */}
               <Card
-                bg="$coral2"
-                p="$5"
                 br="$4"
-                borderWidth={1}
-                borderColor="$coral5"
+                borderWidth={0}
                 overflow="hidden"
                 position="relative"
+                shadowColor="$coral8"
+                shadowOffset={{ width: 0, height: 8 }}
+                shadowOpacity={0.3}
+                shadowRadius={16}
+                elevation={8}
+                pressStyle={{ scale: 0.97, opacity: 0.95 }}
+                animation="bouncy"
+                onPress={() => router.push('/(auth)/tag/create')}
               >
-                <View
+                {/* Main gradient background */}
+                <LinearGradient
+                  colors={['$coral5', '$coral6', '$coral7']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   position="absolute"
-                  top={-20}
-                  right={-20}
-                  width={80}
-                  height={80}
-                  bg="$coral4"
-                  opacity={0.3}
-                  br={80}
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
                 />
-                <YStack alignItems="center" gap="$3">
-                  <View bg="$coral4" p="$3" br="$3">
-                    <Trophy size={28} color="$coral11" />
+                {/* Corner highlight gradient */}
+                <LinearGradient
+                  colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.05)', 'transparent']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  locations={[0, 0.3, 0.7]}
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                />
+                <XStack gap="$4" alignItems="center" p="$5">
+                  <View
+                    width={60}
+                    height={60}
+                    br="$3"
+                    bg="rgba(255,255,255,0.15)"
+                    borderWidth={2}
+                    borderColor="rgba(255,255,255,0.2)"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Users size={28} color="white" />
                   </View>
-                  <Text
-                    fontFamily="$display"
-                    fontSize={22}
-                    color="$coral12"
-                    textAlign="center"
-                    letterSpacing={0.5}
-                  >
-                    GROW YOUR NETWORK
-                  </Text>
-                  <Text
-                    color="$coral11"
-                    fontSize="$3"
-                    fontFamily="$body"
-                    textAlign="center"
-                  >
-                    Tag more friends to compete and climb the leaderboard
-                  </Text>
-                </YStack>
+                  <YStack flex={1} gap="$1">
+                    <Text
+                      color="white"
+                      fontFamily="$display"
+                      fontSize={26}
+                      letterSpacing={1}
+                    >
+                      GROW YOUR NETWORK
+                    </Text>
+                    <Text
+                      color="rgba(255,255,255,0.85)"
+                      fontSize="$3"
+                      fontFamily="$body"
+                    >
+                      Tag more friends to climb the leaderboard
+                    </Text>
+                  </YStack>
+                  <ChevronRight size={24} color="rgba(255,255,255,0.6)" />
+                </XStack>
               </Card>
             </YStack>
           </ScrollView>
@@ -430,7 +461,7 @@ function LeaderboardRow({
             fontWeight="700"
             fontSize={28}
             color={rank <= 3 ? getRankColor(rank) : '$color'}
-            lineHeight={28}
+            lineHeight={36}
           >
             {value}{suffix}
           </Text>

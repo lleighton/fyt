@@ -2,6 +2,10 @@
   "name": "fyt",
   "version": "1.0.0",
   "main": "expo-router/entry",
+  "overrides": {
+    "react-dom": "19.1.0",
+    "react-test-renderer": "19.1.0"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -43,6 +47,7 @@
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
     "expo-image-picker": "~17.0.9",
+    "expo-linear-gradient": "~15.0.8",
     "expo-linking": "~8.0.10",
     "expo-notifications": "~0.32.14",
     "expo-router": "~6.0.17",
@@ -51,7 +56,7 @@
     "jest-expo": "~54.0.14",
     "lottie-react-native": "~7.3.1",
     "posthog-react-native": "^4.17.1",
-    "react": "19.2.3",
+    "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "^2.29.1",
     "react-native-mmkv": "^2.12.2",
@@ -71,7 +76,7 @@
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^12.7.0",
     "@types/jest": "^29.5.13",
-    "@types/react": "~19.2.0",
+    "@types/react": "~19.1.0",
     "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
