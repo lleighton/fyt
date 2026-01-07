@@ -526,7 +526,7 @@ function GroupDetailScreen() {
                   <Text fontFamily="$mono" fontWeight="700" fontSize={32} lineHeight={40}>
                     {group.member_count || 0}
                   </Text>
-                  <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
+                  <Text color="$gray10" fontSize="$2" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
                     Members
                   </Text>
                 </YStack>
@@ -535,7 +535,7 @@ function GroupDetailScreen() {
                   <Text fontFamily="$mono" fontWeight="700" fontSize={32} lineHeight={40}>
                     {groupTags.length}
                   </Text>
-                  <Text color="$gray10" fontSize="$1" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
+                  <Text color="$gray10" fontSize="$2" fontFamily="$body" textTransform="uppercase" letterSpacing={0.5}>
                     Tags
                   </Text>
                 </YStack>
@@ -553,81 +553,6 @@ function GroupDetailScreen() {
                 </Text>
               )}
             </YStack>
-
-            {/* Invite Code Card - Athletic Style */}
-            {group.is_private && (
-              <Card
-                bg="$coral2"
-                p="$5"
-                br="$4"
-                borderWidth={1}
-                borderColor="$coral5"
-                position="relative"
-                overflow="hidden"
-              >
-                {/* Decorative element */}
-                <View
-                  position="absolute"
-                  top={-30}
-                  right={-30}
-                  width={100}
-                  height={100}
-                  bg="$coral4"
-                  opacity={0.3}
-                  br={100}
-                />
-                <YStack gap="$4" alignItems="center">
-                  <YStack alignItems="center" gap="$2">
-                    <Text
-                      color="$coral11"
-                      fontSize="$1"
-                      fontFamily="$body"
-                      fontWeight="600"
-                      textTransform="uppercase"
-                      letterSpacing={1}
-                    >
-                      Invite Code
-                    </Text>
-                    <XStack
-                      bg="white"
-                      px="$5"
-                      py="$3"
-                      br="$3"
-                      gap="$3"
-                      alignItems="center"
-                    >
-                      <Text fontFamily="$mono" fontWeight="700" fontSize={36} letterSpacing={8} color="$gray12">
-                        {group.invite_code}
-                      </Text>
-                      <Button
-                        size="$3"
-                        circular
-                        bg="$coral6"
-                        icon={<Copy size={18} color="white" />}
-                        onPress={handleCopyInviteCode}
-                        pressStyle={{ scale: 0.95 }}
-                        animation="bouncy"
-                      />
-                    </XStack>
-                  </YStack>
-
-                  <Button
-                    size="$5"
-                    bg="$gray3"
-                    br="$3"
-                    icon={<Share2 size={20} color="$gray12" />}
-                    onPress={handleShareGroup}
-                    width="100%"
-                  >
-                    <Text color="$gray12" fontFamily="$body" fontWeight="600">Share Invite</Text>
-                  </Button>
-
-                  <Text color="$coral11" fontSize="$2" fontFamily="$body" textAlign="center">
-                    Share this code with friends to invite them
-                  </Text>
-                </YStack>
-              </Card>
-            )}
 
             {/* Action Buttons */}
             <XStack gap="$3">
@@ -667,25 +592,25 @@ function GroupDetailScreen() {
                 <TamaguiTabs.Tab value="tags" flex={1} accessibilityLabel="Tags tab">
                   <YStack alignItems="center" gap="$1">
                     <Tag size={18} />
-                    <Text fontSize="$1" fontWeight="500">Tags</Text>
+                    <Text fontSize="$2" fontWeight="500">Tags</Text>
                   </YStack>
                 </TamaguiTabs.Tab>
                 <TamaguiTabs.Tab value="stats" flex={1} accessibilityLabel="Stats tab">
                   <YStack alignItems="center" gap="$1">
                     <BarChart3 size={18} />
-                    <Text fontSize="$1" fontWeight="500">Stats</Text>
+                    <Text fontSize="$2" fontWeight="500">Stats</Text>
                   </YStack>
                 </TamaguiTabs.Tab>
                 <TamaguiTabs.Tab value="members" flex={1} accessibilityLabel="Members tab">
                   <YStack alignItems="center" gap="$1">
                     <Users size={18} />
-                    <Text fontSize="$1" fontWeight="500">Members</Text>
+                    <Text fontSize="$2" fontWeight="500">Members</Text>
                   </YStack>
                 </TamaguiTabs.Tab>
                 <TamaguiTabs.Tab value="leaderboard" flex={1} accessibilityLabel="Leaderboard tab">
                   <YStack alignItems="center" gap="$1">
                     <Trophy size={18} />
-                    <Text fontSize="$1" fontWeight="500">Ranks</Text>
+                    <Text fontSize="$2" fontWeight="500">Ranks</Text>
                   </YStack>
                 </TamaguiTabs.Tab>
               </TamaguiTabs.List>
