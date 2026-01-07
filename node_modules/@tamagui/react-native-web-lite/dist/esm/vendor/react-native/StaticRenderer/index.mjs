@@ -1,0 +1,12 @@
+import * as React from "react";
+class StaticRenderer extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    return nextProps.shouldUpdate;
+  }
+  render() {
+    return this.props.render();
+  }
+}
+var StaticRenderer_default = StaticRenderer;
+export { StaticRenderer, StaticRenderer_default as default };
+//# sourceMappingURL=index.mjs.map

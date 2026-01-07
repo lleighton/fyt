@@ -1,0 +1,65 @@
+import { Easing } from "../Easing.mjs";
+import { Animation } from "./Animation.mjs";
+import { shouldUseNativeDriver } from "../NativeAnimatedHelper.mjs";
+let _easeInOut;
+function easeInOut() {
+  return _easeInOut || (_easeInOut = Easing.inOut(Easing.ease)), _easeInOut;
+}
+class TimingAnimation extends Animation {
+  _startTime;
+  _fromValue;
+  _toValue;
+  _duration;
+  _delay;
+  _easing;
+  _onUpdate;
+  _animationFrame;
+  _timeout;
+  _useNativeDriver;
+  _platformConfig;
+  constructor(config) {
+    super(), this._toValue = config.toValue, this._easing = config.easing ?? easeInOut(), this._duration = config.duration ?? 500, this._delay = config.delay ?? 0, this.__iterations = config.iterations ?? 1, this._useNativeDriver = shouldUseNativeDriver(config), this._platformConfig = config.platformConfig, this.__isInteraction = config.isInteraction ?? !this._useNativeDriver;
+  }
+  __getNativeAnimationConfig() {
+    const frameDuration = 16.666666666666668,
+      frames = [],
+      numFrames = Math.round(this._duration / frameDuration);
+    for (let frame = 0; frame < numFrames; frame++) frames.push(this._easing(frame / numFrames));
+    return frames.push(this._easing(1)), {
+      type: "frames",
+      frames,
+      toValue: this._toValue,
+      iterations: this.__iterations,
+      platformConfig: this._platformConfig
+    };
+  }
+  start(fromValue, onUpdate, onEnd, previousAnimation, animatedValue) {
+    this.__active = !0, this._fromValue = fromValue, this._onUpdate = onUpdate, this.__onEnd = onEnd;
+    const start = () => {
+      this._duration === 0 && !this._useNativeDriver ? (this._onUpdate(this._toValue), this.__debouncedOnEnd({
+        finished: !0
+      })) : (this._startTime = Date.now(), this._useNativeDriver ? this.__startNativeAnimation(animatedValue) : this._animationFrame = requestAnimationFrame(
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      this.onUpdate.bind(this)));
+    };
+    this._delay ? this._timeout = setTimeout(start, this._delay) : start();
+  }
+  onUpdate() {
+    const now = Date.now();
+    if (now >= this._startTime + this._duration) {
+      this._duration === 0 ? this._onUpdate(this._toValue) : this._onUpdate(this._fromValue + this._easing(1) * (this._toValue - this._fromValue)), this.__debouncedOnEnd({
+        finished: !0
+      });
+      return;
+    }
+    this._onUpdate(this._fromValue + this._easing((now - this._startTime) / this._duration) * (this._toValue - this._fromValue)), this.__active && (this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this)));
+  }
+  stop() {
+    super.stop(), this.__active = !1, clearTimeout(this._timeout), global.cancelAnimationFrame(this._animationFrame), this.__debouncedOnEnd({
+      finished: !1
+    });
+  }
+}
+var TimingAnimation_default = TimingAnimation;
+export { TimingAnimation, TimingAnimation_default as default };
+//# sourceMappingURL=TimingAnimation.mjs.map

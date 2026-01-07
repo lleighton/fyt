@@ -1,0 +1,73 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var AnimatedTracking_exports = {};
+__export(AnimatedTracking_exports, {
+  AnimatedTracking: () => AnimatedTracking,
+  default: () => AnimatedTracking_default
+});
+module.exports = __toCommonJS(AnimatedTracking_exports);
+var import_AnimatedValue = require("./AnimatedValue.cjs"),
+  import_AnimatedNode = require("./AnimatedNode.cjs"),
+  import_NativeAnimatedHelper = require("../NativeAnimatedHelper.cjs");
+class AnimatedTracking extends import_AnimatedNode.AnimatedNode {
+  _value;
+  _parent;
+  _callback;
+  _animationConfig;
+  _animationClass;
+  _useNativeDriver;
+  constructor(value, parent, animationClass, animationConfig, callback) {
+    super(), this._value = value, this._parent = parent, this._animationClass = animationClass, this._animationConfig = animationConfig, this._useNativeDriver = (0, import_NativeAnimatedHelper.shouldUseNativeDriver)(animationConfig), this._callback = callback, this.__attach();
+  }
+  __makeNative() {
+    this.__isNative = !0, this._parent.__makeNative(), super.__makeNative(), this._value.__makeNative();
+  }
+  __getValue() {
+    return this._parent.__getValue();
+  }
+  __attach() {
+    this._parent.__addChild(this), this._useNativeDriver && this.__makeNative();
+  }
+  __detach() {
+    this._parent.__removeChild(this), super.__detach();
+  }
+  update() {
+    this._value.animate(new this._animationClass({
+      ...this._animationConfig,
+      toValue: this._animationConfig.toValue.__getValue()
+    }), this._callback);
+  }
+  __getNativeConfig() {
+    const animationConfig = new this._animationClass({
+      ...this._animationConfig,
+      // remove toValue from the config as it's a ref to Animated.Value
+      toValue: void 0
+    }).__getNativeAnimationConfig();
+    return {
+      type: "tracking",
+      animationId: (0, import_NativeAnimatedHelper.generateNewAnimationId)(),
+      animationConfig,
+      toValue: this._parent.__getNativeTag(),
+      value: this._value.__getNativeTag()
+    };
+  }
+}
+var AnimatedTracking_default = AnimatedTracking;

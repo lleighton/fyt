@@ -1,0 +1,5 @@
+import { EventEmitter } from "../emitter/EventEmitter.mjs";
+const RCTDeviceEventEmitter = new EventEmitter();
+var RCTDeviceEventEmitter_default = RCTDeviceEventEmitter;
+export { RCTDeviceEventEmitter, RCTDeviceEventEmitter_default as default };
+//# sourceMappingURL=RCTDeviceEventEmitter.mjs.map

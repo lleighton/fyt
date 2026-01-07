@@ -1,0 +1,64 @@
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var AnimatedDivision_exports = {};
+__export(AnimatedDivision_exports, {
+  AnimatedDivision: () => AnimatedDivision,
+  default: () => AnimatedDivision_default
+});
+module.exports = __toCommonJS(AnimatedDivision_exports);
+var import_AnimatedInterpolation = require("./AnimatedInterpolation.cjs"),
+  import_AnimatedNode = require("./AnimatedNode.cjs"),
+  import_AnimatedValue = require("./AnimatedValue.cjs"),
+  import_AnimatedWithChildren = require("./AnimatedWithChildren.cjs");
+class AnimatedDivision extends import_AnimatedWithChildren.AnimatedWithChildren {
+  _a;
+  _b;
+  _warnedAboutDivideByZero = !1;
+  constructor(a, b) {
+    super(), (b === 0 || b instanceof import_AnimatedNode.AnimatedNode && b.__getValue() === 0) && console.error("Detected potential division by zero in AnimatedDivision"), this._a = typeof a == "number" ? new import_AnimatedValue.AnimatedValue(a) : a, this._b = typeof b == "number" ? new import_AnimatedValue.AnimatedValue(b) : b;
+  }
+  __makeNative(platformConfig) {
+    this._a.__makeNative(platformConfig), this._b.__makeNative(platformConfig), super.__makeNative(platformConfig);
+  }
+  __getValue() {
+    const a = this._a.__getValue(),
+      b = this._b.__getValue();
+    return b === 0 ? (this._warnedAboutDivideByZero || (console.error("Detected division by zero in AnimatedDivision"), this._warnedAboutDivideByZero = !0), 0) : (this._warnedAboutDivideByZero = !1, a / b);
+  }
+  interpolate(config) {
+    return new import_AnimatedInterpolation.AnimatedInterpolation(this, config);
+  }
+  __attach() {
+    this._a.__addChild(this), this._b.__addChild(this);
+  }
+  __detach() {
+    this._a.__removeChild(this), this._b.__removeChild(this), super.__detach();
+  }
+  __getNativeConfig() {
+    return {
+      type: "division",
+      input: [this._a.__getNativeTag(), this._b.__getNativeTag()]
+    };
+  }
+}
+var AnimatedDivision_default = AnimatedDivision;

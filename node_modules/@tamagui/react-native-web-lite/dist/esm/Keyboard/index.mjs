@@ -1,0 +1,15 @@
+import { dismissKeyboard } from "@tamagui/react-native-web-internals";
+const Keyboard = {
+  addListener() {
+    return {
+      remove: () => {}
+    };
+  },
+  dismiss() {
+    dismissKeyboard();
+  },
+  removeAllListeners() {},
+  removeListener() {}
+};
+export { Keyboard };
+//# sourceMappingURL=index.mjs.map

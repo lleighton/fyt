@@ -1,0 +1,50 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: !0 });
+}, __copyProps = (to, from, except, desc) => {
+  if (from && typeof from == "object" || typeof from == "function")
+    for (let key of __getOwnPropNames(from))
+      !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: !0 }), mod);
+var Slack_exports = {};
+__export(Slack_exports, {
+  Slack: () => Slack
+});
+module.exports = __toCommonJS(Slack_exports);
+var import_react = require("react"), import_react_native_svg = require("react-native-svg"), import_helpers_icon = require("@tamagui/helpers-icon"), import_jsx_runtime = require("react/jsx-runtime");
+const Slack = (0, import_helpers_icon.themed)(
+  (0, import_react.memo)(function(props) {
+    const { color = "black", size = 24, ...otherProps } = props;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      import_react_native_svg.Svg,
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: color,
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        ...otherProps,
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Rect, { width: "3", height: "8", x: "13", y: "2", rx: "1.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M19 8.5V10h1.5A1.5 1.5 0 1 0 19 8.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Rect, { width: "3", height: "8", x: "8", y: "14", rx: "1.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M5 15.5V14H3.5A1.5 1.5 0 1 0 5 15.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Rect, { width: "8", height: "3", x: "14", y: "13", rx: "1.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M15.5 19H14v1.5a1.5 1.5 0 1 0 1.5-1.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Rect, { width: "8", height: "3", x: "2", y: "8", rx: "1.5", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M8.5 5H10V3.5A1.5 1.5 0 1 0 8.5 5", stroke: color })
+        ]
+      }
+    );
+  })
+);
+//# sourceMappingURL=Slack.js.map

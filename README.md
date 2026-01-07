@@ -1,4 +1,4 @@
-# FitChallenge - Claude Code Quickstart
+# fyt - Claude Code Quickstart
 
 ## 🚀 Getting Started
 
@@ -14,7 +14,7 @@ This project is scaffolded and ready for Claude Code to continue development.
 
 ```bash
 # 1. Navigate to project
-cd fitchallenge-scaffold
+cd fyt
 
 # 2. Install dependencies
 npm install

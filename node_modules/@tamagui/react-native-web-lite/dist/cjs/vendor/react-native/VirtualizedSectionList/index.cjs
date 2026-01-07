@@ -1,0 +1,130 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf,
+  __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
+    value: mod,
+    enumerable: !0
+  }) : target, mod)),
+  __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+    value: !0
+  }), mod);
+var VirtualizedSectionList_exports = {};
+__export(VirtualizedSectionList_exports, {
+  VirtualizedSectionList: () => VirtualizedSectionList,
+  default: () => VirtualizedSectionList_default
+});
+module.exports = __toCommonJS(VirtualizedSectionList_exports);
+var import_VirtualizedList = require("../VirtualizedList/index.cjs"),
+  React = __toESM(require("react"), 1),
+  import_jsx_runtime = require("react/jsx-runtime");
+const defaultProps = {
+  data: [],
+  key: null,
+  renderItem: null,
+  ItemSeparatorComponent: null,
+  keyExtractor: null
+};
+class VirtualizedSectionList extends React.PureComponent {
+  scrollToLocation(params) {
+    let index = params.itemIndex;
+    for (let i = 0; i < params.sectionIndex; i++) index += this.props.getItemCount(this.props.sections[i].data) + 2;
+    let viewOffset = params.viewOffset || 0;
+    if (this._listRef == null) return;
+    if (params.itemIndex > 0 && this.props.stickySectionHeadersEnabled) {
+      const frame = this._listRef.__getFrameMetricsApprox(index - params.itemIndex, this._listRef.props);
+      viewOffset += frame.length;
+    }
+    const toIndexParams = {
+      ...params,
+      viewOffset,
+      index
+    };
+    this._listRef.scrollToIndex(toIndexParams);
+  }
+  getListRef() {
+    return this._listRef;
+  }
+  render() {
+    const {
+        ItemSeparatorComponent,
+        SectionSeparatorComponent,
+        renderItem: _renderItem,
+        renderSectionFooter,
+        renderSectionHeader,
+        sections: _sections,
+        stickySectionHeadersEnabled,
+        ...passThroughProps
+      } = this.props,
+      listHeaderOffset = this.props.ListHeaderComponent ? 1 : 0,
+      stickyHeaderIndices = this.props.stickySectionHeadersEnabled ? [] : void 0;
+    let itemCount = 0;
+    for (const section of this.props.sections) stickyHeaderIndices?.push(itemCount + listHeaderOffset), itemCount += 2, itemCount += this.props.getItemCount(section.data);
+    const renderItem = this._renderItem(itemCount);
+    return /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_VirtualizedList.VirtualizedList, {
+      ...passThroughProps,
+      keyExtractor: this._keyExtractor,
+      stickyHeaderIndices,
+      renderItem,
+      data: this.props.sections,
+      getItem: (sections, index) => this._getItem(this.props, sections, index),
+      getItemCount: () => itemCount,
+      onViewableItemsChanged: this.props.onViewableItemsChanged ? this._onViewableItemsChanged : void 0,
+      ref: this._captureRef
+    });
+  }
+  _getItem(props, sections, index) {
+    if (!sections) return null;
+    let itemIdx = index - 1;
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i],
+        sectionData = section.data,
+        itemCount = props.getItemCount(sectionData);
+      if (itemIdx === -1 || itemIdx === itemCount) return section;
+      if (itemIdx < itemCount) return props.getItem(sectionData, itemIdx);
+      itemIdx -= itemCount + 2;
+    }
+    return null;
+  }
+  _keyExtractor = (item, index) => (this.props.keyExtractor || this._defaultKeyExtractor)(item, index);
+  _defaultKeyExtractor = (item, index) => item.key != null ? item.key : String(index);
+  _captureRef = ref => {
+    this._listRef = ref;
+  };
+  _renderItem = itemCount => ({
+    item,
+    index
+  }) => index === 0 || index === itemCount - 1 ? null : (this.props.renderItem || this._defaultRenderItem)({
+    item,
+    index,
+    section: item
+  });
+  _defaultRenderItem = ({
+    item
+  }) => null;
+  _onViewableItemsChanged = info => {
+    this.props.onViewableItemsChanged && this.props.onViewableItemsChanged(info);
+  };
+}
+VirtualizedSectionList.defaultProps = defaultProps;
+var VirtualizedSectionList_default = VirtualizedSectionList;

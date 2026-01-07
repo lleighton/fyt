@@ -1,0 +1,36 @@
+"use strict";
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var TurboModuleRegistry_exports = {};
+__export(TurboModuleRegistry_exports, {
+  get: () => get,
+  getEnforcing: () => getEnforcing
+});
+module.exports = __toCommonJS(TurboModuleRegistry_exports);
+var import_react_native_web_internals = require("@tamagui/react-native-web-internals");
+function get(name) {
+  return null;
+}
+function getEnforcing(name) {
+  const module2 = get(name);
+  return (0, import_react_native_web_internals.invariant)(module2 != null, `TurboModuleRegistry.getEnforcing(...): '${name}' could not be found. Verify that a module by this name is registered in the native binary.`), module2;
+}

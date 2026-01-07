@@ -1,0 +1,326 @@
+{
+  "name": "@legendapp/state",
+  "version": "3.0.0-beta.42",
+  "description": "legend-state",
+  "sideEffects": false,
+  "private": false,
+  "main": "./index.js",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
+  "files": [
+    "**"
+  ],
+  "dependencies": {
+    "use-sync-external-store": "^1.2.2"
+  },
+  "peerDependencies": {
+    "expo-sqlite": "^15.0.0"
+  },
+  "peerDependenciesMeta": {
+    "expo-sqlite": {
+      "optional": true
+    }
+  },
+  "author": "Legend <contact@legendapp.com> (https://github.com/LegendApp)",
+  "keywords": [
+    "react",
+    "react-native",
+    "state",
+    "hooks",
+    "proxy"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LegendApp/legend-state.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LegendApp/legend-state/issues"
+  },
+  "homepage": "https://github.com/LegendApp/legend-state#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./babel": {
+      "import": "./babel.mjs",
+      "require": "./babel.js",
+      "types": "./babel.d.ts"
+    },
+    "./types/babel": {
+      "types": "./types/babel.d.ts"
+    },
+    "./types/reactive-web": {
+      "types": "./types/reactive-web.d.ts"
+    },
+    "./types/reactive-native": {
+      "types": "./types/reactive-native.d.ts"
+    },
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./sync": {
+      "import": "./sync.mjs",
+      "require": "./sync.js",
+      "types": "./sync.d.ts"
+    },
+    "./react": {
+      "import": "./react.mjs",
+      "require": "./react.js",
+      "types": "./react.d.ts"
+    },
+    "./react-native": {
+      "import": "./react-native.mjs",
+      "require": "./react-native.js",
+      "types": "./react-native.d.ts"
+    },
+    "./react-web": {
+      "import": "./react-web.mjs",
+      "require": "./react-web.js",
+      "types": "./react-web.d.ts"
+    },
+    "./trace": {
+      "import": "./trace.mjs",
+      "require": "./trace.js",
+      "types": "./trace.d.ts"
+    },
+    "./react-reactive/enableReactive": {
+      "import": "./react-reactive/enableReactive.mjs",
+      "require": "./react-reactive/enableReactive.js",
+      "types": "./react-reactive/enableReactive.d.ts"
+    },
+    "./react-reactive/Components": {
+      "import": "./react-reactive/Components.mjs",
+      "require": "./react-reactive/Components.js",
+      "types": "./react-reactive/Components.d.ts"
+    },
+    "./react-reactive/enableReactComponents": {
+      "import": "./react-reactive/enableReactComponents.mjs",
+      "require": "./react-reactive/enableReactComponents.js",
+      "types": "./react-reactive/enableReactComponents.d.ts"
+    },
+    "./react-reactive/enableReactNativeComponents": {
+      "import": "./react-reactive/enableReactNativeComponents.mjs",
+      "require": "./react-reactive/enableReactNativeComponents.js",
+      "types": "./react-reactive/enableReactNativeComponents.d.ts"
+    },
+    "./react-reactive/enableReactive.native": {
+      "import": "./react-reactive/enableReactive.native.mjs",
+      "require": "./react-reactive/enableReactive.native.js",
+      "types": "./react-reactive/enableReactive.native.d.ts"
+    },
+    "./react-reactive/enableReactive.web": {
+      "import": "./react-reactive/enableReactive.web.mjs",
+      "require": "./react-reactive/enableReactive.web.js",
+      "types": "./react-reactive/enableReactive.web.d.ts"
+    },
+    "./as/stringAsSet": {
+      "import": "./as/stringAsSet.mjs",
+      "require": "./as/stringAsSet.js",
+      "types": "./as/stringAsSet.d.ts"
+    },
+    "./as/setAsArray": {
+      "import": "./as/setAsArray.mjs",
+      "require": "./as/setAsArray.js",
+      "types": "./as/setAsArray.d.ts"
+    },
+    "./as/stringAsNumber": {
+      "import": "./as/stringAsNumber.mjs",
+      "require": "./as/stringAsNumber.js",
+      "types": "./as/stringAsNumber.d.ts"
+    },
+    "./as/arrayAsString": {
+      "import": "./as/arrayAsString.mjs",
+      "require": "./as/arrayAsString.js",
+      "types": "./as/arrayAsString.d.ts"
+    },
+    "./as/stringAsRecord": {
+      "import": "./as/stringAsRecord.mjs",
+      "require": "./as/stringAsRecord.js",
+      "types": "./as/stringAsRecord.d.ts"
+    },
+    "./as/arrayAsSet": {
+      "import": "./as/arrayAsSet.mjs",
+      "require": "./as/arrayAsSet.js",
+      "types": "./as/arrayAsSet.d.ts"
+    },
+    "./as/stringAsArray": {
+      "import": "./as/stringAsArray.mjs",
+      "require": "./as/stringAsArray.js",
+      "types": "./as/stringAsArray.d.ts"
+    },
+    "./as/recordAsString": {
+      "import": "./as/recordAsString.mjs",
+      "require": "./as/recordAsString.js",
+      "types": "./as/recordAsString.d.ts"
+    },
+    "./as/numberAsString": {
+      "import": "./as/numberAsString.mjs",
+      "require": "./as/numberAsString.js",
+      "types": "./as/numberAsString.d.ts"
+    },
+    "./as/recordAsArray": {
+      "import": "./as/recordAsArray.mjs",
+      "require": "./as/recordAsArray.js",
+      "types": "./as/recordAsArray.d.ts"
+    },
+    "./as/setAsString": {
+      "import": "./as/setAsString.mjs",
+      "require": "./as/setAsString.js",
+      "types": "./as/setAsString.d.ts"
+    },
+    "./as/arrayAsRecord": {
+      "import": "./as/arrayAsRecord.mjs",
+      "require": "./as/arrayAsRecord.js",
+      "types": "./as/arrayAsRecord.d.ts"
+    },
+    "./config/enableReactComponents": {
+      "import": "./config/enableReactComponents.mjs",
+      "require": "./config/enableReactComponents.js",
+      "types": "./config/enableReactComponents.d.ts"
+    },
+    "./config/enableReactNativeComponents": {
+      "import": "./config/enableReactNativeComponents.mjs",
+      "require": "./config/enableReactNativeComponents.js",
+      "types": "./config/enableReactNativeComponents.d.ts"
+    },
+    "./config/enable_PeekAssign": {
+      "import": "./config/enable_PeekAssign.mjs",
+      "require": "./config/enable_PeekAssign.js",
+      "types": "./config/enable_PeekAssign.d.ts"
+    },
+    "./config/enableReactUse": {
+      "import": "./config/enableReactUse.mjs",
+      "require": "./config/enableReactUse.js",
+      "types": "./config/enableReactUse.d.ts"
+    },
+    "./config/enableReactTracking": {
+      "import": "./config/enableReactTracking.mjs",
+      "require": "./config/enableReactTracking.js",
+      "types": "./config/enableReactTracking.d.ts"
+    },
+    "./config/configureLegendState": {
+      "import": "./config/configureLegendState.mjs",
+      "require": "./config/configureLegendState.js",
+      "types": "./config/configureLegendState.d.ts"
+    },
+    "./config/enable$GetSet": {
+      "import": "./config/enable$GetSet.mjs",
+      "require": "./config/enable$GetSet.js",
+      "types": "./config/enable$GetSet.d.ts"
+    },
+    "./helpers/pageHashParams": {
+      "import": "./helpers/pageHashParams.mjs",
+      "require": "./helpers/pageHashParams.js",
+      "types": "./helpers/pageHashParams.d.ts"
+    },
+    "./helpers/trackHistory": {
+      "import": "./helpers/trackHistory.mjs",
+      "require": "./helpers/trackHistory.js",
+      "types": "./helpers/trackHistory.d.ts"
+    },
+    "./helpers/pageHash": {
+      "import": "./helpers/pageHash.mjs",
+      "require": "./helpers/pageHash.js",
+      "types": "./helpers/pageHash.d.ts"
+    },
+    "./helpers/undoRedo": {
+      "import": "./helpers/undoRedo.mjs",
+      "require": "./helpers/undoRedo.js",
+      "types": "./helpers/undoRedo.d.ts"
+    },
+    "./helpers/time": {
+      "import": "./helpers/time.mjs",
+      "require": "./helpers/time.js",
+      "types": "./helpers/time.d.ts"
+    },
+    "./persist-plugins/mmkv": {
+      "import": "./persist-plugins/mmkv.mjs",
+      "require": "./persist-plugins/mmkv.js",
+      "types": "./persist-plugins/mmkv.d.ts"
+    },
+    "./persist-plugins/indexeddb": {
+      "import": "./persist-plugins/indexeddb.mjs",
+      "require": "./persist-plugins/indexeddb.js",
+      "types": "./persist-plugins/indexeddb.d.ts"
+    },
+    "./persist-plugins/local-storage": {
+      "import": "./persist-plugins/local-storage.mjs",
+      "require": "./persist-plugins/local-storage.js",
+      "types": "./persist-plugins/local-storage.d.ts"
+    },
+    "./persist-plugins/expo-sqlite": {
+      "import": "./persist-plugins/expo-sqlite.mjs",
+      "require": "./persist-plugins/expo-sqlite.js",
+      "types": "./persist-plugins/expo-sqlite.d.ts"
+    },
+    "./persist-plugins/async-storage": {
+      "import": "./persist-plugins/async-storage.mjs",
+      "require": "./persist-plugins/async-storage.js",
+      "types": "./persist-plugins/async-storage.d.ts"
+    },
+    "./sync-plugins/crud": {
+      "import": "./sync-plugins/crud.mjs",
+      "require": "./sync-plugins/crud.js",
+      "types": "./sync-plugins/crud.d.ts"
+    },
+    "./sync-plugins/firebase": {
+      "import": "./sync-plugins/firebase.mjs",
+      "require": "./sync-plugins/firebase.js",
+      "types": "./sync-plugins/firebase.d.ts"
+    },
+    "./sync-plugins/tanstack-react-query": {
+      "import": "./sync-plugins/tanstack-react-query.mjs",
+      "require": "./sync-plugins/tanstack-react-query.js",
+      "types": "./sync-plugins/tanstack-react-query.d.ts"
+    },
+    "./sync-plugins/tanstack-query": {
+      "import": "./sync-plugins/tanstack-query.mjs",
+      "require": "./sync-plugins/tanstack-query.js",
+      "types": "./sync-plugins/tanstack-query.d.ts"
+    },
+    "./sync-plugins/keel": {
+      "import": "./sync-plugins/keel.mjs",
+      "require": "./sync-plugins/keel.js",
+      "types": "./sync-plugins/keel.d.ts"
+    },
+    "./sync-plugins/supabase": {
+      "import": "./sync-plugins/supabase.mjs",
+      "require": "./sync-plugins/supabase.js",
+      "types": "./sync-plugins/supabase.d.ts"
+    },
+    "./sync-plugins/fetch": {
+      "import": "./sync-plugins/fetch.mjs",
+      "require": "./sync-plugins/fetch.js",
+      "types": "./sync-plugins/fetch.d.ts"
+    },
+    "./react-hooks/createObservableHook": {
+      "import": "./react-hooks/createObservableHook.mjs",
+      "require": "./react-hooks/createObservableHook.js",
+      "types": "./react-hooks/createObservableHook.d.ts"
+    },
+    "./react-hooks/useHover": {
+      "import": "./react-hooks/useHover.mjs",
+      "require": "./react-hooks/useHover.js",
+      "types": "./react-hooks/useHover.d.ts"
+    },
+    "./react-hooks/useObservableNextRouter": {
+      "import": "./react-hooks/useObservableNextRouter.mjs",
+      "require": "./react-hooks/useObservableNextRouter.js",
+      "types": "./react-hooks/useObservableNextRouter.d.ts"
+    },
+    "./react-hooks/useMeasure": {
+      "import": "./react-hooks/useMeasure.mjs",
+      "require": "./react-hooks/useMeasure.js",
+      "types": "./react-hooks/useMeasure.d.ts"
+    }
+  }
+}

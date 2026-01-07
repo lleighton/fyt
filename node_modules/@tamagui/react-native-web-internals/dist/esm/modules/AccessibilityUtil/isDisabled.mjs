@@ -1,0 +1,3 @@
+const isDisabled = props => props.disabled || Array.isArray(props.accessibilityStates) && props.accessibilityStates.indexOf("disabled") > -1;
+export { isDisabled };
+//# sourceMappingURL=isDisabled.mjs.map

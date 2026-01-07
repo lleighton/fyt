@@ -1,0 +1,5 @@
+function codegenNativeComponent() {
+  return console.warn("codegenNativeComponent on web is a no-op"), {};
+}
+export { codegenNativeComponent };
+//# sourceMappingURL=codegenNativeComponent.mjs.map

@@ -1,0 +1,19 @@
+const _requestIdleCallback = function (cb, options) {
+    return setTimeout(() => {
+      const start = Date.now();
+      cb({
+        didTimeout: !1,
+        timeRemaining() {
+          return Math.max(0, 50 - (Date.now() - start));
+        }
+      });
+    }, 1);
+  },
+  _cancelIdleCallback = function (id) {
+    clearTimeout(id);
+  },
+  isSupported = typeof window < "u" && typeof window.requestIdleCallback < "u",
+  requestIdleCallback = isSupported ? window.requestIdleCallback : _requestIdleCallback,
+  cancelIdleCallback = isSupported ? window.cancelIdleCallback : _cancelIdleCallback;
+export { cancelIdleCallback, requestIdleCallback };
+//# sourceMappingURL=requestIdleCallback.mjs.map

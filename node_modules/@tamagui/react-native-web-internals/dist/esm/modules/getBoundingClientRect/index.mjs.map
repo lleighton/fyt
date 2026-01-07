@@ -1,0 +1,1 @@
+{"version":3,"names":["getBoundingClientRect","node","nodeType"],"sources":["../../../../src/modules/getBoundingClientRect/index.tsx"],"sourcesContent":[null],"mappings":"AASO,MAAMA,qBAAA,GAAyBC,IAAA,IAAgD;EACpF,IAAIA,IAAA,IAAQ,QACQA,IAAA,CAAKC,QAAA,KAAa,KACnB,OAAOD,IAAA,CAAKD,qBAAA,IAA0B,YACrD,OAAOC,IAAA,CAAKD,qBAAA,CAAsB;AAGxC","ignoreList":[]}

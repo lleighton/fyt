@@ -1,0 +1,52 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: !0 });
+}, __copyProps = (to, from, except, desc) => {
+  if (from && typeof from == "object" || typeof from == "function")
+    for (let key of __getOwnPropNames(from))
+      !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: !0 }), mod);
+var FileStack_exports = {};
+__export(FileStack_exports, {
+  FileStack: () => FileStack
+});
+module.exports = __toCommonJS(FileStack_exports);
+var import_react = require("react"), import_react_native_svg = require("react-native-svg"), import_helpers_icon = require("@tamagui/helpers-icon"), import_jsx_runtime = require("react/jsx-runtime");
+const FileStack = (0, import_helpers_icon.themed)(
+  (0, import_react.memo)(function(props) {
+    const { color = "black", size = 24, ...otherProps } = props;
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+      import_react_native_svg.Svg,
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: color,
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        ...otherProps,
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M21 7h-3a2 2 0 0 1-2-2V2", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            import_react_native_svg.Path,
+            {
+              d: "M21 6v6.5c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5v-9c0-.8.7-1.5 1.5-1.5H17Z",
+              stroke: color
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M7 8v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H15", stroke: color }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react_native_svg.Path, { d: "M3 12v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H11", stroke: color })
+        ]
+      }
+    );
+  })
+);
+//# sourceMappingURL=FileStack.js.map

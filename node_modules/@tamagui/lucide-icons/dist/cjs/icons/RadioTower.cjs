@@ -1,0 +1,71 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var RadioTower_exports = {};
+__export(RadioTower_exports, {
+  RadioTower: () => RadioTower
+});
+module.exports = __toCommonJS(RadioTower_exports);
+var import_react = require("react"),
+  import_react_native_svg = require("react-native-svg"),
+  import_helpers_icon = require("@tamagui/helpers-icon"),
+  import_jsx_runtime = require("react/jsx-runtime");
+const RadioTower = (0, import_helpers_icon.themed)((0, import_react.memo)(function (props) {
+  const {
+    color = "black",
+    size = 24,
+    ...otherProps
+  } = props;
+  return /* @__PURE__ */(0, import_jsx_runtime.jsxs)(import_react_native_svg.Svg, {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: color,
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    ...otherProps,
+    children: [/* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Path, {
+      d: "M4.9 16.1C1 12.2 1 5.8 4.9 1.9",
+      stroke: color
+    }), /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Path, {
+      d: "M7.8 4.7a6.14 6.14 0 0 0-.8 7.5",
+      stroke: color
+    }), /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Circle, {
+      cx: "12",
+      cy: "9",
+      r: "2",
+      stroke: color
+    }), /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Path, {
+      d: "M16.2 4.8c2 2 2.26 5.11.8 7.47",
+      stroke: color
+    }), /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Path, {
+      d: "M19.1 1.9a9.96 9.96 0 0 1 0 14.1",
+      stroke: color
+    }), /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Path, {
+      d: "M9.5 18h5",
+      stroke: color
+    }), /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_react_native_svg.Path, {
+      d: "m8 22 4-11 4 11",
+      stroke: color
+    })]
+  });
+}));

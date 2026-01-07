@@ -1,0 +1,13 @@
+const vibrate = pattern => {
+    "vibrate" in window.navigator && window.navigator.vibrate(pattern);
+  },
+  Vibration = {
+    cancel() {
+      vibrate(0);
+    },
+    vibrate(pattern = 400) {
+      vibrate(pattern);
+    }
+  };
+export { Vibration };
+//# sourceMappingURL=index.mjs.map

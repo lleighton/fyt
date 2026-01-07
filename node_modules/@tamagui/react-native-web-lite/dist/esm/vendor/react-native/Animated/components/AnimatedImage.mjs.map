@@ -1,0 +1,1 @@
+{"version":3,"names":["Image","createAnimatedComponent","AnimatedImage","AnimatedImage_default"],"sources":["../../../../../../src/vendor/react-native/Animated/components/AnimatedImage.js"],"sourcesContent":[null],"mappings":"AASA,OAAuB;AAEvB,SAASA,KAAA,QAAa;AACtB,SAASC,uBAAA,QAA+B;AAExC,MAAMC,aAAA,GAAgBD,uBAAA,CAAwBD,KAAK;AAEnD,IAAOG,qBAAA,GAAQD,aAAA","ignoreList":[]}

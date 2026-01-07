@@ -1,0 +1,264 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var VirtualizedList_exports = {};
+__export(VirtualizedList_exports, {
+  VirtualizedList: () => VirtualizedList,
+  default: () => VirtualizedList_default
+});
+module.exports = __toCommonJS(VirtualizedList_exports);
+var import_react_native_web_internals = require("@tamagui/react-native-web-internals"),
+  import_ScrollView = require("../../../ScrollView/index.cjs"),
+  import_RefreshControl = require("../../../RefreshControl/index.cjs"),
+  import_Batchinator = require("../Batchinator/index.cjs"),
+  import_ChildListCollection = require("./ChildListCollection.cjs"),
+  import_FillRateHelper = require("../FillRateHelper/index.cjs"),
+  import_StateSafePureComponent = require("./StateSafePureComponent.cjs"),
+  import_ViewabilityHelper = require("../ViewabilityHelper/index.cjs"),
+  import_VirtualizedListCellRenderer = require("./VirtualizedListCellRenderer.cjs"),
+  import_VirtualizedListContext = require("./VirtualizedListContext.cjs"),
+  import_jsx_runtime = require("react/jsx-runtime");
+const __DEV__ = process.env.NODE_ENV !== "production";
+function horizontalOrDefault(horizontal) {
+  return horizontal ?? !1;
+}
+function scrollEventThrottleOrDefault(scrollEventThrottle) {
+  return scrollEventThrottle ?? 50;
+}
+class VirtualizedList extends import_StateSafePureComponent.StateSafePureComponent {
+  static contextType = import_VirtualizedListContext.VirtualizedListContext;
+  constructor(props) {
+    super(props), this._nestedChildLists = new import_ChildListCollection.ChildListCollection(), this._viewabilityTuples = [], this._scrollMetrics = {
+      contentLength: 0,
+      dOffset: 0,
+      dt: 10,
+      offset: 0,
+      timestamp: 0,
+      velocity: 0,
+      visibleLength: 0
+    }, this._highestMeasuredFrameIndex = 0, this._headerLength = 0, this._footerLength = 0, this._averageCellLength = 0, this._hasWarned = {}, this._fillRateHelper = new import_FillRateHelper.FillRateHelper(this._getFrameMetrics), this._updateCellsToRenderBatcher = new import_Batchinator.Batchinator(this._updateCellsToRender, this.props.updateCellsBatchingPeriod ?? 50), this.props.viewabilityConfig && this.props.onViewableItemsChanged && this._viewabilityTuples.push({
+      viewabilityHelper: new import_ViewabilityHelper.ViewabilityHelper(this.props.viewabilityConfig),
+      onViewableItemsChanged: this.props.onViewableItemsChanged
+    });
+  }
+  scrollToEnd(params) {
+    const animated = params ? params.animated : !0,
+      veryLast = this.props.getItemCount(this.props.data) - 1;
+    if (veryLast < 0) return;
+    const frame = this.__getFrameMetricsApprox(veryLast, this.props),
+      offset = Math.max(0, frame.offset + frame.length + this._footerLength - this._scrollMetrics.visibleLength);
+    if (this._scrollRef != null) {
+      if (this._scrollRef.scrollTo == null) {
+        console.warn("No scrollTo method provided. This may be because you have two nested VirtualizedLists with the same orientation, or because you are using a custom component that does not implement scrollTo.");
+        return;
+      }
+      this._scrollRef.scrollTo(horizontalOrDefault(this.props.horizontal) ? {
+        x: offset,
+        animated
+      } : {
+        y: offset,
+        animated
+      });
+    }
+  }
+  scrollToIndex(params) {
+    const {
+        data,
+        horizontal,
+        getItemCount,
+        getItemLayout,
+        onScrollToIndexFailed
+      } = this.props,
+      {
+        animated,
+        index,
+        viewOffset,
+        viewPosition
+      } = params;
+    if ((0, import_react_native_web_internals.invariant)(index >= 0, `scrollToIndex out of range: requested index ${index} but minimum is 0`), (0, import_react_native_web_internals.invariant)(getItemCount(data) >= 1, `scrollToIndex out of range: item length ${getItemCount(data)} but minimum is 1`), (0, import_react_native_web_internals.invariant)(index < getItemCount(data), `scrollToIndex out of range: requested index ${index} is out of 0 to ${getItemCount(data) - 1}`), !getItemLayout && index > this._highestMeasuredFrameIndex) {
+      (0, import_react_native_web_internals.invariant)(!!onScrollToIndexFailed, "scrollToIndex should be used in conjunction with getItemLayout or onScrollToIndexFailed, otherwise there is no way to know the location of offscreen indices or handle failures."), onScrollToIndexFailed({
+        averageItemLength: this._averageCellLength,
+        highestMeasuredFrameIndex: this._highestMeasuredFrameIndex,
+        index
+      });
+      return;
+    }
+    const frame = this.__getFrameMetricsApprox(Math.floor(index), this.props),
+      offset = Math.max(0, this._getOffsetApprox(index, this.props) - (viewPosition || 0) * (this._scrollMetrics.visibleLength - frame.length)) - (viewOffset || 0);
+    this._scrollRef != null && this._scrollRef.scrollTo(horizontalOrDefault(horizontal) ? {
+      x: offset,
+      animated
+    } : {
+      y: offset,
+      animated
+    });
+  }
+  scrollToItem(params) {
+    const {
+        data,
+        getItem,
+        getItemCount,
+        horizontal,
+        onScrollToIndexFailed
+      } = this.props,
+      {
+        animated,
+        item,
+        viewPosition,
+        viewOffset
+      } = params,
+      index = this.props.data.indexOf(item);
+    if (index !== -1) this.scrollToIndex({
+      animated,
+      index,
+      viewOffset,
+      viewPosition
+    });else {
+      const itemCount = getItemCount(data);
+      for (let i = 0; i < itemCount; i++) if (getItem(data, i) === item) {
+        this.scrollToIndex({
+          animated,
+          index: i,
+          viewOffset,
+          viewPosition
+        });
+        break;
+      }
+    }
+  }
+  scrollToOffset(params) {
+    const {
+      animated,
+      offset
+    } = params;
+    this._scrollRef != null && this._scrollRef.scrollTo(horizontalOrDefault(this.props.horizontal) ? {
+      x: offset,
+      animated
+    } : {
+      y: offset,
+      animated
+    });
+  }
+  recordInteraction() {
+    this._nestedChildLists.forEach(childList => {
+      childList.recordInteraction();
+    }), this._viewabilityTuples.forEach(viewabilityTuple => {
+      viewabilityTuple.viewabilityHelper.recordInteraction();
+    });
+  }
+  flashScrollIndicators() {
+    this._scrollRef && this._scrollRef.flashScrollIndicators && this._scrollRef.flashScrollIndicators();
+  }
+  getScrollResponder() {
+    if (this._scrollRef && this._scrollRef.getScrollResponder) return this._scrollRef.getScrollResponder();
+  }
+  getScrollableNode() {
+    if (this._scrollRef && this._scrollRef.getScrollableNode) return this._scrollRef.getScrollableNode();
+  }
+  getScrollRef() {
+    return this._scrollRef;
+  }
+  setNativeProps(props) {
+    this._scrollRef && this._scrollRef.setNativeProps(props);
+  }
+  render() {
+    const {
+      ListEmptyComponent,
+      ListFooterComponent,
+      ListHeaderComponent,
+      data,
+      debug,
+      disableVirtualization,
+      getItem,
+      getItemCount,
+      getItemLayout,
+      horizontal,
+      keyExtractor,
+      numColumns,
+      onEndReached,
+      onEndReachedThreshold,
+      onLayout,
+      onRefresh,
+      onScroll,
+      onScrollBeginDrag,
+      onScrollEndDrag,
+      onMomentumScrollBegin,
+      onMomentumScrollEnd,
+      onStartReached,
+      onStartReachedThreshold,
+      onViewableItemsChanged,
+      refreshing,
+      removeClippedSubviews,
+      renderItem,
+      viewabilityConfig,
+      viewabilityConfigCallbackPairs,
+      ...restProps
+    } = this.props;
+    return getItemCount(data) === 0 ? ListEmptyComponent ? /* @__PURE__ */(0, import_jsx_runtime.jsx)(ListEmptyComponent, {}) : null : /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_ScrollView.ScrollView, {
+      ...restProps,
+      ref: this._captureRef,
+      onContentSizeChange: this._onContentSizeChange,
+      onLayout: this._onLayout,
+      onScroll: this._onScroll,
+      refreshControl: onRefresh && /* @__PURE__ */(0, import_jsx_runtime.jsx)(import_RefreshControl.RefreshControl, {
+        refreshing,
+        onRefresh
+      }),
+      scrollEventThrottle: scrollEventThrottleOrDefault(this.props.scrollEventThrottle),
+      removeClippedSubviews,
+      children: this._renderChildren()
+    });
+  }
+  _renderChildren() {
+    const {
+        data,
+        getItem,
+        getItemCount,
+        renderItem
+      } = this.props,
+      items = [];
+    for (let i = 0; i < getItemCount(data); i++) {
+      const item = getItem(data, i);
+      items.push(/* @__PURE__ */(0, import_jsx_runtime.jsx)(import_VirtualizedListCellRenderer.CellRenderer, {
+        cellKey: String(i),
+        index: i,
+        item,
+        renderItem
+      }, this.props.keyExtractor ? this.props.keyExtractor(item, i) : i));
+    }
+    return items;
+  }
+  _captureRef = ref => {
+    this._scrollRef = ref;
+  };
+  _onContentSizeChange = (width, height) => {};
+  _onLayout = event => {};
+  _onScroll = event => {};
+  __getFrameMetricsApprox(index, props) {
+    return {
+      length: this._averageCellLength,
+      offset: this._averageCellLength * index
+    };
+  }
+  _getOffsetApprox(index, props) {
+    return this.__getFrameMetricsApprox(index, props).offset;
+  }
+}
+var VirtualizedList_default = VirtualizedList;

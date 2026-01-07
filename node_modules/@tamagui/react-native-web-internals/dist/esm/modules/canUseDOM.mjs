@@ -1,0 +1,3 @@
+const canUseDOM = !!(typeof window < "u" && window.document && window.document.createElement);
+export { canUseDOM };
+//# sourceMappingURL=canUseDOM.mjs.map

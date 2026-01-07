@@ -1,0 +1,67 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: !0
+    });
+  },
+  __copyProps = (to, from, except, desc) => {
+    if (from && typeof from == "object" || typeof from == "function") for (let key of __getOwnPropNames(from)) !__hasOwnProp.call(to, key) && key !== except && __defProp(to, key, {
+      get: () => from[key],
+      enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+    });
+    return to;
+  };
+var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+  value: !0
+}), mod);
+var dom_exports = {};
+__export(dom_exports, {
+  createSheet: () => createSheet
+});
+module.exports = __toCommonJS(dom_exports);
+var import_canUseDOM = require("../../modules/canUseDOM.cjs"),
+  import_createCSSStyleSheet = require("./createCSSStyleSheet.cjs"),
+  import_createOrderedCSSStyleSheet = require("./createOrderedCSSStyleSheet.cjs");
+const defaultId = "react-native-stylesheet",
+  roots = /* @__PURE__ */new WeakMap(),
+  sheets = [],
+  initialRules = [
+  // minimal top-level reset
+  "html{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:rgba(0,0,0,0);}", "body{margin:0;}",
+  // minimal form pseudo-element reset
+  "button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0;}", "input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-webkit-search-results-button,input::-webkit-search-results-decoration{display:none;}"];
+function createSheet(root, id = defaultId) {
+  let sheet;
+  function createSheet2() {
+    if (!sheet) if (import_canUseDOM.canUseDOM) {
+      const rootNode = root != null ? root.getRootNode() : document;
+      if (sheets.length === 0) sheet = (0, import_createOrderedCSSStyleSheet.createOrderedCSSStyleSheet)((0, import_createCSSStyleSheet.createCSSStyleSheet)(id)), initialRules.forEach(rule => {
+        sheet.insert(rule, 0);
+      }), roots.set(rootNode, sheets.length), sheets.push(sheet);else {
+        const index = roots.get(rootNode);
+        if (index == null) {
+          const initialSheet = sheets[0],
+            textContent = initialSheet != null ? initialSheet.getTextContent() : "";
+          sheet = (0, import_createOrderedCSSStyleSheet.createOrderedCSSStyleSheet)((0, import_createCSSStyleSheet.createCSSStyleSheet)(id, rootNode, textContent)), roots.set(rootNode, sheets.length), sheets.push(sheet);
+        } else sheet = sheets[index];
+      }
+    } else sheets.length === 0 ? (sheet = (0, import_createOrderedCSSStyleSheet.createOrderedCSSStyleSheet)((0, import_createCSSStyleSheet.createCSSStyleSheet)(id)), initialRules.forEach(rule => {
+      sheet.insert(rule, 0);
+    }), sheets.push(sheet)) : sheet = sheets[0];
+  }
+  return {
+    getTextContent() {
+      return createSheet2(), sheet.getTextContent();
+    },
+    id,
+    insert(cssText, groupValue) {
+      createSheet2(), sheets.forEach(s => {
+        s.insert(cssText, groupValue);
+      });
+    }
+  };
+}
