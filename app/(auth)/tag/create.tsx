@@ -252,7 +252,7 @@ function CreateTagScreen() {
       // Success!
       Alert.alert(
         'Tag Sent!',
-        `You tagged ${allRecipients.length} ${allRecipients.length === 1 ? 'person' : 'people'} with ${form.value} ${form.exercise.name}. They have ${settings.preferences.defaultTagDuration} hours to beat it!`,
+        `You tagged ${allRecipients.length} ${allRecipients.length === 1 ? 'person' : 'people'} with ${form.value} ${form.exercise.name}. They have ${settings.preferences.defaultTagDuration} hours to respond!`,
         [
           {
             text: 'OK',

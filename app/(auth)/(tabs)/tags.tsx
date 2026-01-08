@@ -253,7 +253,7 @@ function TagsScreen() {
                   <EmptyState
                     icon={<Send size={40} color="$gray10" />}
                     title="No tags sent yet"
-                    subtitle="Challenge a friend to beat your workout!"
+                    subtitle="Challenge a friend to match your workout!"
                     actionLabel="Send a Tag"
                     onAction={() => router.push('/(auth)/tag/create')}
                   />
@@ -432,9 +432,9 @@ function SentTagCard({
             )}
           </XStack>
           <XStack gap="$1" alignItems="center">
-            <Clock size={12} color={isExpired ? '$red10' : '$gray10'} />
-            <Text color={isExpired ? '$red10' : '$gray10'} fontSize="$3">
-              {isExpired ? 'Ended' : `${hoursLeft}h left`}
+            <Clock size={12} color={isExpired ? '$gray10' : '$gray10'} />
+            <Text color={isExpired ? '$gray10' : '$gray10'} fontSize="$3">
+              {isExpired ? 'Completed' : `${hoursLeft}h left`}
             </Text>
           </XStack>
         </YStack>
@@ -493,9 +493,9 @@ function ReceivedTagCard({
             {tag.value} {tag.exercise?.type === 'time' ? 'sec' : 'reps'} of {tag.exercise?.name}
           </Text>
           <XStack gap="$1" alignItems="center">
-            <Clock size={12} color={isExpired ? '$red10' : '$orange12'} />
-            <Text color={isExpired ? '$red10' : '$orange12'} fontSize="$3" fontWeight="600">
-              {isExpired ? 'Ended' : `${hoursLeft}h left to respond`}
+            <Clock size={12} color={isExpired ? '$gray10' : '$orange12'} />
+            <Text color={isExpired ? '$gray10' : '$orange12'} fontSize="$3" fontWeight="600">
+              {isExpired ? 'Time ran out' : `${hoursLeft}h left to respond`}
             </Text>
           </XStack>
         </YStack>
@@ -559,11 +559,11 @@ function CompletedTagCard({
               <XStack bg="$green9" px="$2" py="$0.5" br="$2">
                 <Text color="white" fontSize="$2" fontWeight="700">SENT</Text>
               </XStack>
-            ) : didBeat ? (
-              <XStack bg="$green9" px="$2" py="$0.5" br="$2">
-                <Text color="white" fontSize="$2" fontWeight="700">BEAT IT!</Text>
+            ) : (
+              <XStack bg={didBeat ? '$green9' : '$blue9'} px="$2" py="$0.5" br="$2">
+                <Text color="white" fontSize="$2" fontWeight="700">{didBeat ? 'CRUSHED IT!' : 'DONE!'}</Text>
               </XStack>
-            ) : null}
+            )}
           </XStack>
           <Text color="$gray11" fontSize="$3">
             {isOwnTag ? 'You sent this tag' : `From ${tag.sender?.display_name || 'Someone'}`}

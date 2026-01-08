@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
         to: r.push_token,
         sound: 'default',
         title: `${r.sender_name} tagged you!`,
-        body: `Can you beat ${r.tag_value} ${r.exercise_name}? You have 24 hours!`,
+        body: `${r.tag_value} ${r.exercise_name} - can you match it? You have 24 hours!`,
         data: {
           tagId: tag_id,
           type: 'tag_received',

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Simplify the app's initial offering by focusing on one viral mechanic: **Tags**. A Tag is a bodyweight exercise challenge you complete and then "tag" friends to match or beat. Think Snapchat streaks meets fitness accountability.
+Simplify the app's initial offering by focusing on one viral mechanic: **Tags**. A Tag is a bodyweight exercise challenge you complete and then "tag" friends to match. Think Snapchat streaks meets fitness accountability.
 
 **Key Principle**: We're not removing any existing code or flexibility. We're creating a streamlined UX layer that uses the existing challenge infrastructure underneath.
 
@@ -13,9 +13,23 @@ Simplify the app's initial offering by focusing on one viral mechanic: **Tags**.
 ### What is a Tag?
 1. User completes a bodyweight exercise (e.g., 50 pushups)
 2. User "tags" one or more friends
-3. Tagged friends have **24 hours** to match or beat the result
+3. Tagged friends have **24 hours** to complete the challenge (match, beat, or do their best)
 4. Completing a tag lets you "tag back" with a **different exercise**
 5. Streaks build between pairs, within groups, and globally
+
+### Motivation Philosophy
+**Completion is the win. Beating is a bonus.**
+
+The app celebrates three tiers of achievement:
+1. **Completed** (primary) - You showed up and did the work
+2. **Beat the target** (bonus) - You exceeded what was asked
+3. **Personal record** (self-improvement) - You beat your own best
+
+This ensures:
+- Competitive users still get their dopamine from "beating" others
+- Non-competitive users feel rewarded for participating
+- Beginners aren't discouraged by higher-performing friends
+- The focus stays on accountability (did you move?) not ranking (are you the best?)
 
 ### Streak Types
 | Streak Type | Description | How It Breaks |
@@ -160,11 +174,32 @@ CREATE TABLE streaks (
 );
 ```
 
+### New Table: `personal_records`
+```sql
+CREATE TABLE personal_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) NOT NULL,
+  exercise_id UUID REFERENCES exercises(id) NOT NULL,
+  best_value INTEGER NOT NULL, -- personal best reps or seconds
+  best_date TIMESTAMPTZ NOT NULL,
+  total_completions INTEGER DEFAULT 1,
+  last_value INTEGER, -- most recent attempt
+  last_date TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, exercise_id)
+);
+
+-- Index for quick lookups
+CREATE INDEX idx_personal_records_user ON personal_records(user_id);
+```
+
 ### Updates to Existing Tables
 ```sql
 -- Add to profiles
 ALTER TABLE profiles ADD COLUMN tag_streak_public INTEGER DEFAULT 0;
 ALTER TABLE profiles ADD COLUMN tag_streak_longest INTEGER DEFAULT 0;
+ALTER TABLE profiles ADD COLUMN total_prs INTEGER DEFAULT 0; -- personal records count
 
 -- Add to challenges (for backwards compatibility)
 ALTER TABLE challenges ADD COLUMN is_tag BOOLEAN DEFAULT false;
@@ -190,13 +225,13 @@ ALTER TABLE challenges ADD COLUMN tag_id UUID REFERENCES tags(id);
 │ ⚠️ PENDING TAGS (2)                │
 │ ┌─────────────────────────────────┐ │
 │ │ @Jordan tagged you!            │ │
-│ │ 50 Pushups - Beat it!          │ │
+│ │ 50 Pushups - Match it!         │ │
 │ │ ⏱️ 18h 32m remaining           │ │
 │ │ [Complete Now]                 │ │
 │ └─────────────────────────────────┘ │
 │ ┌─────────────────────────────────┐ │
 │ │ @Alex tagged you!              │ │
-│ │ 60s Plank - Beat it!           │ │
+│ │ 60s Plank - Match it!          │ │
 │ │ ⏱️ 4h 15m remaining            │ │
 │ │ [Complete Now]                 │ │
 │ └─────────────────────────────────┘ │
@@ -206,8 +241,8 @@ ALTER TABLE challenges ADD COLUMN tag_id UUID REFERENCES tags(id);
 ├─────────────────────────────────────┤
 │ Recent Activity                     │
 │ • You completed @Jordan's tag       │
-│ • @Alex beat your 45 pushups        │
-│ • Your tag expired (missed @Sam)    │
+│ • @Alex completed your 45 pushups   │
+│ • Tag to @Sam finished              │
 └─────────────────────────────────────┘
 ```
 
@@ -279,8 +314,9 @@ Step 3: Tag Friends
 ├─────────────────────────────────────┤
 │                                     │
 │    Jordan did 50 Pushups            │
-│    Can you beat it?                 │
+│    Can you match it?                │
 │                                     │
+│    Your best: 45 pushups            │
 │    ⏱️ 18h 32m remaining             │
 │                                     │
 ├─────────────────────────────────────┤
@@ -296,12 +332,20 @@ Step 3: Tag Friends
 │       [✓ Complete Tag]              │
 └─────────────────────────────────────┘
 
-After Completion:
+After Completion (showing all three tiers):
 ┌─────────────────────────────────────┐
-│           🎉 Nice!                  │
+│           🎉 Done!                  │
 │                                     │
-│    You beat Jordan's 50 pushups     │
-│    with 55 pushups!                 │
+│    You completed Jordan's tag!      │
+│           55 pushups                │
+│                                     │
+│   ┌─────────────────────────────┐   │
+│   │ ✨ Beat the target by 5!    │   │
+│   └─────────────────────────────┘   │
+│   ┌─────────────────────────────┐   │
+│   │ 🏆 New personal record!     │   │
+│   │    Previous best: 45        │   │
+│   └─────────────────────────────┘   │
 │                                     │
 │    🔥 Streak with Jordan: 6 days    │
 │                                     │
@@ -316,6 +360,24 @@ After Completion:
 │                                     │
 │          [Maybe Later]              │
 └─────────────────────────────────────┘
+
+After Completion (matched but didn't beat):
+┌─────────────────────────────────────┐
+│           🎉 Done!                  │
+│                                     │
+│    You completed Jordan's tag!      │
+│           50 pushups                │
+│                                     │
+│   ┌─────────────────────────────┐   │
+│   │ 💪 Matched the target!      │   │
+│   └─────────────────────────────┘   │
+│   ┌─────────────────────────────┐   │
+│   │ 📈 +5 from your last attempt│   │
+│   └─────────────────────────────┘   │
+│                                     │
+│    🔥 Streak with Jordan: 6 days    │
+│    ...                              │
+└─────────────────────────────────────┘
 ```
 
 ---
@@ -328,7 +390,7 @@ After Completion:
 | New Tag | "🏷️ {name} tagged you!" | "{exercise} - {value} {unit}. You have 24h!" | Immediate |
 | 6h Warning | "⏰ Tag expiring soon!" | "Only 6h left to complete {name}'s {exercise} tag" | 6h before expiry |
 | 1h Warning | "🚨 Last chance!" | "1 hour to keep your {X} day streak with {name}!" | 1h before expiry |
-| Tag Completed | "💪 {name} beat your tag!" | "They did {value} {exercise}" | Immediate |
+| Tag Completed | "💪 {name} completed your tag!" | "They did {value} {exercise}" | Immediate |
 | Streak Milestone | "🔥 {X} day streak!" | "You and {name} are on fire!" | On achievement |
 | Streak Lost | "💔 Streak ended" | "Your {X} day streak with {name} ended" | On expiry |
 
@@ -357,7 +419,7 @@ After Completion:
    ```
    🏷️ [Name] tagged you with [X] [exercise]!
 
-   Can you beat it? Download fyt and find out:
+   Can you match it? Download fyt and find out:
    [deep link with tag ID + invite code]
    ```
 3. New user opens link → App Store → Downloads → Opens to pending tag

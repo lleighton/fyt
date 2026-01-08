@@ -676,12 +676,12 @@ function GroupDetailScreen() {
                               <XStack gap="$1" alignItems="center">
                                 <ClockIcon size={14} color="$gray10" />
                                 <Text color="$gray10" fontSize="$3">
-                                  {isExpired ? 'Expired' : (() => {
+                                  {isExpired ? 'Finished' : (() => {
                                     const hoursLeft = Math.ceil(
                                       (new Date(tag.expires_at).getTime() - new Date().getTime()) /
                                         (1000 * 60 * 60)
                                     )
-                                    if (hoursLeft <= 0) return 'Expiring soon'
+                                    if (hoursLeft <= 0) return 'Ending soon'
                                     if (hoursLeft < 24) return `${hoursLeft}h left`
                                     return `${Math.ceil(hoursLeft / 24)}d left`
                                   })()}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Alert, ActivityIndicator } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
@@ -6,6 +6,7 @@ import { YStack, XStack, Text, H1, Button, Card, Input, ScrollView } from 'tamag
 import { X, Send, Clock, Check, ChevronDown, ArrowRight, Camera } from '@tamagui/lucide-icons'
 import * as ImagePicker from 'expo-image-picker'
 import { KeyboardSafeArea } from '@/components/ui'
+import { CelebrationOverlay, CelebrationType } from '@/components/celebration'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -45,11 +46,28 @@ function TagRespondScreen() {
   const [selectedExercise, setSelectedExercise] = useState<ValidExercise | null>(null)
   const [showExerciseSelector, setShowExerciseSelector] = useState(false)
 
+  // Personal record tracking
+  const [personalRecord, setPersonalRecord] = useState<{
+    has_record: boolean
+    best_value: number | null
+    last_value: number | null
+    total_completions: number
+  } | null>(null)
+
   // Proof capture
   const [proofUri, setProofUri] = useState<string | null>(null)
   const [proofType, setProofType] = useState<'photo' | 'video' | null>(null)
   const [capturing, setCapturing] = useState(false)
   const { uploading: uploadingProof, uploadFromUri } = useImageUpload()
+
+  // Celebration animation
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [celebrationType, setCelebrationType] = useState<CelebrationType>('completion')
+  const pendingAlertRef = useRef<{
+    title: string
+    message: string
+    beatsTarget: boolean
+  } | null>(null)
 
   // Load tag details and valid exercises
   useEffect(() => {
@@ -98,6 +116,17 @@ function TagRespondScreen() {
         const original = exercises.find((e: ValidExercise) => !e.is_variant)
         if (original) {
           setSelectedExercise(original)
+        }
+      }
+
+      // Load personal record for this exercise
+      if (data?.exercise?.id && session?.user?.id) {
+        const { data: prData } = await (supabase.rpc as any)(
+          'get_personal_record',
+          { p_user_id: session.user.id, p_exercise_id: data.exercise.id }
+        )
+        if (prData) {
+          setPersonalRecord(prData)
         }
       }
 
@@ -212,19 +241,16 @@ function TagRespondScreen() {
   const meetsTarget = effectiveValue !== null && effectiveValue >= tag?.value
   const beatsTarget = effectiveValue !== null && effectiveValue > tag?.value
 
-  // Submit response
+  // Submit response - any effort counts!
   const handleSubmit = async () => {
     if (!session?.user?.id || !tag || value === null || !selectedExercise) {
       Alert.alert('Error', 'Please enter your result')
       return
     }
 
-    // Validate that scaled value meets target
-    if (!meetsTarget) {
-      Alert.alert(
-        'Not Enough',
-        `Your ${value} ${selectedExercise.exercise_name} equals ${effectiveValue} effective ${tag.exercise?.type === 'time' ? 'seconds' : 'reps'}. You need at least ${tag.value} to complete this tag.`
-      )
+    // Require at least 1 rep/second
+    if (value < 1) {
+      Alert.alert('Enter Your Result', 'Log at least 1 to record your effort!')
       return
     }
 
@@ -290,44 +316,107 @@ function TagRespondScreen() {
         beatTarget: beatsTarget,
       })
 
-      // Haptic feedback on success
-      haptic(beatsTarget ? 'success' : 'medium')
+      // Update personal record
+      let prResult: { is_new_pr: boolean; previous_best: number | null; improvement: number | null } | null = null
+      if (tag.exercise?.id) {
+        const { data: prData } = await (supabase.rpc as any)(
+          'update_personal_record',
+          {
+            p_user_id: session.user.id,
+            p_exercise_id: tag.exercise.id,
+            p_value: effectiveValue || value,
+          }
+        )
+        prResult = prData
+      }
 
-      // Show different message based on whether they used a variant
+      // Haptic feedback on success - extra strong for PR
+      haptic(prResult?.is_new_pr ? 'success' : beatsTarget ? 'success' : 'medium')
+
+      // Build success message with PR info
       const usedVariant = selectedExercise.is_variant
       const resultMessage = usedVariant
         ? `You did ${value} ${selectedExercise.exercise_name} (= ${effectiveValue} ${tag.exercise?.name})`
         : `You did ${value} ${tag.exercise?.name}`
 
-      Alert.alert(
-        beatsTarget ? 'You Beat It!' : 'Completed!',
-        beatsTarget
-          ? `${resultMessage} vs their ${tag.value}. Tag them back with a new challenge!`
-          : `${resultMessage}. You matched their ${tag.value}!`,
-        [
-          {
-            text: beatsTarget ? 'Tag Back' : 'OK',
-            onPress: () => {
-              if (beatsTarget) {
-                router.replace('/(auth)/tag/create')
-              } else {
-                router.back()
-              }
-            },
-          },
-          ...(beatsTarget ? [{
-            text: 'Later',
-            style: 'cancel' as const,
-            onPress: () => router.back(),
-          }] : []),
-        ]
-      )
+      // Build achievement list
+      const achievements: string[] = []
+      if (beatsTarget) {
+        achievements.push(`Exceeded target by ${(effectiveValue || value) - tag.value}!`)
+      } else if (meetsTarget) {
+        achievements.push('Target matched!')
+      }
+      if (prResult?.is_new_pr) {
+        if (prResult.previous_best) {
+          achievements.push(`New PR! +${prResult.improvement} from your previous best of ${prResult.previous_best}`)
+        } else {
+          achievements.push(`First time logging ${tag.exercise?.name}!`)
+        }
+      }
+
+      const achievementText = achievements.length > 0
+        ? `\n\n${achievements.join('\n')}`
+        : ''
+
+      // Determine celebration type: PR > exceeded > meetsTarget > completion
+      const celebType: CelebrationType = prResult?.is_new_pr
+        ? 'pr'
+        : beatsTarget
+        ? 'exceeded'
+        : 'completion'
+
+      // Build title based on achievements (celebrate any effort!)
+      let successTitle = 'Logged!'
+      if (prResult?.is_new_pr) {
+        successTitle = 'New Personal Record!'
+      } else if (beatsTarget) {
+        successTitle = 'Crushed It!'
+      } else if (meetsTarget) {
+        successTitle = 'Target Matched!'
+      }
+
+      // Store alert info for after animation
+      pendingAlertRef.current = {
+        title: successTitle,
+        message: `${resultMessage}. ${meetsTarget ? 'Nice work!' : 'Every effort counts!'}${achievementText}`,
+        beatsTarget,
+      }
+
+      // Trigger celebration animation
+      setCelebrationType(celebType)
+      setShowCelebration(true)
     } catch (error: any) {
       console.error('Error responding to tag:', error)
       haptic('error')
       Alert.alert('Error', error.message || 'Failed to submit response')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  // Handle celebration animation complete
+  const handleCelebrationComplete = () => {
+    setShowCelebration(false)
+
+    // Show the success alert
+    if (pendingAlertRef.current) {
+      const { title, message } = pendingAlertRef.current
+      Alert.alert(
+        title,
+        message,
+        [
+          {
+            text: 'Tag Back',
+            onPress: () => router.replace('/(auth)/tag/create'),
+          },
+          {
+            text: 'Done',
+            style: 'cancel' as const,
+            onPress: () => router.back(),
+          },
+        ]
+      )
+      pendingAlertRef.current = null
     }
   }
 
@@ -362,6 +451,13 @@ function TagRespondScreen() {
   return (
     <KeyboardSafeArea edges={['top', 'bottom']}>
       <YStack flex={1} bg="$background">
+        {/* Celebration Animation Overlay */}
+        <CelebrationOverlay
+          type={celebrationType}
+          visible={showCelebration}
+          onComplete={handleCelebrationComplete}
+        />
+
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <H1 fontSize="$7">Respond to Tag</H1>
@@ -425,7 +521,7 @@ function TagRespondScreen() {
                     <YStack flex={1}>
                       {/* WCAG AA: #9A3412 (orange800) = 5.92:1 contrast on white */}
                       <Text color="#9A3412" fontSize="$2" fontWeight="700" textTransform="uppercase">
-                        Beat this
+                        Can you match this?
                       </Text>
                       {/* WCAG AA: #C2410C (orange700) = 4.52:1 contrast on white */}
                       <Text fontWeight="700" fontSize="$8" color="#C2410C">
@@ -435,6 +531,25 @@ function TagRespondScreen() {
                       <Text color="#57534E" fontSize="$4">
                         {isTimeBased ? 'seconds' : 'reps'} of {tag.exercise?.name}
                       </Text>
+                      {/* Personal record indicator */}
+                      {personalRecord?.has_record && (
+                        <XStack gap="$2" mt="$1" alignItems="center">
+                          <Text color="#7C3AED" fontSize="$3" fontWeight="600">
+                            Your best: {personalRecord.best_value}
+                          </Text>
+                          {personalRecord.last_value !== personalRecord.best_value && (
+                            <Text color="#57534E" fontSize="$2">
+                              (last: {personalRecord.last_value})
+                            </Text>
+                          )}
+                        </XStack>
+                      )}
+                      {/* Suggested goal when PR is lower than target */}
+                      {personalRecord?.has_record && personalRecord.best_value && personalRecord.best_value < tag.value && (
+                        <Text color="#059669" fontSize="$2" mt="$1" fontStyle="italic">
+                          Tip: Try for {Math.min(tag.value, Math.ceil(personalRecord.best_value * 1.1))} to set a new PR!
+                        </Text>
+                      )}
                     </YStack>
                   </XStack>
                 </Card>
@@ -684,25 +799,25 @@ function TagRespondScreen() {
                     </Card>
                   )}
 
-                  {/* Beat indicator */}
+                  {/* Progress indicator - always encouraging */}
                   <Card
-                    bg={beatsTarget ? '$green2' : meetsTarget ? '$orange2' : '$red2'}
+                    bg={beatsTarget ? '$green2' : meetsTarget ? '$orange2' : '$blue2'}
                     p="$3"
                     br="$4"
                     borderWidth={1}
-                    borderColor={beatsTarget ? '$green7' : meetsTarget ? '$orange7' : '$red7'}
+                    borderColor={beatsTarget ? '$green7' : meetsTarget ? '$orange7' : '$blue7'}
                   >
                     <XStack gap="$2" alignItems="center" justifyContent="center">
-                      <Check size={18} color={beatsTarget ? '$green10' : meetsTarget ? '$orange10' : '$red10'} />
+                      <Check size={18} color={beatsTarget ? '$green10' : meetsTarget ? '$orange10' : '$blue10'} />
                       <Text
-                        color={beatsTarget ? '$green11' : meetsTarget ? '$orange11' : '$red11'}
+                        color={beatsTarget ? '$green11' : meetsTarget ? '$orange11' : '$blue11'}
                         fontWeight="600"
                       >
                         {beatsTarget
-                          ? `You beat them by ${(effectiveValue || 0) - tag.value}!`
+                          ? `Exceeded by ${(effectiveValue || 0) - tag.value}! Amazing!`
                           : meetsTarget
-                          ? 'Matched! Challenge completed.'
-                          : `${tag.value - (effectiveValue || 0)} short of completing`}
+                          ? 'Target matched! Nice work!'
+                          : `${tag.value - (effectiveValue || 0)} more to match target`}
                       </Text>
                     </XStack>
                   </Card>
@@ -716,7 +831,7 @@ function TagRespondScreen() {
         <YStack px="$4" py="$4" borderTopWidth={1} borderTopColor="$gray4" gap="$2">
           <Button
             size="$5"
-            bg={meetsTarget ? '$orange10' : '$gray6'}
+            bg={value && value > 0 ? '$orange10' : '$gray6'}
             icon={
               submitting || uploadingProof ? (
                 <ActivityIndicator color="white" />
@@ -725,27 +840,25 @@ function TagRespondScreen() {
               )
             }
             onPress={handleSubmit}
-            disabled={!meetsTarget || submitting || uploadingProof}
-            opacity={meetsTarget && !submitting && !uploadingProof ? 1 : 0.5}
+            disabled={!value || value < 1 || submitting || uploadingProof}
+            opacity={value && value > 0 && !submitting && !uploadingProof ? 1 : 0.5}
             accessible={true}
             accessibilityRole="button"
-            accessibilityState={{ disabled: !meetsTarget || submitting || uploadingProof }}
-            accessibilityHint={!meetsTarget ? `Enter at least ${tag?.value} ${isTimeBased ? 'seconds' : 'reps'} to submit` : 'Submit your result'}
+            accessibilityState={{ disabled: !value || value < 1 || submitting || uploadingProof }}
+            accessibilityHint="Submit your workout result"
           >
             <Text color="white" fontWeight="700">
               {uploadingProof
                 ? 'Uploading proof...'
                 : submitting
                 ? 'Submitting...'
-                : meetsTarget
-                ? 'Submit Result'
-                : 'Need more to complete'}
+                : 'Log My Workout'}
             </Text>
           </Button>
-          {/* Helper text explaining why button is disabled */}
-          {!meetsTarget && value !== null && (
-            <Text color="$gray10" fontSize="$2" textAlign="center">
-              You need {tag?.value - (effectiveValue || 0)} more {isTimeBased ? 'seconds' : 'reps'} to match the target
+          {/* Encouraging helper text */}
+          {value !== null && value > 0 && !meetsTarget && (
+            <Text color="$blue10" fontSize="$2" textAlign="center">
+              Every rep counts! You can still log this workout.
             </Text>
           )}
         </YStack>

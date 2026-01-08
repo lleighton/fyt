@@ -150,6 +150,15 @@ Build an MVP social fitness app where users can:
 - Loading spinner shown while auth state loads
 - TabBar styled with Tamagui theme colors and Lucide icons
 
+### Settings System (Implemented)
+Full settings system discovered during audit:
+- **Core file**: `lib/settings-context.tsx` - MMKV-backed persistent settings
+- **Theme**: Light/Dark/System with real-time OS detection
+- **Notifications**: 5 granular toggles (enabled, tagReceived, groupInvites, challengeReminders, streakAlerts)
+- **Preferences**: Units (metric/imperial), default tag duration (12/24/48h), haptic feedback toggle
+- **Hooks**: `useSettings()`, `useEffectiveTheme()`, `getSettingsSync()`
+- **UI**: Full settings interface on profile screen with expandable sections
+
 ---
 
 ## Phase 5: Challenge Creation Flow
@@ -185,24 +194,25 @@ Build an MVP social fitness app where users can:
 ---
 
 ## Phase 6: Challenge Participation
-**Status**: IN PROGRESS
+**Status**: MOSTLY COMPLETE
 **Estimated Duration**: 4-5 hours
 
 ### Tasks
 - [x] Build challenge detail screen
 - [x] Show participants and their progress
 - [x] Create completion logging UI
-- [ ] Implement proof capture (camera integration)
-- [ ] Build completion confirmation with haptics
-- [ ] Add celebration animations (Lottie)
+- [x] Implement proof capture (camera integration) - via `useImageUpload` hook
+- [x] Build completion confirmation with haptics - via `settings-context` haptic system
+- [ ] Add celebration animations (Lottie) - dependency installed, not yet integrated
 - [x] Real-time participant updates (via Legend State)
 
 ### Acceptance Criteria
 - ✓ Can view all challenge details
 - ✓ Can log completion with reps/weight/time
-- ⏳ Optional photo/video proof uploads (placeholder)
-- ⏳ Satisfying feedback on completion (basic alert)
+- ✓ Photo proof uploads available (via image picker)
+- ✓ Haptic feedback on completion
 - ✓ See others' completions in leaderboard
+- ⏳ Animated celebrations (Lottie installed but unused)
 
 ### Notes
 - **Challenge detail screen** with header, stats, and leaderboard
@@ -211,8 +221,9 @@ Build an MVP social fitness app where users can:
 - **Leaderboard**: Ranked by best value, shows completion count
 - **Ranking indicators**: Gold/silver/bronze for top 3
 - **Current user highlight**: Blue border on user's row
-- **Camera proof**: UI placeholder for future implementation
-- **Celebration**: Basic success alert (animations deferred)
+- **Camera/Image proof**: Full implementation in `lib/hooks/useImageUpload.ts`
+- **Haptics**: Full implementation in `lib/settings-context.tsx` with user preference toggle
+- **Celebration**: Lottie dependency ready, needs integration for animated celebrations
 
 ---
 
@@ -370,23 +381,154 @@ Conducted deep analysis of group/challenge/leaderboard relationships:
 
 ---
 
-## Phase 9: Notifications & Engagement
-**Status**: NOT STARTED
-**Estimated Duration**: 2-3 hours
+## Phase 8.6: Motivation Rebalancing
+**Status**: IN PROGRESS
+**Priority**: HIGH (Core UX philosophy shift)
+**Started**: 2026-01-07
 
-### Tasks
-- [ ] Set up Expo Notifications
-- [ ] Request notification permissions
-- [ ] Implement push token registration
-- [ ] Create notification handlers
-- [ ] Build Duolingo-style reminder logic
-- [ ] Add in-app notification center
+### Strategic Context
+
+Current implementation leans heavily competitive ("beat or lose" framing). This risks alienating users who:
+- Can't match others' rep counts (beginners, different fitness levels)
+- Are motivated by habit formation, not competition
+- Feel discouraged when "losing" despite showing up
+
+**Philosophy shift**: Completion is the win. Beating is a bonus achievement.
+
+### Part 1: Completion Celebration (HIGH PRIORITY)
+
+#### Language & Copy Updates
+- [x] Change "BEAT IT!" badge → "DONE!" (primary) + "CRUSHED IT!" (if exceeded)
+- [x] Update tag prompt: "Beat this" → "Can you match this?"
+- [x] Change success message: "You Beat It!" → "Done!" / "Crushed It!"
+- [x] Add encouraging copy for matching (not just beating): "Nice work completing the challenge!"
+
+#### Visual Hierarchy Updates
+- [x] Completion = blue badge (primary success state)
+- [x] Beat target = green badge (bonus achievement)
+- [ ] Personal record = purple/special badge (self-improvement) - showing in UI
+- [x] Remove coral "merely matched" distinction - all completions now celebrated equally
+
+#### Tag Detail Screen (`app/(auth)/tag/[id]/respond.tsx`)
+- [x] Show "Done!" as primary status, "Crushed It!" if exceeded
+- [ ] Add confetti/celebration for ALL completions, extra flair for beating (needs Lottie)
+- [x] Display personal history: "Your best: X" shown in tag response screen
+
+### Part 2: Personal Progress Tracking (HIGH PRIORITY)
+
+#### New Data Model
+- [x] Track personal bests per exercise in new `personal_records` table
+- [x] Store completion history per exercise for trend tracking
+- [x] Calculate improvement metrics (vs last attempt, vs personal best)
+- [x] Database migration: `042_add_personal_records.sql`
+
+#### UI Integration
+- [x] Show "vs your last" on completion: "+X from your previous best!"
+- [x] Personal record notifications: "New PR!" in success alert
+- [x] Progress indicator on tag response: show "Your best: X" below target
+- [ ] Home screen widget: "Recent PRs" or "Improvement streak" (future)
+
+#### Tag Completion Flow Updates
+- [x] After logging completion, show three outcomes:
+  1. "Done!" / "Crushed It!" (always)
+  2. "Exceeded target by X!" (if applicable)
+  3. "New PR! +X from previous best" (if applicable)
+- [x] Prioritize self-improvement message over competitive message
+
+### Part 3: Leaderboard Reframing (MEDIUM PRIORITY)
+
+#### Global Leaderboard (`app/(auth)/(tabs)/leaderboard.tsx`)
+- [x] Rename "Win Rate" tab → "Response" (% of received tags completed)
+- [x] Rename "Beaten" tab → "Completed"
+- [x] Update row labels from "beaten" to "completed"
+- [x] Update CTA text: "climb the leaderboard" → "stay accountable together"
+- [ ] Add "Consistency" tab: streak length, completion frequency (future)
+- [ ] De-emphasize medals for top 3 (smaller icons, less color contrast) (future)
+- [ ] Add "Your Stats" section at top showing personal metrics before rankings (future)
+
+#### Group Leaderboards
+- [ ] Add "Team Total" prominent display (collective achievement)
+- [ ] Show "X tags completed this week as a group"
+- [ ] Optional: Add non-ranked "Activity" view alongside competitive rankings
+
+### Part 4: Encouragement Mechanisms (MEDIUM PRIORITY)
+
+#### For Lower Performers
+- [ ] "Improvement badges": Celebrate consistency even at lower rep counts (future)
+- [ ] "Showing up" streak: Separate from activity streak, just for responding to tags (future)
+- [x] Suggested scaling: Shows "Tip: Try for X to set a new PR!" when PR < target
+
+#### Supportive Copy Throughout
+- [x] Empty states: Updated to be more encouraging
+- [x] Tag expiry: "Ended" → "Completed/Finished/Time ran out" (neutral, not punishing)
+- [ ] Low completion: "Keep going!" not silent judgment (future)
+
+#### Social Encouragement
+- [ ] Allow reactions on completions (fire, clap, muscle emoji) (future)
+- [ ] "Cheer" button to send encouragement to pending tags (future)
+- [ ] Group celebration when all members complete a tag (future)
+
+### Part 5: Smart Defaults (LOW PRIORITY)
+
+#### Adaptive Framing
+- [ ] Track user behavior: Do they check leaderboards? Chase PRs?
+- [ ] Subtly adjust home screen emphasis based on engagement patterns
+- [ ] Show "Your Progress" more prominently for consistency-focused users
+- [ ] Show "Rankings" more prominently for competition-focused users
 
 ### Acceptance Criteria
-- Push notifications arrive
-- Streak risk reminders work
-- Challenge invites notify users
-- Can manage notification preferences
+- All completions feel like wins (not just beating the target)
+- Personal progress is visible and celebrated
+- Leaderboards available but not the primary frame
+- Language throughout is encouraging, not punishing
+- Users with lower rep counts still feel motivated to participate
+
+### Files Affected
+- `app/(auth)/tag/[id]/index.tsx` - Tag detail & completion
+- `app/(auth)/(tabs)/tags.tsx` - Tags list badges
+- `app/(auth)/(tabs)/leaderboard.tsx` - Metric reframing
+- `app/(auth)/group/[id].tsx` - Group leaderboard
+- `components/` - Badge components, celebration animations
+- `lib/legend-state/store.ts` - Personal records tracking
+
+### Success Metrics
+- Completion rate increases (more people finish tags, even if not beating)
+- Streak lengths increase (people stay engaged longer)
+- Retention improves for users who rarely "win" competitively
+- Qualitative: Users report feeling encouraged, not defeated
+
+---
+
+## Phase 9: Notifications & Engagement
+**Status**: MOSTLY COMPLETE
+**Completed**: 2026-01-07 (discovered during audit)
+
+### Tasks
+- [x] Set up Expo Notifications - `lib/notifications.ts`
+- [x] Request notification permissions - with graceful fallback
+- [x] Implement push token registration - saves to `profiles.push_token`
+- [x] Create notification handlers - foreground/background handling
+- [ ] Build Duolingo-style reminder logic - scheduled notifications pending
+- [ ] Add in-app notification center - UI pending
+
+### Acceptance Criteria
+- ✓ Push notifications arrive (infrastructure complete)
+- ⏳ Streak risk reminders (needs scheduled notification triggers)
+- ✓ Challenge invites can notify users (push tokens available)
+- ✓ Can manage notification preferences (5 toggles in settings)
+
+### Implementation Details
+- **Core file**: `lib/notifications.ts` - complete notification lifecycle
+- **Database**: `supabase/migrations/023_add_push_notifications.sql`
+- **Settings**: 5 granular toggles (enabled, tagReceived, groupInvites, challengeReminders, streakAlerts)
+- **Android**: Custom notification channel with vibration patterns
+- **Deep linking**: Notification taps route to relevant screens
+- **RPC**: `get_group_member_push_tokens` for batch sending
+
+### Remaining Work
+- Scheduled reminder notifications (streak warnings, daily nudges)
+- In-app notification center/history UI
+- Server-side push trigger integration (Edge Functions or backend)
 
 ---
 
@@ -420,13 +562,29 @@ Conducted deep analysis of group/challenge/leaderboard relationships:
 | 2025-11-27 | Phase 3 | 8/9 | ✅ State management complete. Unit tests pending |
 | 2025-11-27 | Phase 4 | 7/7 | ✅ All 4 tabs complete with full navigation |
 | 2025-11-27 | Phase 5 | 6/8 | ✅ Challenge creation flow complete. Contact picker & invitations deferred |
-| 2025-11-27 | Phase 6 | 4/7 | 🚧 Challenge detail & logging done. Camera, haptics, animations pending |
+| 2025-11-27 | Phase 6 | 6/7 | ✅ Camera/haptics implemented. Only Lottie animations remaining |
 | 2025-11-27 | Phase 7 | 6/6 | ✅ Leaderboards mostly complete (activity grid, stats already in tabs) |
 | 2025-11-27 | Phase 8 | 5/8 | ✅ Groups core complete. Group leaderboard & activity feed placeholders |
+| 2026-01-07 | Phase 8.6 | 18/20 | 🚧 Parts 1-4 implemented: language, PR tracking, leaderboard, encouragement |
+| 2026-01-07 | Phase 9 | 4/6 | ✅ Notifications infrastructure complete (discovered in audit). Reminders & UI pending |
+| 2026-01-07 | Audit | - | 📋 Codebase audit revealed: settings system, haptics, camera, deep linking all implemented |
 
 ## Next Steps
-1. **Polish**: Phase 6 - Add camera proof, haptics, celebration animations
-2. **Enhance**: Phase 7 - Add progress charts (optional)
-3. **Phase 9**: Notifications & engagement (push notifications, reminders)
-4. **Phase 10**: Final polish & launch prep
-5. **Future**: Unit tests, contact picker integration, group activity feed
+1. **PRIORITY: Phase 8.6** - Motivation Rebalancing (completion celebration, personal progress, leaderboard reframing)
+2. **Phase 8.5**: Complete Group-Challenge Integration (in progress)
+3. **Phase 6 remaining**: Lottie celebration animations (dependency installed, needs integration)
+4. **Phase 9 remaining**: Scheduled reminders (streak warnings), in-app notification center UI
+5. **Phase 10**: Final polish & launch prep
+6. **Future**: Unit tests, contact picker integration, group activity feed
+
+## Implementation Status Summary (Post-Audit)
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Notifications | ✅ Infrastructure done | Needs scheduled triggers & notification center UI |
+| Settings | ✅ Complete | Theme, haptics, notification prefs, units |
+| Haptics | ✅ Complete | 6 feedback types, user preference toggle |
+| Camera/Image | ✅ Complete | Full upload pipeline for avatars/proof |
+| Deep Linking | ✅ Complete | Auth callbacks + group invites |
+| Theme System | ✅ Complete | Light/dark/system with live switching |
+| Contact Picker | ⚠️ Configured only | Dependency + permissions, no integration |
+| Lottie Animations | ⚠️ Dependency only | Installed but unused |

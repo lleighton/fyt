@@ -506,7 +506,7 @@ function HomeScreen() {
                   fontSize="$3"
                   fontFamily="$body"
                 >
-                  Challenge a friend to beat your workout
+                  Challenge a friend to match your workout
                 </Text>
               </YStack>
               <ChevronRight size={24} color="rgba(255,255,255,0.6)" />

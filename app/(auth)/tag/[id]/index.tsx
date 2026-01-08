@@ -207,7 +207,7 @@ function TagDetailScreen() {
                     <XStack gap="$1" alignItems="center">
                       <Clock size={14} color="white" />
                       <Text fontFamily="$mono" fontWeight="700" color="white" fontSize="$2">
-                        {isExpired ? 'ENDED' : `${hoursLeft}H`}
+                        {isExpired ? 'FINISHED' : `${hoursLeft}H`}
                       </Text>
                     </XStack>
                   </View>

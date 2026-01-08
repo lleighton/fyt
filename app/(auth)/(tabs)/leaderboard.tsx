@@ -35,9 +35,9 @@ interface TagStats {
  * Leaderboard screen - Tag-centric
  *
  * Shows rankings based on tag activity:
+ * - Tags Completed (most tags finished)
  * - Tags Sent (most active challengers)
- * - Tags Beaten (best at completing challenges)
- * - Win Rate (% of received tags beaten)
+ * - Response Rate (% of received tags completed)
  */
 function LeaderboardScreen() {
   const router = useRouter()
@@ -147,7 +147,7 @@ function LeaderboardScreen() {
                     rank={index + 1}
                     user={user}
                     value={user.tags_beaten}
-                    label="beaten"
+                    label="completed"
                   />
                 ))}
               </YStack>
@@ -217,7 +217,7 @@ function LeaderboardScreen() {
                       fontSize="$3"
                       fontFamily="$body"
                     >
-                      Tag more friends to climb the leaderboard
+                      Tag more friends to stay accountable together
                     </Text>
                   </YStack>
                   <ChevronRight size={24} color="rgba(255,255,255,0.6)" />
@@ -236,7 +236,7 @@ function LeaderboardScreen() {
               <TamaguiTabs.Tab value="beaten" flex={1}>
                 <XStack alignItems="center" gap="$2">
                   <Target size={16} />
-                  <Text>Beaten</Text>
+                  <Text>Completed</Text>
                 </XStack>
               </TamaguiTabs.Tab>
               <TamaguiTabs.Tab value="sent" flex={1}>
@@ -248,12 +248,12 @@ function LeaderboardScreen() {
               <TamaguiTabs.Tab value="winrate" flex={1}>
                 <XStack alignItems="center" gap="$2">
                   <Percent size={16} />
-                  <Text>Win rate</Text>
+                  <Text>Response</Text>
                 </XStack>
               </TamaguiTabs.Tab>
             </TamaguiTabs.List>
 
-            {/* Tags Beaten Leaderboard */}
+            {/* Tags Completed Leaderboard */}
             <TamaguiTabs.Content value="beaten" flex={1}>
               <ScrollView flex={1}>
                 <YStack p="$4" gap="$2">
@@ -263,7 +263,7 @@ function LeaderboardScreen() {
                       rank={index + 1}
                       user={user}
                       value={user.tags_beaten}
-                      label="beaten"
+                      label="completed"
                     />
                   ))}
                 </YStack>
@@ -287,7 +287,7 @@ function LeaderboardScreen() {
               </ScrollView>
             </TamaguiTabs.Content>
 
-            {/* Win Rate Leaderboard */}
+            {/* Response Rate Leaderboard */}
             <TamaguiTabs.Content value="winrate" flex={1}>
               <ScrollView flex={1}>
                 <YStack p="$4" gap="$2">
@@ -295,7 +295,7 @@ function LeaderboardScreen() {
                     <Card bg="$backgroundHover" p="$6" br="$4" alignItems="center">
                       <Percent size={48} color="$gray8" />
                       <Text color="$gray10" mt="$3" textAlign="center">
-                        Complete some tags to see win rates!
+                        Complete some tags to see response rates!
                       </Text>
                     </Card>
                   ) : (
@@ -305,7 +305,7 @@ function LeaderboardScreen() {
                         rank={index + 1}
                         user={user}
                         value={user.win_rate}
-                        label="% win rate"
+                        label="% response"
                         suffix="%"
                       />
                     ))
