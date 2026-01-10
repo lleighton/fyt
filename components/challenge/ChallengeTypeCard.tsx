@@ -13,6 +13,14 @@ interface ChallengeTypeCardProps {
   onSelect: () => void
 }
 
+// Type-specific color schemes
+const TYPE_COLORS: Record<ChallengeType, { bg: string; border: string }> = {
+  amrap: { bg: '$blue2', border: '$blue10' },
+  max_effort: { bg: '$orange2', border: '$orange10' },
+  for_time: { bg: '$green2', border: '$green10' },
+  workout: { bg: '$orange2', border: '$orange10' },
+}
+
 /**
  * Challenge type selection card
  *
@@ -28,32 +36,15 @@ export function ChallengeTypeCard({
   selected,
   onSelect,
 }: ChallengeTypeCardProps) {
-  const bgColor = selected
-    ? type === 'amrap'
-      ? '$blue2'
-      : type === 'max_effort'
-        ? '$orange2'
-        : type === 'for_time'
-          ? '$green2'
-          : '$orange2'
-    : '$gray2'
-
-  const borderColor =
-    type === 'amrap'
-      ? '$blue10'
-      : type === 'max_effort'
-        ? '$orange10'
-        : type === 'for_time'
-          ? '$green10'
-          : '$orange10'
+  const colors = TYPE_COLORS[type]
 
   return (
     <Card
-      bg={bgColor}
+      bg={selected ? colors.bg : '$gray2'}
       p="$5"
       br="$6"
       borderWidth={selected ? 2 : 0}
-      borderColor={selected ? borderColor : 'transparent'}
+      borderColor={selected ? colors.border : 'transparent'}
       shadowColor={selected ? '$shadowColor' : 'transparent'}
       shadowOffset={{ width: 0, height: 2 }}
       shadowOpacity={selected ? 0.15 : 0}
@@ -78,9 +69,7 @@ export function ChallengeTypeCard({
             </Text>
           )}
         </YStack>
-        <YStack minWidth={28} justifyContent="center">
-          {selected && <CheckCircle size={28} color={borderColor} />}
-        </YStack>
+        {selected && <CheckCircle size={28} color={colors.border} />}
       </XStack>
     </Card>
   )

@@ -14,13 +14,12 @@ import {
   Switch,
 } from 'tamagui'
 import {
-  X,
   Users,
   Lock,
   Globe,
   CheckCircle,
 } from '@tamagui/lucide-icons'
-import { KeyboardSafeArea } from '@/components/ui'
+import { KeyboardSafeArea, HeaderBackButton } from '@/components/ui'
 import { Alert, Share } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 
@@ -160,13 +159,7 @@ function CreateGroupScreen() {
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <H1 fontSize="$7">Create Group</H1>
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<X size={24} />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton variant="close" />
         </XStack>
 
         <ScrollView flex={1}>

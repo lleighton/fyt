@@ -58,6 +58,20 @@ type TagRecipient = Tables['tag_recipients']['Row']
 type Streak = Tables['streaks']['Row']
 type GroupGoal = Tables['group_goals']['Row']
 
+// Personal records type (not yet in generated types)
+type PersonalRecord = {
+  id: string
+  user_id: string
+  exercise_id: string
+  best_value: number
+  best_date: string
+  total_completions: number
+  last_value: number | null
+  last_date: string | null
+  created_at: string
+  updated_at: string
+}
+
 /**
  * Challenges observable - synced with Supabase
  * Using separate observable per collection as per Legend State v3 pattern
@@ -297,6 +311,29 @@ export const groupInvites$ = observable(
 )
 
 /**
+ * Personal Records observable - user's personal bests per exercise
+ * Includes exercise details for display
+ */
+export const personalRecords$ = observable(
+  syncedSupabase({
+    supabase,
+    collection: 'personal_records',
+    select: (from) =>
+      from.select(`
+        *,
+        exercise:exercises(id, name, icon, type, unit, category)
+      `) as any,
+    filter: (async (select: any) => {
+      const userId = await getCurrentUserId()
+      if (!userId) throw new Error('Not authenticated')
+      return select.eq('user_id', userId).order('best_date', { ascending: false })
+    }) as any,
+    persist: getSafePersistConfig('personal_records_v1'),
+    realtime: true,
+  })
+)
+
+/**
  * Legacy store$ for backwards compatibility
  * Maps to the new separate observables
  */
@@ -330,6 +367,9 @@ export const store$: any = {
 
   // Group invites accessor
   groupInvites: groupInvites$,
+
+  // Personal records accessor
+  personalRecords: personalRecords$,
 
   /**
    * Computed: Activity grid data (GitHub-style)
@@ -758,6 +798,208 @@ export const store$: any = {
         const dateB = new Date(b?.created_at || 0).getTime()
         return dateB - dateA
       })
+  },
+
+  // ============================================
+  // STATS MODULE COMPUTED FUNCTIONS
+  // ============================================
+
+  /**
+   * Computed: Get user's PRs with exercise details
+   * Returns array sorted by most recent PR first
+   */
+  getUserPRs: (limit?: number): Array<PersonalRecord & { exercise: Exercise }> => {
+    const prsData = personalRecords$.get()
+    if (!prsData) return []
+
+    const prs = Object.values(prsData) as Array<PersonalRecord & { exercise: Exercise }>
+    const sorted = prs.sort((a, b) => {
+      const dateA = new Date(a?.best_date || 0).getTime()
+      const dateB = new Date(b?.best_date || 0).getTime()
+      return dateB - dateA
+    })
+
+    return limit ? sorted.slice(0, limit) : sorted
+  },
+
+  /**
+   * Computed: Get volume data by period
+   * Returns total value, previous period value, and breakdown by category
+   */
+  getVolumeByPeriod: (days: number): {
+    total: number
+    previousTotal: number
+    percentChange: number
+    byCategory: Record<string, number>
+    byDate: Array<{ date: string; value: number }>
+  } => {
+    const completionsData = completions$.get()
+    const tagRecipientsData = tagRecipients$.get()
+    const exercisesData = exercises$.get()
+
+    const result = {
+      total: 0,
+      previousTotal: 0,
+      percentChange: 0,
+      byCategory: {
+        upper_body: 0,
+        lower_body: 0,
+        core: 0,
+        full_body: 0,
+      } as Record<string, number>,
+      byDate: [] as Array<{ date: string; value: number }>,
+    }
+
+    const today = new Date()
+    today.setHours(23, 59, 59, 999)
+    const periodStart = new Date(today)
+    periodStart.setDate(periodStart.getDate() - days)
+    const previousStart = new Date(periodStart)
+    previousStart.setDate(previousStart.getDate() - days)
+
+    // Build exercise category lookup
+    const exerciseCategories: Record<string, string> = {}
+    if (exercisesData) {
+      Object.values(exercisesData).forEach((ex: any) => {
+        if (ex?.id && ex?.category) {
+          exerciseCategories[ex.id] = ex.category
+        }
+      })
+    }
+
+    // Initialize byDate array
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(today)
+      date.setDate(date.getDate() - i)
+      const key = date.toISOString().split('T')[0]
+      if (key) {
+        result.byDate.push({ date: key, value: 0 })
+      }
+    }
+
+    // Process completions
+    if (completionsData) {
+      Object.values(completionsData).forEach((completion: any) => {
+        if (!completion?.completed_at || !completion?.value) return
+        const completedDate = new Date(completion.completed_at)
+        const value = completion.value || 0
+
+        if (completedDate >= periodStart && completedDate <= today) {
+          result.total += value
+          const dateKey = completion.completed_at.split('T')[0]
+          const dateEntry = result.byDate.find((d) => d.date === dateKey)
+          if (dateEntry) dateEntry.value += value
+
+          // Add to category
+          const category = exerciseCategories[completion.exercise_id]
+          if (category && result.byCategory[category] !== undefined) {
+            result.byCategory[category] += value
+          }
+        } else if (completedDate >= previousStart && completedDate < periodStart) {
+          result.previousTotal += value
+        }
+      })
+    }
+
+    // Process tag recipients (completed tags)
+    if (tagRecipientsData) {
+      Object.values(tagRecipientsData).forEach((recipient: any) => {
+        if (recipient?.status !== 'completed' || !recipient?.completed_at) return
+        const completedDate = new Date(recipient.completed_at)
+        const value = recipient.completed_value || 0
+        const exerciseId = recipient.completed_exercise_id || recipient.tag?.exercise_id
+
+        if (completedDate >= periodStart && completedDate <= today) {
+          result.total += value
+          const dateKey = recipient.completed_at.split('T')[0]
+          const dateEntry = result.byDate.find((d) => d.date === dateKey)
+          if (dateEntry) dateEntry.value += value
+
+          // Add to category
+          const category = exerciseCategories[exerciseId] || recipient.tag?.exercise?.category
+          if (category && result.byCategory[category] !== undefined) {
+            result.byCategory[category] += value
+          }
+        } else if (completedDate >= previousStart && completedDate < periodStart) {
+          result.previousTotal += value
+        }
+      })
+    }
+
+    // Calculate percent change
+    if (result.previousTotal > 0) {
+      result.percentChange = Math.round(
+        ((result.total - result.previousTotal) / result.previousTotal) * 100
+      )
+    } else if (result.total > 0) {
+      result.percentChange = 100 // Infinite improvement from 0
+    }
+
+    return result
+  },
+
+  /**
+   * Computed: Get category breakdown for all time or period
+   * Returns percentages and totals per category
+   */
+  getCategoryBreakdown: (days?: number): {
+    categories: Array<{
+      name: string
+      label: string
+      value: number
+      percentage: number
+      color: string
+    }>
+    dominant: string
+    total: number
+  } => {
+    const volumeData = store$.getVolumeByPeriod(days || 365)
+
+    const categoryConfig: Record<string, { label: string; color: string }> = {
+      upper_body: { label: 'Upper', color: '$coral10' },
+      lower_body: { label: 'Lower', color: '$green10' },
+      core: { label: 'Core', color: '$amber10' },
+      full_body: { label: 'Full', color: '$purple10' },
+    }
+
+    const total = Object.values(volumeData.byCategory).reduce((sum, val) => sum + val, 0)
+
+    const categories = Object.entries(volumeData.byCategory).map(([name, value]) => ({
+      name,
+      label: categoryConfig[name]?.label || name,
+      value,
+      percentage: total > 0 ? Math.round((value / total) * 100) : 0,
+      color: categoryConfig[name]?.color || '$gray10',
+    }))
+
+    // Find dominant category
+    const sorted = [...categories].sort((a, b) => b.value - a.value)
+    const dominant = sorted[0]?.name || 'none'
+
+    return { categories, dominant, total }
+  },
+
+  /**
+   * Computed: Get PRs filtered by category
+   */
+  getPRsByCategory: (category?: string): Array<PersonalRecord & { exercise: Exercise }> => {
+    const prs = store$.getUserPRs()
+    if (!category || category === 'all') return prs
+
+    return prs.filter((pr: any) => pr?.exercise?.category === category)
+  },
+
+  /**
+   * Format large numbers for display (1.5k, 2.3M)
+   */
+  formatNumber: (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k'
+    }
+    return num.toString()
   },
 }
 

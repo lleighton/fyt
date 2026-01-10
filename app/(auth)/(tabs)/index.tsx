@@ -13,7 +13,8 @@ import {
 } from 'tamagui'
 import { LinearGradient } from '@tamagui/linear-gradient'
 import { Flame, Send, Clock, ChevronRight, Zap } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { SafeArea, StreakCard, ItemCard } from '@/components/ui'
+import { PRsSummaryCard, VolumeSummaryCard, CategoryBreakdownCard } from '@/components/stats'
 
 import { store$, auth$, profile$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -151,169 +152,29 @@ function HomeScreen() {
           </YStack>
 
           {/* Streak Cards - Scoreboard Style */}
+          {/* Variants: 'gradient' | 'subtle' | 'glass' | 'accent' | 'minimal' | 'glow' */}
           <XStack gap="$3">
-            {/* Activity Streak */}
-            <Card
-              flex={1}
-              br="$5"
-              borderWidth={0}
-              overflow="hidden"
-              position="relative"
-            >
-              <LinearGradient
-                colors={['$coral6', '$coral4', 'transparent']}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                locations={[0, 0.4, 1]}
-                position="absolute"
-                top={0}
-                left={0}
-                right={0}
-                bottom={0}
-              />
-
-              <YStack gap="$3" p="$4">
-                <XStack justifyContent="space-between" alignItems="center">
-                  <Text
-                    color="$gray11"
-                    fontSize="$2"
-                    fontFamily="$body"
-                    fontWeight="600"
-                    textTransform="uppercase"
-                    letterSpacing={1}
-                  >
-                    Activity
-                  </Text>
-                  <View
-                    bg="$coral2"
-                    p="$2"
-                    br="$3"
-                  >
-                    <Flame color="$coral11" size={20} />
-                  </View>
-                </XStack>
-                <YStack>
-                  <Text
-                    fontFamily="$mono"
-                    fontSize={48}
-                    fontWeight="700"
-                    color="$gray12"
-                    lineHeight={58}
-                  >
-                    {currentStreak}
-                  </Text>
-                  <Text
-                    fontSize="$3"
-                    fontFamily="$body"
-                    fontWeight="500"
-                    color="$gray10"
-                  >
-                    day streak
-                  </Text>
-                </YStack>
-                <XStack
-                  bg="$coral2"
-                  px="$2.5"
-                  py="$1.5"
-                  br="$2"
-                  alignSelf="flex-start"
-                  accessible={true}
-                  accessibilityRole="text"
-                  accessibilityLabel={currentStreak >= 7 ? 'On fire streak status' : 'Keep your streak going'}
-                >
-                  <Text
-                    color="white"
-                    fontSize="$2"
-                    fontFamily="$body"
-                    fontWeight="700"
-                    textTransform="uppercase"
-                    letterSpacing={0.5}
-                  >
-                    {currentStreak >= 7 ? 'On Fire' : currentStreak > 0 ? 'Active' : 'Start'}
-                  </Text>
-                </XStack>
-              </YStack>
-            </Card>
-
-            {/* Tag Streak */}
-            <Card
-              flex={1}
-              br="$5"
-              borderWidth={0}
-              overflow="hidden"
-              position="relative"
-            >
-              <LinearGradient
-                colors={['$green9', '$green5', 'transparent']}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                locations={[0, 0.4, 1]}
-                position="absolute"
-                top={0}
-                left={0}
-                right={0}
-                bottom={0}
-              />
-              <YStack gap="$3" p="$4">
-                <XStack justifyContent="space-between" alignItems="center">
-                  <Text
-                    color="$green12"
-                    fontSize="$2"
-                    fontFamily="$body"
-                    fontWeight="600"
-                    textTransform="uppercase"
-                    letterSpacing={1}
-                  >
-                    Tag Streak
-                  </Text>
-                  <View
-                    bg="$green2"
-                    p="$2"
-                    br="$3"
-                  >
-                    <Zap color="$green11" size={20} />
-                  </View>
-                </XStack>
-                <YStack>
-                  <Text
-                    fontFamily="$mono"
-                    fontSize={48}
-                    fontWeight="700"
-                    color="$green12"
-                    lineHeight={58}
-                  >
-                    {tagStreak}
-                  </Text>
-                  <Text
-                    fontSize="$3"
-                    fontFamily="$body"
-                    fontWeight="500"
-                    color="$green11"
-                  >
-                    day streak
-                  </Text>
-                </YStack>
-                <XStack
-                  bg={tagStreak >= 7 ? '$green10' : '$green9'}
-                  px="$2.5"
-                  py="$1.5"
-                  br="$2"
-                  alignSelf="flex-start"
-                >
-                  <Text
-                    color="white"
-                    fontSize="$2"
-                    fontFamily="$body"
-                    fontWeight="700"
-                    textTransform="uppercase"
-                    letterSpacing={0.5}
-                  >
-                    {tagStreak >= 7 ? 'Legend' : tagStreak > 0 ? 'Active' : 'Start'}
-                  </Text>
-                </XStack>
-              </YStack>
-            </Card>
+            <StreakCard
+              label="Activity"
+              value={currentStreak}
+              unit="day streak"
+              icon={<Flame color="$coral11" size={16} />}
+              colorScheme="coral"
+              variant="glass"
+            />
+            <StreakCard
+              label="Tag Streak"
+              value={tagStreak}
+              unit="day streak"
+              icon={<Zap color="$green11" size={16} />}
+              colorScheme="green"
+              variant="glass"
+            />
           </XStack>
+
+          {/* Stats Summary Cards */}
+          <PRsSummaryCard />
+          <VolumeSummaryCard />
 
           {/* Activity Grid - Heatmap Style */}
           <Card
@@ -359,6 +220,9 @@ function HomeScreen() {
             </YStack>
           </Card>
 
+          {/* Category Balance Card */}
+          <CategoryBreakdownCard />
+
           {/* Pending Tags Section */}
           {pendingTags.length > 0 && (
             <YStack gap="$3">
@@ -396,46 +260,23 @@ function HomeScreen() {
                 const hoursLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)))
 
                 return (
-                  <Card
+                  <ItemCard
                     key={tagRecipient.id}
-                    bg="$coral2"
-                    p="$4"
-                    br="$5"
-                    borderWidth={2}
-                    borderColor="$coral7"
-                    pressStyle={{ scale: 0.98, bg: '$coral3' }}
-                    animation="quick"
+                    icon={tag.exercise?.icon || '💪'}
+                    title={`${tag.sender?.display_name || 'Someone'} tagged you`}
+                    subtitle={`${tag.value} ${tag.exercise?.type === 'time' ? 'sec' : 'reps'} of ${tag.exercise?.name}`}
+                    meta={
+                      <XStack gap="$1" alignItems="center">
+                        <Clock size={12} color="$coral12" />
+                        <Text color="$coral12" fontSize="$2" fontWeight="600">
+                          {hoursLeft}h left to respond
+                        </Text>
+                      </XStack>
+                    }
+                    colorScheme="coral"
+                    bordered
                     onPress={() => router.push(`/(auth)/tag/${tag.id}/respond` as any)}
-                  >
-                    <XStack gap="$3" alignItems="center">
-                      <YStack
-                        width={48}
-                        height={48}
-                        br="$4"
-                        bg="$coral4"
-                        justifyContent="center"
-                        alignItems="center"
-                      >
-                        <Text fontSize={24}>{tag.exercise?.icon || '💪'}</Text>
-                      </YStack>
-                      <YStack flex={1} gap="$1">
-                        <Text fontWeight="700" fontSize="$4">
-                          {tag.sender?.display_name || 'Someone'} tagged you
-                        </Text>
-                        {/* WCAG: $coral12 provides good contrast on $coral2 */}
-                        <Text color="$coral12" fontSize="$3">
-                          {tag.value} {tag.exercise?.type === 'time' ? 'sec' : 'reps'} of {tag.exercise?.name}
-                        </Text>
-                        <XStack gap="$1" alignItems="center">
-                          <Clock size={12} color="$coral12" />
-                          <Text color="$coral12" fontSize="$2" fontWeight="600">
-                            {hoursLeft}h left to respond
-                          </Text>
-                        </XStack>
-                      </YStack>
-                      <ChevronRight size={20} color="$coral12" />
-                    </XStack>
-                  </Card>
+                  />
                 )
               })}
             </YStack>

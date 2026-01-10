@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, Button, ScrollView, View } from 'tamagui'
 import { X, ChevronLeft, ChevronRight, Send } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { SafeArea, HeaderBackButton } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -210,6 +210,21 @@ function CreateTagScreen() {
         // Don't fail - tag is created, this is for activity tracking
       }
 
+      // 4b. Update sender's personal record
+      if (form.exercise?.id) {
+        const { error: prError } = await (supabase.rpc as any)(
+          'update_personal_record',
+          {
+            p_user_id: session.user.id,
+            p_exercise_id: form.exercise.id,
+            p_value: form.value,
+          }
+        )
+        if (prError) {
+          console.warn('Failed to update personal record:', prError)
+        }
+      }
+
       // 5. Update the sender's tag streak
       if (form.isPublic) {
         // Update public streak
@@ -294,13 +309,7 @@ function CreateTagScreen() {
               TAG SOMEONE
             </Text>
           </YStack>
-          <Button
-            size="$4"
-            circular
-            bg="$gray3"
-            icon={<X size={20} color="$gray11" />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton variant="close" />
         </XStack>
 
         {/* Progress Indicator - Scoreboard Style */}

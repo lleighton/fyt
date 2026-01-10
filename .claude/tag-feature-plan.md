@@ -1,5 +1,10 @@
 # Tag Feature - Go-To-Market Implementation Plan
 
+> **⚠️ ARCHIVED**: This plan has been consolidated into `.claude/plan.md` as of 2026-01-10.
+> See the main plan for current implementation status and priorities.
+
+---
+
 ## Executive Summary
 
 Simplify the app's initial offering by focusing on one viral mechanic: **Tags**. A Tag is a bodyweight exercise challenge you complete and then "tag" friends to match. Think Snapchat streaks meets fitness accountability.

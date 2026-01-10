@@ -5,7 +5,6 @@ import {
   YStack,
   XStack,
   Text,
-  H1,
   H2,
   Button,
   Card,
@@ -14,7 +13,6 @@ import {
   TextArea,
 } from 'tamagui'
 import {
-  X,
   Zap,
   Weight,
   Clock,
@@ -24,7 +22,7 @@ import {
   Users as UsersIcon,
 } from '@tamagui/lucide-icons'
 import { Alert } from 'react-native'
-import { KeyboardSafeArea } from '@/components/ui'
+import { KeyboardSafeArea, ScreenHeader } from '@/components/ui'
 import { ChallengeTypeCard, StepBuilder } from '@/components/challenge'
 import type { ChallengeType } from '@/components/challenge'
 
@@ -318,21 +316,18 @@ function CreateChallengeScreen() {
   return (
     <KeyboardSafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
-        {/* Header */}
-        <YStack>
-          <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-            <H1 fontSize="$7">Create Challenge</H1>
-            <Button size="$3" circular unstyled icon={<X size={24} />} onPress={() => router.back()} />
+        <ScreenHeader
+          variant="close"
+          title="CREATE CHALLENGE"
+        />
+        {group && (
+          <XStack px="$4" pb="$3" gap="$2" alignItems="center">
+            <UsersIcon size={16} color="$orange10" />
+            <Text fontSize="$3" color="$orange10" fontWeight="600">
+              For: {group.name}
+            </Text>
           </XStack>
-          {group && (
-            <XStack px="$4" pb="$3" gap="$2" alignItems="center">
-              <UsersIcon size={16} color="$orange10" />
-              <Text fontSize="$3" color="$orange10" fontWeight="600">
-                For: {group.name}
-              </Text>
-            </XStack>
-          )}
-        </YStack>
+        )}
 
         {/* Progress Indicator */}
         <XStack px="$4" py="$2" gap="$2">

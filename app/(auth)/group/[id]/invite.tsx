@@ -13,7 +13,7 @@ import {
   ScrollView,
 } from 'tamagui'
 import { X, UserPlus, Check, AtSign } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { SafeArea, HeaderBackButton } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { store$, auth$ } from '@/lib/legend-state/store'
@@ -182,13 +182,7 @@ function InviteMembersScreen() {
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <H1 fontSize="$7">Invite Members</H1>
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<X size={24} />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton variant="close" />
         </XStack>
 
         {/* Group Name */}

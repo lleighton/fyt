@@ -13,14 +13,13 @@ import {
   View,
 } from 'tamagui'
 import {
-  ArrowLeft,
   Clock,
   Zap,
   Check,
   X as XIcon,
   Users,
 } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { SafeArea, HeaderBackButton } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -139,13 +138,7 @@ function TagDetailScreen() {
       <YStack flex={1} bg="$background">
         {/* Header - Athletic Broadcast Style */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-          <Button
-            size="$4"
-            circular
-            bg="$gray3"
-            icon={<ArrowLeft size={20} color="$gray11" />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton />
           <Text fontFamily="$display" fontSize={24} letterSpacing={0.5}>
             TAG DETAILS
           </Text>

@@ -11,12 +11,11 @@ import {
   Input,
 } from 'tamagui'
 import {
-  X,
   Users,
   Key,
   ArrowRight,
 } from '@tamagui/lucide-icons'
-import { KeyboardSafeArea } from '@/components/ui'
+import { KeyboardSafeArea, HeaderBackButton } from '@/components/ui'
 import { Alert } from 'react-native'
 
 import { auth$ } from '@/lib/legend-state/store'
@@ -151,13 +150,7 @@ function JoinGroupScreen() {
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <H1 fontSize="$7">Join Group</H1>
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<X size={24} />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton variant="close" />
         </XStack>
 
         <YStack flex={1} justifyContent="center" p="$4" gap="$4">

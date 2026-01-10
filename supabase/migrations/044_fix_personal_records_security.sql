@@ -1,57 +1,7 @@
--- Migration: Add personal records tracking
--- Purpose: Track personal bests per exercise to enable self-improvement focus
+-- Migration: Fix security vulnerabilities in personal records functions
+-- Purpose: Add auth.uid() validation to prevent users from modifying other users' data
 
--- Create personal_records table
-CREATE TABLE IF NOT EXISTS public.personal_records (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-  exercise_id UUID REFERENCES public.exercises(id) ON DELETE CASCADE NOT NULL,
-  best_value INTEGER NOT NULL, -- personal best reps or seconds
-  best_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  total_completions INTEGER DEFAULT 1,
-  last_value INTEGER, -- most recent attempt
-  last_date TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, exercise_id)
-);
-
--- Add index for quick lookups
-CREATE INDEX IF NOT EXISTS idx_personal_records_user ON public.personal_records(user_id);
-CREATE INDEX IF NOT EXISTS idx_personal_records_exercise ON public.personal_records(exercise_id);
-
--- Add total_prs counter to profiles
-ALTER TABLE public.profiles
-ADD COLUMN IF NOT EXISTS total_prs INTEGER DEFAULT 0;
-
--- Enable RLS
-ALTER TABLE public.personal_records ENABLE ROW LEVEL SECURITY;
-
--- RLS policies for personal_records
--- Users can read their own records
-CREATE POLICY "Users can read own personal records"
-  ON public.personal_records
-  FOR SELECT
-  TO authenticated
-  USING (user_id = auth.uid());
-
--- Users can insert their own records
-CREATE POLICY "Users can insert own personal records"
-  ON public.personal_records
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (user_id = auth.uid());
-
--- Users can update their own records
-CREATE POLICY "Users can update own personal records"
-  ON public.personal_records
-  FOR UPDATE
-  TO authenticated
-  USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid());
-
--- Function to update personal record after tag completion
--- SECURITY: Validates that the caller can only update their own records
+-- Fix update_personal_record - add security check
 CREATE OR REPLACE FUNCTION public.update_personal_record(
   p_user_id UUID,
   p_exercise_id UUID,
@@ -130,8 +80,7 @@ BEGIN
 END;
 $$;
 
--- Function to get user's personal record for an exercise
--- SECURITY: Users can only read their own records
+-- Fix get_personal_record - add security check
 CREATE OR REPLACE FUNCTION public.get_personal_record(
   p_user_id UUID,
   p_exercise_id UUID
@@ -172,7 +121,3 @@ BEGIN
   );
 END;
 $$;
-
--- Grant execute permissions
-GRANT EXECUTE ON FUNCTION public.update_personal_record TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_personal_record TO authenticated;

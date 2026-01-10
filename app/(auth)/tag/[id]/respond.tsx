@@ -5,7 +5,7 @@ import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, H1, Button, Card, Input, ScrollView } from 'tamagui'
 import { X, Send, Clock, Check, ChevronDown, ArrowRight, Camera } from '@tamagui/lucide-icons'
 import * as ImagePicker from 'expo-image-picker'
-import { KeyboardSafeArea } from '@/components/ui'
+import { KeyboardSafeArea, HeaderBackButton } from '@/components/ui'
 import { CelebrationOverlay, CelebrationType } from '@/components/celebration'
 
 import { supabase } from '@/lib/supabase'
@@ -461,13 +461,7 @@ function TagRespondScreen() {
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
           <H1 fontSize="$7">Respond to Tag</H1>
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<X size={24} />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton variant="close" />
         </XStack>
 
         <ScrollView flex={1} showsVerticalScrollIndicator={false}>

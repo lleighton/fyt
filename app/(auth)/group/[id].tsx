@@ -16,7 +16,6 @@ import {
   View,
 } from 'tamagui'
 import {
-  ArrowLeft,
   Users,
   Trophy,
   Share2,
@@ -36,6 +35,7 @@ import {
 } from '@tamagui/lucide-icons'
 import {
   SafeArea,
+  HeaderBackButton,
   LeaderboardSkeleton,
   TagListSkeleton,
   MembersListSkeleton,
@@ -441,13 +441,7 @@ function GroupDetailScreen() {
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<ArrowLeft />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton />
           <XStack gap="$2">
             <Button
               size="$3"

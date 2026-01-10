@@ -3,8 +3,8 @@ import { ActivityIndicator } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
 import { YStack, XStack, Text, H1, Button, Card, ScrollView, Avatar, Progress } from 'tamagui'
-import { ArrowLeft, Target, Trophy, Users, Calendar, Award, TrendingUp } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { Target, Trophy, Users, Calendar, Award, TrendingUp } from '@tamagui/lucide-icons'
+import { SafeArea, HeaderBackButton } from '@/components/ui'
 
 import { supabase } from '@/lib/supabase'
 import { auth$ } from '@/lib/legend-state/store'
@@ -178,13 +178,7 @@ function GoalDetailScreen() {
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" gap="$3" alignItems="center">
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<ArrowLeft size={24} />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton />
           <H1 fontSize="$6" flex={1} numberOfLines={1}>
             {goal.title}
           </H1>

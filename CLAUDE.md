@@ -1,7 +1,10 @@
 # fyt - Social Fitness App
 
 ## Project Overview
-A social fitness app for short burst challenges. Users tag friends via phone number to compete in quick fitness challenges (AMRAP pushups, max effort bench, timed sprints, etc.). Think "HYROX meets Duolingo meets GitHub contribution graphs."
+A social fitness app for short burst challenges. Users tag friends to compete in quick fitness challenges (AMRAP pushups, max effort bench, timed sprints, etc.). Think "HYROX meets Duolingo meets GitHub contribution graphs."
+
+## Current Implementation Phase
+See `.claude/plan.md` for the consolidated pre-launch implementation plan with priorities P0-P4.
 
 ## Tech Stack
 - **Framework**: Expo + React Native (SDK 54)
@@ -82,10 +85,48 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=
 
 ## Critical Constraints
 - NEVER commit API keys or secrets
-- ALWAYS use phone auth for user identification
+- ALWAYS use email auth for user identification (NO phone auth in current release)
 - ALWAYS persist pending changes for offline retry
 - NEVER skip the `observer()` wrapper for reactive components
 - ALWAYS run `npx tsc --noEmit` before committing
 
-## Current Phase
-See `.claude/plan.md` for implementation phases and current progress.
+## UI Patterns & Components
+
+### Modals & Sheets
+- Use Tamagui `Sheet` for bottom sheets (settings, confirmations, pickers)
+- Use Tamagui `Dialog` for alerts and confirmations
+- Avoid React Native Modal - use Tamagui equivalents
+
+### Navigation
+- Use Expo Router `Link` and `router.push()` for navigation
+- Stack screens for detail views, tabs for main sections
+- Pass params via URL: `router.push(\`/tag/\${id}\`)`
+
+### Forms
+- Use Tamagui `Input`, `TextArea`, `Switch`, `Select`
+- Validate on blur, show inline errors
+- Use `Controller` from react-hook-form if complex validation needed
+
+### Lists & Cards
+- Use `FlatList` for long lists (not ScrollView with map)
+- Use existing card components in `components/ui/`
+- Consistent spacing with Tamagui tokens: `$space.3`, `$space.4`
+
+### Loading States
+- Use skeleton loaders for content areas
+- Use spinner for actions (buttons, submissions)
+- Show `SyncIndicator` for offline/sync status
+
+### Animations
+- Use Tamagui `Animation` for micro-interactions
+- Use Lottie for celebrations (completions, PRs, streaks)
+- Source Lottie files from LottieFiles.com (free assets)
+
+### Empty States
+- Always provide empty state UI with action prompt
+- Use `EmptyState` component from `components/ui/`
+
+## Domain Configuration
+- Web domain: `fyt.it.com`
+- Deep link scheme: `fyt://`
+- Invite links format: `https://fyt.it.com/i/{code}`

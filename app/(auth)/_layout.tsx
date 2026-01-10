@@ -119,6 +119,25 @@ function AuthLayout() {
           gestureEnabled: false,
         }}
       />
+      {/* Stats Detail Pages */}
+      <Stack.Screen
+        name="stats/prs"
+        options={{
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="stats/volume"
+        options={{
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="stats/categories"
+        options={{
+          presentation: 'card',
+        }}
+      />
     </Stack>
   )
 }

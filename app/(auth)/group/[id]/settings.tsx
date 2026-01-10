@@ -18,7 +18,6 @@ import {
   Separator,
 } from 'tamagui'
 import {
-  ArrowLeft,
   Users,
   Copy,
   RefreshCw,
@@ -35,6 +34,7 @@ import {
 } from '@tamagui/lucide-icons'
 import {
   KeyboardSafeArea,
+  HeaderBackButton,
   MembersListSkeleton,
   SkeletonCircle,
   SkeletonText,
@@ -512,13 +512,7 @@ function GroupSettingsScreen() {
       <YStack flex={1} bg="$background">
         {/* Header */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-          <Button
-            size="$3"
-            circular
-            unstyled
-            icon={<ArrowLeft />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton />
           <Text fontSize="$5" fontWeight="700">
             Group Settings
           </Text>

@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { Alert, ActivityIndicator } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { observer } from '@legendapp/state/react'
-import { YStack, XStack, Text, H1, Button, Card, ScrollView } from 'tamagui'
-import { ArrowLeft, Plus, Target, Trophy, XCircle } from '@tamagui/lucide-icons'
-import { SafeArea } from '@/components/ui'
+import { YStack, XStack, Text, Button, Card, ScrollView } from 'tamagui'
+import { Plus, Target, Trophy } from '@tamagui/lucide-icons'
+import { SafeArea, ScreenHeader } from '@/components/ui'
 import { GoalCard, GoalCreator } from '@/components/group'
 
 import { supabase } from '@/lib/supabase'
@@ -137,17 +137,11 @@ function GoalsScreen() {
     return (
       <SafeArea edges={['top', 'bottom']}>
         <YStack flex={1} bg="$background">
-          {/* Header */}
-          <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-            <H1 fontSize="$7">Create Goal</H1>
-            <Button
-              size="$3"
-              circular
-              unstyled
-              icon={<XCircle size={24} />}
-              onPress={() => setShowCreator(false)}
-            />
-          </XStack>
+          <ScreenHeader
+            variant="close"
+            title="CREATE GOAL"
+            onBack={() => setShowCreator(false)}
+          />
 
           <YStack flex={1} px="$4">
             <GoalCreator
@@ -167,29 +161,21 @@ function GoalsScreen() {
   return (
     <SafeArea edges={['top']}>
       <YStack flex={1} bg="$background">
-        {/* Header */}
-        <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-          <XStack gap="$3" alignItems="center">
-            <Button
-              size="$3"
-              circular
-              unstyled
-              icon={<ArrowLeft size={24} />}
-              onPress={() => router.back()}
-            />
-            <H1 fontSize="$7">Goals</H1>
-          </XStack>
-          {isAdmin && (
-            <Button
-              size="$4"
-              bg="$orange10"
-              icon={<Plus size={20} color="white" />}
-              onPress={() => setShowCreator(true)}
-            >
-              <Text color="white" fontWeight="600">New</Text>
-            </Button>
-          )}
-        </XStack>
+        <ScreenHeader
+          title="GOALS"
+          rightContent={
+            isAdmin ? (
+              <Button
+                size="$4"
+                bg="$orange10"
+                icon={<Plus size={20} color="white" />}
+                onPress={() => setShowCreator(true)}
+              >
+                <Text color="white" fontWeight="600">New</Text>
+              </Button>
+            ) : undefined
+          }
+        />
 
         {/* Filter Tabs */}
         <XStack px="$4" gap="$2" mb="$4">

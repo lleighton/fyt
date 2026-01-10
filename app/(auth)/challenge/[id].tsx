@@ -13,7 +13,6 @@ import {
   View,
 } from 'tamagui'
 import {
-  ArrowLeft,
   Trophy,
   Users,
   Clock,
@@ -25,7 +24,7 @@ import {
   ListOrdered,
 } from '@tamagui/lucide-icons'
 import { Alert } from 'react-native'
-import { KeyboardSafeArea } from '@/components/ui'
+import { KeyboardSafeArea, HeaderBackButton } from '@/components/ui'
 
 import { store$, auth$ } from '@/lib/legend-state/store'
 import { supabase } from '@/lib/supabase'
@@ -399,13 +398,7 @@ function ChallengeDetailScreen() {
       <YStack flex={1} bg="$background">
         {/* Header - Athletic Broadcast Style */}
         <XStack px="$4" py="$3" justifyContent="space-between" alignItems="center">
-          <Button
-            size="$4"
-            circular
-            bg="$gray3"
-            icon={<ArrowLeft size={20} color="$gray11" />}
-            onPress={() => router.back()}
-          />
+          <HeaderBackButton />
           <View bg="$coral5" px="$3" py="$1.5" br="$2">
             <Text fontFamily="$mono" fontWeight="700" fontSize="$2" color="$coral12" textTransform="uppercase">
               {challenge.challenge_type.replace('_', ' ')}
